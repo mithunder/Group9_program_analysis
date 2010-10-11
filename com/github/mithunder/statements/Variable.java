@@ -1,4 +1,4 @@
 package com.github.mithunder.statements;
 
-public class Variable extends Value {
+public abstract class Variable extends Value {
 }
