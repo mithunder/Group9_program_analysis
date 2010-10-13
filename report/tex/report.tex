@@ -1,0 +1,73 @@
+\documentclass{report}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{parskip}
+\usepackage{verbatim}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks,%
+    citecolor=black,%
+    filecolor=black,%
+    linkcolor=black,%
+    urlcolor=black
+}
+
+\title{Program Analysis 02242 - Guarded Command Language}
+\author{Niels Thykier s072425\\Melvin Winstrøm-Møller s072435\\Morten Sørensen s072440}
+
+\begin{document}
+\parindent 0pt
+\parskip 3mm
+\setlength{\parindent}{0.5cm}
+\newcommand{\docpar}[0]{\vspace{0.5cm} \noindent}
+\newcommand{\footref}[1]{\footnotemark[\ref{#1}]}
+\newcommand{\newconcept}[1]{\textit{#1}}
+
+\maketitle
+\phantomsection
+\addcontentsline{toc}{section}{Table of Contents}
+\tableofcontents
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+\newpage
+
+\chapter{Introduction}
+
+\input{introduction}
+
+\chapter{Design}
+
+\input{general_definitions}
+
+\input{data_structure}
+
+\input{program_slicing}
+
+\input{dead_code_elimination}
+
+\input{constant_folding}
+
+\chapter{Implementation}
+
+\chapter{Conclusion}
+
+\input{conclusion}
+
+\chapter{Appendix}
+
+\section{Abbreviations and acronyms}
+
+This section contains a list of abbreviations and acronyms used in
+the report.
+
+\begin{itemize}
+\item RD - Reaching Definitions
+\end{itemize}
+
+\end{document}
+
