@@ -308,6 +308,10 @@ program returns [Statement command]
 /*------------------------------------------------------------------
  * LEXER RULES
  *------------------------------------------------------------------*/
+ 
+ML_COMMENT
+    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
+    ;
 
 INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*);
 

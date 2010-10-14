@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-14 23:06:32
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-14 23:11:23
 
 package com.github.mithunder.parser;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class GuardCommandLexer extends Lexer {
     public static final int LESS_EQ=11;
     public static final int GREATER_THAN=8;
-    public static final int LETTER=40;
+    public static final int LETTER=41;
     public static final int DO=26;
     public static final int LCURLY=22;
     public static final int NOT=18;
@@ -29,9 +29,10 @@ public class GuardCommandLexer extends Lexer {
     public static final int FI=25;
     public static final int SKIP=30;
     public static final int COLON=23;
+    public static final int ML_COMMENT=40;
     public static final int RPAREN=19;
     public static final int NEQ=13;
-    public static final int WS=41;
+    public static final int WS=42;
     public static final int READ=33;
     public static final int INTEGER_LITERAL=38;
     public static final int IDENTIFIER=39;
@@ -760,56 +761,117 @@ public class GuardCommandLexer extends Lexer {
     }
     // $ANTLR end "FALSE"
 
+    // $ANTLR start "ML_COMMENT"
+    public final void mML_COMMENT() throws RecognitionException {
+        try {
+            int _type = ML_COMMENT;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // GuardCommand.g:313:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // GuardCommand.g:313:9: '/*' ( options {greedy=false; } : . )* '*/'
+            {
+            match("/*"); 
+
+            // GuardCommand.g:313:14: ( options {greedy=false; } : . )*
+            loop1:
+            do {
+                int alt1=2;
+                int LA1_0 = input.LA(1);
+
+                if ( (LA1_0=='*') ) {
+                    int LA1_1 = input.LA(2);
+
+                    if ( (LA1_1=='/') ) {
+                        alt1=2;
+                    }
+                    else if ( ((LA1_1>='\u0000' && LA1_1<='.')||(LA1_1>='0' && LA1_1<='\uFFFF')) ) {
+                        alt1=1;
+                    }
+
+
+                }
+                else if ( ((LA1_0>='\u0000' && LA1_0<=')')||(LA1_0>='+' && LA1_0<='\uFFFF')) ) {
+                    alt1=1;
+                }
+
+
+                switch (alt1) {
+            	case 1 :
+            	    // GuardCommand.g:313:41: .
+            	    {
+            	    matchAny(); 
+
+            	    }
+            	    break;
+
+            	default :
+            	    break loop1;
+                }
+            } while (true);
+
+            match("*/"); 
+
+            _channel=HIDDEN;
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end "ML_COMMENT"
+
     // $ANTLR start "INTEGER_LITERAL"
     public final void mINTEGER_LITERAL() throws RecognitionException {
         try {
             int _type = INTEGER_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:312:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
-            // GuardCommand.g:312:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // GuardCommand.g:316:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
+            // GuardCommand.g:316:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             {
-            // GuardCommand.g:312:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
-            int alt2=2;
-            int LA2_0 = input.LA(1);
+            // GuardCommand.g:316:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            int alt3=2;
+            int LA3_0 = input.LA(1);
 
-            if ( (LA2_0=='0') ) {
-                alt2=1;
+            if ( (LA3_0=='0') ) {
+                alt3=1;
             }
-            else if ( ((LA2_0>='1' && LA2_0<='9')) ) {
-                alt2=2;
+            else if ( ((LA3_0>='1' && LA3_0<='9')) ) {
+                alt3=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("", 2, 0, input);
+                    new NoViableAltException("", 3, 0, input);
 
                 throw nvae;
             }
-            switch (alt2) {
+            switch (alt3) {
                 case 1 :
-                    // GuardCommand.g:312:20: '0'
+                    // GuardCommand.g:316:20: '0'
                     {
                     match('0'); 
 
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:312:26: '1' .. '9' ( '0' .. '9' )*
+                    // GuardCommand.g:316:26: '1' .. '9' ( '0' .. '9' )*
                     {
                     matchRange('1','9'); 
-                    // GuardCommand.g:312:35: ( '0' .. '9' )*
-                    loop1:
+                    // GuardCommand.g:316:35: ( '0' .. '9' )*
+                    loop2:
                     do {
-                        int alt1=2;
-                        int LA1_0 = input.LA(1);
+                        int alt2=2;
+                        int LA2_0 = input.LA(1);
 
-                        if ( ((LA1_0>='0' && LA1_0<='9')) ) {
-                            alt1=1;
+                        if ( ((LA2_0>='0' && LA2_0<='9')) ) {
+                            alt2=1;
                         }
 
 
-                        switch (alt1) {
+                        switch (alt2) {
                     	case 1 :
-                    	    // GuardCommand.g:312:35: '0' .. '9'
+                    	    // GuardCommand.g:316:35: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -817,7 +879,7 @@ public class GuardCommandLexer extends Lexer {
                     	    break;
 
                     	default :
-                    	    break loop1;
+                    	    break loop2;
                         }
                     } while (true);
 
@@ -848,58 +910,58 @@ public class GuardCommandLexer extends Lexer {
             int e;
             int count;
 
-            // GuardCommand.g:314:12: ( (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* ) )
-            // GuardCommand.g:314:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
+            // GuardCommand.g:318:12: ( (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* ) )
+            // GuardCommand.g:318:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
             {
-            // GuardCommand.g:314:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
-            // GuardCommand.g:314:15: b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )*
+            // GuardCommand.g:318:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
+            // GuardCommand.g:318:15: b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )*
             {
-            int bStart329 = getCharIndex();
+            int bStart367 = getCharIndex();
             mLETTER(); 
-            b = new CommonToken(input, Token.INVALID_TOKEN_TYPE, Token.DEFAULT_CHANNEL, bStart329, getCharIndex()-1);
-            // GuardCommand.g:314:29: (count= (d= LETTER | e= '0' .. '9' ) )*
-            loop4:
+            b = new CommonToken(input, Token.INVALID_TOKEN_TYPE, Token.DEFAULT_CHANNEL, bStart367, getCharIndex()-1);
+            // GuardCommand.g:318:29: (count= (d= LETTER | e= '0' .. '9' ) )*
+            loop5:
             do {
-                int alt4=2;
-                int LA4_0 = input.LA(1);
+                int alt5=2;
+                int LA5_0 = input.LA(1);
 
-                if ( (LA4_0=='$'||(LA4_0>='0' && LA4_0<='9')||(LA4_0>='A' && LA4_0<='Z')||LA4_0=='_'||(LA4_0>='a' && LA4_0<='z')) ) {
-                    alt4=1;
+                if ( (LA5_0=='$'||(LA5_0>='0' && LA5_0<='9')||(LA5_0>='A' && LA5_0<='Z')||LA5_0=='_'||(LA5_0>='a' && LA5_0<='z')) ) {
+                    alt5=1;
                 }
 
 
-                switch (alt4) {
+                switch (alt5) {
             	case 1 :
-            	    // GuardCommand.g:314:29: count= (d= LETTER | e= '0' .. '9' )
+            	    // GuardCommand.g:318:29: count= (d= LETTER | e= '0' .. '9' )
             	    {
-            	    // GuardCommand.g:314:30: (d= LETTER | e= '0' .. '9' )
-            	    int alt3=2;
-            	    int LA3_0 = input.LA(1);
+            	    // GuardCommand.g:318:30: (d= LETTER | e= '0' .. '9' )
+            	    int alt4=2;
+            	    int LA4_0 = input.LA(1);
 
-            	    if ( (LA3_0=='$'||(LA3_0>='A' && LA3_0<='Z')||LA3_0=='_'||(LA3_0>='a' && LA3_0<='z')) ) {
-            	        alt3=1;
+            	    if ( (LA4_0=='$'||(LA4_0>='A' && LA4_0<='Z')||LA4_0=='_'||(LA4_0>='a' && LA4_0<='z')) ) {
+            	        alt4=1;
             	    }
-            	    else if ( ((LA3_0>='0' && LA3_0<='9')) ) {
-            	        alt3=2;
+            	    else if ( ((LA4_0>='0' && LA4_0<='9')) ) {
+            	        alt4=2;
             	    }
             	    else {
             	        NoViableAltException nvae =
-            	            new NoViableAltException("", 3, 0, input);
+            	            new NoViableAltException("", 4, 0, input);
 
             	        throw nvae;
             	    }
-            	    switch (alt3) {
+            	    switch (alt4) {
             	        case 1 :
-            	            // GuardCommand.g:314:31: d= LETTER
+            	            // GuardCommand.g:318:31: d= LETTER
             	            {
-            	            int dStart336 = getCharIndex();
+            	            int dStart374 = getCharIndex();
             	            mLETTER(); 
-            	            d = new CommonToken(input, Token.INVALID_TOKEN_TYPE, Token.DEFAULT_CHANNEL, dStart336, getCharIndex()-1);
+            	            d = new CommonToken(input, Token.INVALID_TOKEN_TYPE, Token.DEFAULT_CHANNEL, dStart374, getCharIndex()-1);
 
             	            }
             	            break;
             	        case 2 :
-            	            // GuardCommand.g:314:40: e= '0' .. '9'
+            	            // GuardCommand.g:318:40: e= '0' .. '9'
             	            {
             	            e = input.LA(1);
             	            matchRange('0','9'); 
@@ -914,7 +976,7 @@ public class GuardCommandLexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop4;
+            	    break loop5;
                 }
             } while (true);
 
@@ -935,7 +997,7 @@ public class GuardCommandLexer extends Lexer {
     // $ANTLR start "LETTER"
     public final void mLETTER() throws RecognitionException {
         try {
-            // GuardCommand.g:318:2: ( '$' | 'A' .. 'Z' | 'a' .. 'z' | '_' )
+            // GuardCommand.g:322:2: ( '$' | 'A' .. 'Z' | 'a' .. 'z' | '_' )
             // GuardCommand.g:
             {
             if ( input.LA(1)=='$'||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
@@ -961,8 +1023,8 @@ public class GuardCommandLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:324:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
-            // GuardCommand.g:324:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
+            // GuardCommand.g:328:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
+            // GuardCommand.g:328:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
                 input.consume();
@@ -988,10 +1050,10 @@ public class GuardCommandLexer extends Lexer {
     // $ANTLR end "WS"
 
     public void mTokens() throws RecognitionException {
-        // GuardCommand.g:1:8: ( AND | OR | ASSIGN | SEMI | GREATER_THAN | GREATER_EQ | LESS_THAN | LESS_EQ | EQ | NEQ | PLUS | MINUS | MUL | DIV | NOT | RPAREN | LPAREN | RCURLY | LCURLY | COLON | IF | FI | DO | OD | GUARD | ARROW | SKIP | ABORT | WRITE | READ | MODULE | END | TRUE | FALSE | INTEGER_LITERAL | IDENTIFIER | WS )
-        int alt5=37;
-        alt5 = dfa5.predict(input);
-        switch (alt5) {
+        // GuardCommand.g:1:8: ( AND | OR | ASSIGN | SEMI | GREATER_THAN | GREATER_EQ | LESS_THAN | LESS_EQ | EQ | NEQ | PLUS | MINUS | MUL | DIV | NOT | RPAREN | LPAREN | RCURLY | LCURLY | COLON | IF | FI | DO | OD | GUARD | ARROW | SKIP | ABORT | WRITE | READ | MODULE | END | TRUE | FALSE | ML_COMMENT | INTEGER_LITERAL | IDENTIFIER | WS )
+        int alt6=38;
+        alt6 = dfa6.predict(input);
+        switch (alt6) {
             case 1 :
                 // GuardCommand.g:1:10: AND
                 {
@@ -1231,21 +1293,28 @@ public class GuardCommandLexer extends Lexer {
                 }
                 break;
             case 35 :
-                // GuardCommand.g:1:203: INTEGER_LITERAL
+                // GuardCommand.g:1:203: ML_COMMENT
+                {
+                mML_COMMENT(); 
+
+                }
+                break;
+            case 36 :
+                // GuardCommand.g:1:214: INTEGER_LITERAL
                 {
                 mINTEGER_LITERAL(); 
 
                 }
                 break;
-            case 36 :
-                // GuardCommand.g:1:219: IDENTIFIER
+            case 37 :
+                // GuardCommand.g:1:230: IDENTIFIER
                 {
                 mIDENTIFIER(); 
 
                 }
                 break;
-            case 37 :
-                // GuardCommand.g:1:230: WS
+            case 38 :
+                // GuardCommand.g:1:241: WS
                 {
                 mWS(); 
 
@@ -1257,37 +1326,38 @@ public class GuardCommandLexer extends Lexer {
     }
 
 
-    protected DFA5 dfa5 = new DFA5(this);
-    static final String DFA5_eotS =
-        "\3\uffff\1\41\1\uffff\1\43\1\45\1\uffff\1\47\1\uffff\1\51\6\uffff"+
-        "\4\36\1\uffff\7\36\15\uffff\1\66\1\67\1\36\1\71\1\72\7\36\2\uffff"+
-        "\1\36\2\uffff\5\36\1\110\2\36\1\113\2\36\1\116\1\36\1\uffff\1\120"+
-        "\1\121\1\uffff\1\122\1\123\1\uffff\1\36\4\uffff\1\125\1\uffff";
-    static final String DFA5_eofS =
-        "\126\uffff";
-    static final String DFA5_minS =
-        "\1\11\2\uffff\1\75\1\uffff\2\75\1\uffff\1\75\1\uffff\1\76\6\uffff"+
-        "\1\146\1\141\1\157\1\144\1\uffff\1\153\1\142\1\162\1\145\1\157\1"+
-        "\156\1\162\15\uffff\2\44\1\154\2\44\1\151\1\157\1\151\1\141\2\144"+
-        "\1\165\2\uffff\1\163\2\uffff\1\160\1\162\1\164\1\144\1\165\1\44"+
-        "\2\145\1\44\1\164\1\145\1\44\1\154\1\uffff\2\44\1\uffff\2\44\1\uffff"+
-        "\1\145\4\uffff\1\44\1\uffff";
-    static final String DFA5_maxS =
-        "\1\175\2\uffff\1\75\1\uffff\2\75\1\uffff\1\75\1\uffff\1\76\6\uffff"+
-        "\1\146\1\151\1\157\1\144\1\uffff\1\153\1\142\1\162\1\145\1\157\1"+
-        "\156\1\162\15\uffff\2\172\1\154\2\172\1\151\1\157\1\151\1\141\2"+
-        "\144\1\165\2\uffff\1\163\2\uffff\1\160\1\162\1\164\1\144\1\165\1"+
-        "\172\2\145\1\172\1\164\1\145\1\172\1\154\1\uffff\2\172\1\uffff\2"+
-        "\172\1\uffff\1\145\4\uffff\1\172\1\uffff";
-    static final String DFA5_acceptS =
+    protected DFA6 dfa6 = new DFA6(this);
+    static final String DFA6_eotS =
+        "\3\uffff\1\41\1\uffff\1\43\1\45\1\uffff\1\47\1\uffff\1\51\1\uffff"+
+        "\1\53\4\uffff\4\36\1\uffff\7\36\17\uffff\1\70\1\71\1\36\1\73\1\74"+
+        "\7\36\2\uffff\1\36\2\uffff\5\36\1\112\2\36\1\115\2\36\1\120\1\36"+
+        "\1\uffff\1\122\1\123\1\uffff\1\124\1\125\1\uffff\1\36\4\uffff\1"+
+        "\127\1\uffff";
+    static final String DFA6_eofS =
+        "\130\uffff";
+    static final String DFA6_minS =
+        "\1\11\2\uffff\1\75\1\uffff\2\75\1\uffff\1\75\1\uffff\1\76\1\uffff"+
+        "\1\52\4\uffff\1\146\1\141\1\157\1\144\1\uffff\1\153\1\142\1\162"+
+        "\1\145\1\157\1\156\1\162\17\uffff\2\44\1\154\2\44\1\151\1\157\1"+
+        "\151\1\141\2\144\1\165\2\uffff\1\163\2\uffff\1\160\1\162\1\164\1"+
+        "\144\1\165\1\44\2\145\1\44\1\164\1\145\1\44\1\154\1\uffff\2\44\1"+
+        "\uffff\2\44\1\uffff\1\145\4\uffff\1\44\1\uffff";
+    static final String DFA6_maxS =
+        "\1\175\2\uffff\1\75\1\uffff\2\75\1\uffff\1\75\1\uffff\1\76\1\uffff"+
+        "\1\52\4\uffff\1\146\1\151\1\157\1\144\1\uffff\1\153\1\142\1\162"+
+        "\1\145\1\157\1\156\1\162\17\uffff\2\172\1\154\2\172\1\151\1\157"+
+        "\1\151\1\141\2\144\1\165\2\uffff\1\163\2\uffff\1\160\1\162\1\164"+
+        "\1\144\1\165\1\172\2\145\1\172\1\164\1\145\1\172\1\154\1\uffff\2"+
+        "\172\1\uffff\2\172\1\uffff\1\145\4\uffff\1\172\1\uffff";
+    static final String DFA6_acceptS =
         "\1\uffff\1\1\1\2\1\uffff\1\4\2\uffff\1\11\1\uffff\1\13\1\uffff\1"+
-        "\15\1\16\1\20\1\21\1\22\1\23\4\uffff\1\31\7\uffff\1\43\1\44\1\45"+
-        "\1\3\1\24\1\6\1\5\1\10\1\7\1\12\1\17\1\32\1\14\14\uffff\1\25\1\26"+
-        "\1\uffff\1\27\1\30\15\uffff\1\40\2\uffff\1\33\2\uffff\1\36\1\uffff"+
-        "\1\41\1\42\1\34\1\35\1\uffff\1\37";
-    static final String DFA5_specialS =
-        "\126\uffff}>";
-    static final String[] DFA5_transitionS = {
+        "\15\1\uffff\1\20\1\21\1\22\1\23\4\uffff\1\31\7\uffff\1\44\1\45\1"+
+        "\46\1\3\1\24\1\6\1\5\1\10\1\7\1\12\1\17\1\32\1\14\1\43\1\16\14\uffff"+
+        "\1\25\1\26\1\uffff\1\27\1\30\15\uffff\1\40\2\uffff\1\33\2\uffff"+
+        "\1\36\1\uffff\1\41\1\42\1\34\1\35\1\uffff\1\37";
+    static final String DFA6_specialS =
+        "\130\uffff}>";
+    static final String[] DFA6_transitionS = {
             "\2\37\1\uffff\2\37\22\uffff\1\37\1\10\2\uffff\1\36\1\uffff\1"+
             "\1\1\uffff\1\16\1\15\1\13\1\11\1\uffff\1\12\1\uffff\1\14\12"+
             "\35\1\3\1\4\1\6\1\7\1\5\2\uffff\32\36\1\25\3\uffff\1\36\1\uffff"+
@@ -1304,23 +1374,25 @@ public class GuardCommandLexer extends Lexer {
             "",
             "\1\50",
             "",
-            "",
-            "",
-            "",
-            "",
-            "",
             "\1\52",
-            "\1\54\7\uffff\1\53",
-            "\1\55",
-            "\1\56",
             "",
+            "",
+            "",
+            "",
+            "\1\54",
+            "\1\56\7\uffff\1\55",
             "\1\57",
             "\1\60",
+            "",
             "\1\61",
             "\1\62",
             "\1\63",
             "\1\64",
             "\1\65",
+            "\1\66",
+            "\1\67",
+            "",
+            "",
             "",
             "",
             "",
@@ -1338,39 +1410,39 @@ public class GuardCommandLexer extends Lexer {
             "\36",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
-            "\1\70",
+            "\1\72",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
-            "\1\73",
-            "\1\74",
             "\1\75",
             "\1\76",
             "\1\77",
             "\1\100",
             "\1\101",
-            "",
-            "",
             "\1\102",
-            "",
-            "",
             "\1\103",
+            "",
+            "",
             "\1\104",
+            "",
+            "",
             "\1\105",
             "\1\106",
             "\1\107",
-            "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
-            "\36",
+            "\1\110",
             "\1\111",
-            "\1\112",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
+            "\1\113",
             "\1\114",
-            "\1\115",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
+            "\1\116",
             "\1\117",
+            "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
+            "\36",
+            "\1\121",
             "",
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
@@ -1382,7 +1454,7 @@ public class GuardCommandLexer extends Lexer {
             "\1\36\13\uffff\12\36\7\uffff\32\36\4\uffff\1\36\1\uffff\32"+
             "\36",
             "",
-            "\1\124",
+            "\1\126",
             "",
             "",
             "",
@@ -1392,37 +1464,37 @@ public class GuardCommandLexer extends Lexer {
             ""
     };
 
-    static final short[] DFA5_eot = DFA.unpackEncodedString(DFA5_eotS);
-    static final short[] DFA5_eof = DFA.unpackEncodedString(DFA5_eofS);
-    static final char[] DFA5_min = DFA.unpackEncodedStringToUnsignedChars(DFA5_minS);
-    static final char[] DFA5_max = DFA.unpackEncodedStringToUnsignedChars(DFA5_maxS);
-    static final short[] DFA5_accept = DFA.unpackEncodedString(DFA5_acceptS);
-    static final short[] DFA5_special = DFA.unpackEncodedString(DFA5_specialS);
-    static final short[][] DFA5_transition;
+    static final short[] DFA6_eot = DFA.unpackEncodedString(DFA6_eotS);
+    static final short[] DFA6_eof = DFA.unpackEncodedString(DFA6_eofS);
+    static final char[] DFA6_min = DFA.unpackEncodedStringToUnsignedChars(DFA6_minS);
+    static final char[] DFA6_max = DFA.unpackEncodedStringToUnsignedChars(DFA6_maxS);
+    static final short[] DFA6_accept = DFA.unpackEncodedString(DFA6_acceptS);
+    static final short[] DFA6_special = DFA.unpackEncodedString(DFA6_specialS);
+    static final short[][] DFA6_transition;
 
     static {
-        int numStates = DFA5_transitionS.length;
-        DFA5_transition = new short[numStates][];
+        int numStates = DFA6_transitionS.length;
+        DFA6_transition = new short[numStates][];
         for (int i=0; i<numStates; i++) {
-            DFA5_transition[i] = DFA.unpackEncodedString(DFA5_transitionS[i]);
+            DFA6_transition[i] = DFA.unpackEncodedString(DFA6_transitionS[i]);
         }
     }
 
-    class DFA5 extends DFA {
+    class DFA6 extends DFA {
 
-        public DFA5(BaseRecognizer recognizer) {
+        public DFA6(BaseRecognizer recognizer) {
             this.recognizer = recognizer;
-            this.decisionNumber = 5;
-            this.eot = DFA5_eot;
-            this.eof = DFA5_eof;
-            this.min = DFA5_min;
-            this.max = DFA5_max;
-            this.accept = DFA5_accept;
-            this.special = DFA5_special;
-            this.transition = DFA5_transition;
+            this.decisionNumber = 6;
+            this.eot = DFA6_eot;
+            this.eof = DFA6_eof;
+            this.min = DFA6_min;
+            this.max = DFA6_max;
+            this.accept = DFA6_accept;
+            this.special = DFA6_special;
+            this.transition = DFA6_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( AND | OR | ASSIGN | SEMI | GREATER_THAN | GREATER_EQ | LESS_THAN | LESS_EQ | EQ | NEQ | PLUS | MINUS | MUL | DIV | NOT | RPAREN | LPAREN | RCURLY | LCURLY | COLON | IF | FI | DO | OD | GUARD | ARROW | SKIP | ABORT | WRITE | READ | MODULE | END | TRUE | FALSE | INTEGER_LITERAL | IDENTIFIER | WS );";
+            return "1:1: Tokens : ( AND | OR | ASSIGN | SEMI | GREATER_THAN | GREATER_EQ | LESS_THAN | LESS_EQ | EQ | NEQ | PLUS | MINUS | MUL | DIV | NOT | RPAREN | LPAREN | RCURLY | LCURLY | COLON | IF | FI | DO | OD | GUARD | ARROW | SKIP | ABORT | WRITE | READ | MODULE | END | TRUE | FALSE | ML_COMMENT | INTEGER_LITERAL | IDENTIFIER | WS );";
         }
     }
  

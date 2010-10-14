@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-14 23:06:32
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-14 23:11:23
 
 package com.github.mithunder.parser;
 
@@ -24,11 +24,11 @@ import org.antlr.runtime.tree.*;
 
 public class GuardCommandParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "LETTER", "WS"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "ML_COMMENT", "LETTER", "WS"
     };
     public static final int LESS_EQ=11;
     public static final int GREATER_THAN=8;
-    public static final int LETTER=40;
+    public static final int LETTER=41;
     public static final int DO=26;
     public static final int LCURLY=22;
     public static final int NOT=18;
@@ -46,8 +46,9 @@ public class GuardCommandParser extends Parser {
     public static final int IF=24;
     public static final int SKIP=30;
     public static final int COLON=23;
+    public static final int ML_COMMENT=40;
     public static final int RPAREN=19;
-    public static final int WS=41;
+    public static final int WS=42;
     public static final int NEQ=13;
     public static final int READ=33;
     public static final int IDENTIFIER=39;
