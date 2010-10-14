@@ -13,9 +13,9 @@ public abstract class StatementFactory {
 	* assign := v[1] (for type = assign)
 	* Number of arguments accepted for v is 1 or 2 depending on which type is used
 	*/
-	public abstract Statement createSimpleStatement(int type, Variable assign, Value ... v);
+	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc, Variable assign, Value ... v);
 	//Meant for things like abort.
-	public abstract Statement createSimpleStatement(int type);
+	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc);
 	
 	/*
 	* Creates grouping statement
@@ -23,14 +23,14 @@ public abstract class StatementFactory {
 	* The result of a test is s[s.length - 1].getAssign() (should return temporary variable)
 	* 
 	*/
-	public abstract Statement createCompoundStatement(int type, Statement ... s);
-	public abstract Statement createCompoundStatement(int type, List<Statement> s);
+	public abstract Statement createCompoundStatement(int type, CodeLocation codeLoc, Statement ... s);
+	public abstract Statement createCompoundStatement(int type, CodeLocation codeLoc, List<Statement> s);
 
 	/*
 	* Method for creating a root node containing s as its children
 	*/
-	public abstract Statement createRootStatement(Statement ... s);
-	public abstract Statement createRootStatement(List<Statement> s);
+	public abstract Statement createRootStatement(CodeLocation codeLoc, Statement ... s);
+	public abstract Statement createRootStatement(CodeLocation codeLoc, List<Statement> s);
 
 	public static StatementFactory newInstance() {
 		return null;
