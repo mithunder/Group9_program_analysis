@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-15 09:36:41
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-15 09:50:28
 
 package com.github.mithunder.parser;
 
@@ -731,8 +731,8 @@ public class GuardCommandParser extends Parser {
                       		final Statement newestStat = statementFactory.createSimpleStatement(
                       			u.type,
                       			new CodeLocation(u.tree.getLine()),
-                      			e.statList.get(e.statList.size()-1).getAssign(),
-                      			variableTable.getVariable(id.getText())
+                      			variableTable.createTemporaryVariable(),
+                      			e.statList.get(e.statList.size()-1).getAssign()
                       		);
                       		retval.statList.addAll(e.statList);
                       		retval.statList.add(newestStat);
