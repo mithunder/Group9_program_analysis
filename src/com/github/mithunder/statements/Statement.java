@@ -10,9 +10,12 @@ public abstract class Statement {
 	protected Variable assign;
 	protected List<Annotation> annotations;
 
-	protected Statement(int stype, Variable assign, List<Annotation> annotations){
+	protected CodeLocation cloc;
+
+	protected Statement(int stype, Variable assign, CodeLocation cloc, List<Annotation> annotations){
 		this.stype = stype;
 		this.assign = assign;
+		this.cloc = cloc;
 		if(annotations != null) {
 			this.annotations = Collections.unmodifiableList(annotations);
 		} else {
@@ -32,7 +35,13 @@ public abstract class Statement {
 		return annotations;
 	}
 
+	public CodeLocation getCodeLocation(){
+		return cloc;
+	}
+
 	public abstract List<? extends Statement> getChildren();
 
 	public abstract Value[] getValues();
+
+
 }

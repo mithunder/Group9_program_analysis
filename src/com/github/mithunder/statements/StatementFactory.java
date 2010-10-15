@@ -2,6 +2,8 @@ package com.github.mithunder.statements;
 
 import java.util.List;
 
+import com.github.mithunder.statements.simple.SimpleStatementFactory;
+
 public abstract class StatementFactory {
 
 	/*
@@ -19,7 +21,7 @@ public abstract class StatementFactory {
 
 	/*
 	 * Creates grouping statement
-	 * type =  do/if/{}/AND/OR
+	 * type =  do/if/{}
 	 * The result of a test is s[s.length - 1].getAssign() (should return temporary variable)
 	 *
 	 */
@@ -33,6 +35,6 @@ public abstract class StatementFactory {
 	public abstract Statement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s);
 
 	public static StatementFactory newInstance() {
-		return null;
+		return new SimpleStatementFactory();
 	}
 }
