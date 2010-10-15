@@ -54,7 +54,6 @@ package com.github.mithunder.parser;
 @parser::header{
 package com.github.mithunder.parser;
 
-import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 import com.github.mithunder.statements.StatementFactory;
 import com.github.mithunder.statements.Statement;
@@ -98,18 +97,18 @@ unary_operator returns[int type]
 	;
 
 binary_operator returns[int type]
-	: AND {$type = StatementType.LOGIC_AND;}
-	| OR {$type = StatementType.LOGIC_OR;}
-	| GREATER_THAN {$type = StatementType.GT;}
-	| GREATER_EQ {$type = StatementType.GT_EQ;}
-	| LESS_THAN {$type = StatementType.LT;}
-	| LESS_EQ {$type = StatementType.LT_EQ;}
-	| EQ {$type = StatementType.EQ;}
-	| NEQ {$type = StatementType.NEQ;}
-	| PLUS {$type = StatementType.PLUS;}
-	| MINUS {$type = StatementType.MINUS;}
-	| MUL {$type = StatementType.MULTIPLY;}
-	| DIV {$type = StatementType.DIVIDE;}
+	: AND {$type = StatementType.LOGIC_AND;} //15
+	| OR {$type = StatementType.LOGIC_OR;} //16
+	| GREATER_THAN {$type = StatementType.GT;} //13
+	| GREATER_EQ {$type = StatementType.GT_EQ;} //13
+	| LESS_THAN {$type = StatementType.LT;} //13
+	| LESS_EQ {$type = StatementType.LT_EQ;} //13
+	| EQ {$type = StatementType.EQ;} //14
+	| NEQ {$type = StatementType.NEQ;} //14
+	| PLUS {$type = StatementType.PLUS;} //10
+	| MINUS {$type = StatementType.MINUS;} //10
+	| MUL {$type = StatementType.MULTIPLY;} //9
+	| DIV {$type = StatementType.DIVIDE;} //9
 	;
 
 expression returns[List<Statement> statList]
@@ -123,6 +122,7 @@ expression returns[List<Statement> statList]
 		{$statList.add(statementFactory.createSimpleStatement(
 			StatementType.ASSIGN,
 			new CodeLocation(inte_tree.getLine()),
+			null,
 			variableTable.createTemporaryVariable(),
 			ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, Integer.parseInt(inte.getText()))
 		));
@@ -131,6 +131,7 @@ expression returns[List<Statement> statList]
 		{$statList.add(statementFactory.createSimpleStatement(
 			StatementType.ASSIGN,
 			new CodeLocation(tru_tree.getLine()),
+			null,
 			variableTable.createTemporaryVariable(),
 			ConstantValue.TRUE
 		));
@@ -139,6 +140,7 @@ expression returns[List<Statement> statList]
 		{$statList.add(statementFactory.createSimpleStatement(
 			StatementType.ASSIGN,
 			new CodeLocation(fal_tree.getLine()),
+			null,
 			variableTable.createTemporaryVariable(),
 			ConstantValue.FALSE
 		));
@@ -147,6 +149,7 @@ expression returns[List<Statement> statList]
 		{$statList.add(statementFactory.createSimpleStatement(
 			StatementType.ASSIGN,
 			new CodeLocation(id_tree.getLine()),
+			null,
 			variableTable.createTemporaryVariable(),
 			variableTable.getVariable(id.getText())
 		));
@@ -156,6 +159,7 @@ expression returns[List<Statement> statList]
 		final Statement newestStat = statementFactory.createSimpleStatement(
 			u.type,
 			new CodeLocation(u.tree.getLine()),
+			null,
 			variableTable.createTemporaryVariable(),
 			e.statList.get(e.statList.size()-1).getAssign()
 		);
@@ -171,7 +175,7 @@ expression returns[List<Statement> statList]
 			$statList.addAll(e.statList);
 			final Statement binaryStat = statementFactory.createSimpleStatement(
 				b.type, new CodeLocation(b.tree.getLine()),
-				variableTable.createTemporaryVariable(), valStart, valEnd
+				null, variableTable.createTemporaryVariable(), valStart, valEnd
 			);
 			$statList.add(binaryStat);
 		}
@@ -194,7 +198,7 @@ command returns [List<Statement> commands]
 	| l=LCURLY f=command RCURLY
 		{
 			$commands.add(statementFactory.createCompoundStatement(
-				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), f.commands
+				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), null, f.commands
 			));
 		}
 	| g=if_cmd 					{$commands.add(g.command);}
@@ -213,7 +217,7 @@ assignment_cmd returns [List<Statement> commands]
 	: id=IDENTIFIER as=ASSIGN e=expression
 		{
 			final Statement assignStatement = statementFactory.createSimpleStatement(
-				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()),
+				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), null,
 				variableTable.getVariable(id.getText()), e.statList.get(e.statList.size()-1).getAssign()
 			);
 			e.statList.add(assignStatement);
@@ -225,7 +229,7 @@ skip_cmd returns [Statement command]
 	: s=SKIP
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.SKIP, new CodeLocation(s_tree.getLine())
+				StatementType.SKIP, new CodeLocation(s_tree.getLine()), null
 			);
 		}
 	;
@@ -234,7 +238,7 @@ abort_cmd returns [Statement command]
 	: a=ABORT
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.ABORT, new CodeLocation(a_tree.getLine())
+				StatementType.ABORT, new CodeLocation(a_tree.getLine()), null
 			);
 		}
 	;
@@ -243,7 +247,7 @@ read_cmd returns [Statement command]
 	: rea=READ id=IDENTIFIER
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.READ, new CodeLocation(rea_tree.getLine()),
+				StatementType.READ, new CodeLocation(rea_tree.getLine()), null,
 				variableTable.getVariable(id.getText())
 			);
 		}
@@ -253,7 +257,7 @@ write_cmd returns [List<Statement> commands]
 	: wr=WRITE expression e=expression
 		{
 			final Statement assignStatement = statementFactory.createSimpleStatement(
-				StatementType.WRITE, new CodeLocation(wr_tree.getLine()),
+				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,
 				null, e.statList.get(e.statList.size()-1).getAssign()
 			);
 			e.statList.add(assignStatement);
@@ -265,7 +269,7 @@ if_cmd returns [Statement command]
 	: ift=IF gc=guarded_cmd FI
 		{
 			$command = statementFactory.createCompoundStatement(
-				StatementType.IF, new CodeLocation(ift_tree.getLine()),gc.commands
+				StatementType.IF, new CodeLocation(ift_tree.getLine()), null, gc.commands
 			);
 		}
 	;
@@ -274,7 +278,7 @@ do_cmd returns [Statement command]
 	: dot=DO gc=guarded_cmd OD
 		{
 			$command = statementFactory.createCompoundStatement(
-				StatementType.DO, new CodeLocation(dot_tree.getLine()), gc.commands
+				StatementType.DO, new CodeLocation(dot_tree.getLine()), null, gc.commands
 			);
 		}
 	;
@@ -288,10 +292,10 @@ guarded_cmd returns [List<Statement> commands]
 	}
 	(e=expression ARROW c=command) {
 		$commands.add(statementFactory.createCompoundStatement(
-			StatementType.SCOPE, new CodeLocation(e.tree.getLine()), e.statList
+			StatementType.SCOPE, new CodeLocation(e.tree.getLine()), null, e.statList
 		));
 		$commands.add(statementFactory.createCompoundStatement(
-			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), c.commands
+			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), null, c.commands
 		));
 	}
 	(GUARD gc=guarded_cmd {$commands.addAll(gc.commands);} )*
@@ -300,7 +304,9 @@ guarded_cmd returns [List<Statement> commands]
 program returns [Statement command]
 	: m=MODULE IDENTIFIER COLON c=command END
 		{
-			$command = statementFactory.createRootStatement(new CodeLocation(m_tree.getLine()), c.commands);
+			$command = statementFactory.createRootStatement(
+				new CodeLocation(m_tree.getLine()), null, c.commands
+			);
 		}
 	;
 	
