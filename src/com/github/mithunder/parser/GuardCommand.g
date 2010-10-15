@@ -83,6 +83,20 @@ import com.github.mithunder.statements.CodeLocation;
             e.printStackTrace();
         }
     }
+    
+    //Adds everything to the first statement list given.
+    private void handleExpression(List<Statement> statList, List<Statement> eStatList,
+    	int binaryType, CommonTree bTree) {
+    	
+		final Value valStart = statList.get(statList.size()-1).getAssign();
+		final Value valEnd = eStatList.get(eStatList.size()-1).getAssign();
+		statList.addAll(eStatList);
+		final Statement binaryStat = statementFactory.createSimpleStatement(
+			binaryType, new CodeLocation(bTree.getLine()),
+			null, variableTable.createTemporaryVariable(), valStart, valEnd
+		);
+		statList.add(binaryStat);
+    }
 }
 
 
@@ -91,34 +105,145 @@ import com.github.mithunder.statements.CodeLocation;
  * PARSER RULES
  *------------------------------------------------------------------*/
 
+
+
+//		* Operators. *
+
 unary_operator returns[int type]
 	: NOT {$type = StatementType.LOGIC_NOT;}
 	| MINUS {$type = StatementType.SIGN_INVERT;}
 	;
+	
+or returns[int type] : OR {$type = StatementType.LOGIC_OR;};
 
-binary_operator returns[int type]
-	: AND {$type = StatementType.LOGIC_AND;} //15
-	| OR {$type = StatementType.LOGIC_OR;} //16
-	| GREATER_THAN {$type = StatementType.GT;} //13
-	| GREATER_EQ {$type = StatementType.GT_EQ;} //13
-	| LESS_THAN {$type = StatementType.LT;} //13
-	| LESS_EQ {$type = StatementType.LT_EQ;} //13
-	| EQ {$type = StatementType.EQ;} //14
-	| NEQ {$type = StatementType.NEQ;} //14
-	| PLUS {$type = StatementType.PLUS;} //10
-	| MINUS {$type = StatementType.MINUS;} //10
-	| MUL {$type = StatementType.MULTIPLY;} //9
-	| DIV {$type = StatementType.DIVIDE;} //9
+and returns[int type] : AND {$type = StatementType.LOGIC_AND;};
+
+eq returns[int type] : EQ {$type = StatementType.EQ;};
+neq returns[int type] : NEQ {$type = StatementType.NEQ;};
+eqa returns[int type]
+	: (a=eq {$type = a.type;})
+	| (b=neq {$type = b.type;})
 	;
 
+gt returns[int type] : GREATER_THAN {$type = StatementType.GT;};
+gt_eq returns[int type] : GREATER_EQ {$type = StatementType.GT_EQ;};
+lt returns[int type] : LESS_THAN {$type = StatementType.LT;};
+lt_eq returns[int type] : LESS_EQ {$type = StatementType.LT_EQ;};
+rel returns[int type]
+	: (a=gt {$type = a.type;})
+	| (b=gt_eq {$type = b.type;})
+	| (c=lt {$type = c.type;})
+	| (d=lt_eq {$type = d.type;})
+	;
+
+plus returns[int type] : PLUS {$type = StatementType.PLUS;};
+minus returns[int type] : MINUS {$type = StatementType.MINUS;};
+term returns[int type]
+	: (a=plus {$type = a.type;})
+	| (b=minus {$type = b.type;})
+	;
+
+mul returns[int type] : MUL {$type = StatementType.MULTIPLY;};
+div returns[int type] : DIV {$type = StatementType.DIVIDE;};
+factor returns[int type]
+	: (a=mul {$type = a.type;})
+	| (b=div {$type = b.type;})
+	;
+	
+	
+	
+//		* Operator precedence and literals. *
+	
 expression returns[List<Statement> statList]
+	: expr_or
+	;
+
+expr_or returns [List<Statement> statList]
+	:
+	(e1=expr_and b=or e2=expr_and
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=or e3=expr_and {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=expr_and) {$statList = e4.statList;}
+	;
+	
+expr_and returns [List<Statement> statList]
+	:
+	(e1=expr_eqa b=and e2=expr_eqa
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=and e3=expr_eqa {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=expr_eqa) {$statList = e4.statList;}
+	;
+	
+//Both eq and neq.
+expr_eqa returns [List<Statement> statList]
+	:
+	(e1=expr_rel b=eqa e2=expr_rel
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=eqa e3=expr_rel {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=expr_rel) {$statList = e4.statList;}
+	;
+
+expr_rel returns [List<Statement> statList]
+	:
+	(e1=expr_term b=rel e2=expr_term
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=rel e3=expr_term {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=expr_term) {$statList = e4.statList;}
+	;
+	
+expr_term returns [List<Statement> statList]
+	:
+	(e1=expr_factor b=term e2=expr_factor
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=term e3=expr_factor {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=expr_factor) {$statList = e4.statList;}
+	;
+	
+expr_factor returns [List<Statement> statList]
+	:
+	(e1=literal b=factor e2=literal
+		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree);}
+	)
+	(b=factor e3=literal {handleExpression($statList, e3.statList, b.type, b.tree);})*
+	| (e4=literal) {$statList = e4.statList;}
+	;
+
+expr_unary returns [List<Statement> statList]
 	:
 	{
 		if ($statList == null) {
 			$statList = new ArrayList<Statement>();
 		}
 	}
-	(inte=INTEGER_LITERAL
+	( u=unary_operator e=expression
+		{
+		final Statement newestStat = statementFactory.createSimpleStatement(
+			u.type,
+			new CodeLocation(u.tree.getLine()),
+			null,
+			variableTable.createTemporaryVariable(),
+			e.statList.get(e.statList.size()-1).getAssign()
+		);
+		$statList.addAll(e.statList);
+		$statList.add(newestStat);
+		}
+	| l=literal {$statList = l.statList;}
+	)
+	;
+	
+literal returns[List<Statement> statList]
+	:
+	{
+		if ($statList == null) {
+			$statList = new ArrayList<Statement>();
+		}
+	}
+	inte=INTEGER_LITERAL
 		{$statList.add(statementFactory.createSimpleStatement(
 			StatementType.ASSIGN,
 			new CodeLocation(inte_tree.getLine()),
@@ -154,32 +279,7 @@ expression returns[List<Statement> statList]
 			variableTable.getVariable(id.getText())
 		));
 		}
-	| u=unary_operator e=expression
-		{
-		final Statement newestStat = statementFactory.createSimpleStatement(
-			u.type,
-			new CodeLocation(u.tree.getLine()),
-			null,
-			variableTable.createTemporaryVariable(),
-			e.statList.get(e.statList.size()-1).getAssign()
-		);
-		$statList.addAll(e.statList);
-		$statList.add(newestStat);
-		}
-	| LPAREN e=expression RPAREN {$statList.addAll(e.statList);}
-	)
-	(b=binary_operator e=expression
-		{
-			final Value valStart = $statList.get($statList.size()-1).getAssign();
-			final Value valEnd = e.statList.get(e.statList.size()-1).getAssign();
-			$statList.addAll(e.statList);
-			final Statement binaryStat = statementFactory.createSimpleStatement(
-				b.type, new CodeLocation(b.tree.getLine()),
-				null, variableTable.createTemporaryVariable(), valStart, valEnd
-			);
-			$statList.add(binaryStat);
-		}
-	)*
+	| LPAREN e=expression RPAREN {$statList = e.statList;}
 	;
 
 command returns [List<Statement> commands]
