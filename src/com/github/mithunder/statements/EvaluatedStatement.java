@@ -23,6 +23,11 @@ public class EvaluatedStatement extends Statement {
 	}
 
 	@Override
+	public int getChildCount() {
+		return children != null ? children.size() : 0;
+	}
+
+	@Override
 	public Value[] getValues() {
 		//FIXME: Should probably not return null ...
 		return null;

@@ -14,6 +14,8 @@ public abstract class Statement {
 		return stype;
 	}
 
+	public abstract int getChildCount();
+
 	public abstract List<? extends Statement> getChildren();
 
 	public abstract Value[] getValues();

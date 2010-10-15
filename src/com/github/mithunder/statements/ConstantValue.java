@@ -22,6 +22,10 @@ public class ConstantValue extends Value {
 		return value;
 	}
 
+	public int getValue(){
+		return value;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		ConstantValue other;

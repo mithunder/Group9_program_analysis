@@ -22,23 +22,19 @@ public abstract class AbstractStatement extends Statement {
 		}
 	}
 
+	@Override
 	public Variable getAssign(){
 		return assign;
 	}
 
+	@Override
 	public List<Annotation> getAnnotations(){
 		return annotations;
 	}
 
+	@Override
 	public CodeLocation getCodeLocation(){
 		return cloc;
 	}
-
-	@Override
-	public abstract List<? extends Statement> getChildren();
-
-	@Override
-	public abstract Value[] getValues();
-
 
 }
