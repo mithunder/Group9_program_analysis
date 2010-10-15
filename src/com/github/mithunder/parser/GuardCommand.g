@@ -203,6 +203,7 @@ command returns [List<Statement> commands]
 	
 	(SEMI i=command
 		{
+			//TODO: Ensure that skip statements are not added.
 			$commands.addAll(i.commands);
 		}
 	)*
@@ -312,6 +313,16 @@ program returns [Statement command]
 ML_COMMENT
     :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
     ;
+	
+LINE_COMMENT
+    :   ('//'|'#') ~('\n'|'\r')*  ('\r\n' | '\r' | '\n') {$channel=HIDDEN;}
+    |   ('//'|'#') ~('\n'|'\r')* {$channel=HIDDEN;}
+    // a line comment could appear at the end of the file without CR/LF
+    ;
+    
+ANNOTATION
+	:	('#@') IDENTIFIER '=' '"' ~('"')* '"'
+	;
 
 INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*);
 

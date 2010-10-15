@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-14 23:11:23
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-15 09:36:41
 
 package com.github.mithunder.parser;
 
@@ -24,47 +24,49 @@ import org.antlr.runtime.tree.*;
 
 public class GuardCommandParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "ML_COMMENT", "LETTER", "WS"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "ML_COMMENT", "LINE_COMMENT", "ANNOTATION", "LETTER", "WS"
     };
-    public static final int LESS_EQ=11;
-    public static final int GREATER_THAN=8;
-    public static final int LETTER=41;
+    public static final int LETTER=43;
+    public static final int ANNOTATION=42;
     public static final int DO=26;
-    public static final int LCURLY=22;
     public static final int NOT=18;
-    public static final int MINUS=15;
-    public static final int MODULE=34;
     public static final int AND=4;
     public static final int EOF=-1;
-    public static final int TRUE=36;
-    public static final int SEMI=7;
-    public static final int MUL=16;
-    public static final int WRITE=32;
-    public static final int OD=27;
     public static final int LPAREN=20;
-    public static final int FI=25;
     public static final int IF=24;
-    public static final int SKIP=30;
-    public static final int COLON=23;
     public static final int ML_COMMENT=40;
     public static final int RPAREN=19;
-    public static final int WS=42;
+    public static final int IDENTIFIER=39;
+    public static final int GREATER_EQ=9;
+    public static final int PLUS=14;
+    public static final int EQ=12;
+    public static final int ABORT=31;
+    public static final int LESS_EQ=11;
+    public static final int GREATER_THAN=8;
+    public static final int LINE_COMMENT=41;
+    public static final int LCURLY=22;
+    public static final int MINUS=15;
+    public static final int MODULE=34;
+    public static final int MUL=16;
+    public static final int SEMI=7;
+    public static final int TRUE=36;
+    public static final int OD=27;
+    public static final int WRITE=32;
+    public static final int FI=25;
+    public static final int SKIP=30;
+    public static final int COLON=23;
+    public static final int WS=44;
     public static final int NEQ=13;
     public static final int READ=33;
-    public static final int IDENTIFIER=39;
     public static final int INTEGER_LITERAL=38;
-    public static final int RCURLY=21;
     public static final int OR=5;
-    public static final int ASSIGN=6;
+    public static final int RCURLY=21;
     public static final int LESS_THAN=10;
-    public static final int GREATER_EQ=9;
+    public static final int ASSIGN=6;
     public static final int ARROW=29;
-    public static final int PLUS=14;
     public static final int GUARD=28;
-    public static final int EQ=12;
     public static final int DIV=17;
     public static final int END=35;
-    public static final int ABORT=31;
     public static final int FALSE=37;
 
     // delegates
@@ -1110,6 +1112,7 @@ public class GuardCommandParser extends Parser {
             	    if ( state.backtracking==0 ) adaptor.addChild(root_0, i.getTree());
             	    if ( state.backtracking==0 ) {
 
+            	      			//TODO: Ensure that skip statements are not added.
             	      			retval.commands.addAll(i.commands);
             	      		
             	    }
@@ -1153,7 +1156,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "assignment_cmd"
-    // GuardCommand.g:211:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
+    // GuardCommand.g:212:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
     public final GuardCommandParser.assignment_cmd_return assignment_cmd() throws RecognitionException {
         GuardCommandParser.assignment_cmd_return retval = new GuardCommandParser.assignment_cmd_return();
         retval.start = input.LT(1);
@@ -1170,8 +1173,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 5) ) { return retval; }
-            // GuardCommand.g:212:2: (id= IDENTIFIER as= ASSIGN e= expression )
-            // GuardCommand.g:212:4: id= IDENTIFIER as= ASSIGN e= expression
+            // GuardCommand.g:213:2: (id= IDENTIFIER as= ASSIGN e= expression )
+            // GuardCommand.g:213:4: id= IDENTIFIER as= ASSIGN e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1232,7 +1235,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "skip_cmd"
-    // GuardCommand.g:223:1: skip_cmd returns [Statement command] : s= SKIP ;
+    // GuardCommand.g:224:1: skip_cmd returns [Statement command] : s= SKIP ;
     public final GuardCommandParser.skip_cmd_return skip_cmd() throws RecognitionException {
         GuardCommandParser.skip_cmd_return retval = new GuardCommandParser.skip_cmd_return();
         retval.start = input.LT(1);
@@ -1245,8 +1248,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 6) ) { return retval; }
-            // GuardCommand.g:224:2: (s= SKIP )
-            // GuardCommand.g:224:4: s= SKIP
+            // GuardCommand.g:225:2: (s= SKIP )
+            // GuardCommand.g:225:4: s= SKIP
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1293,7 +1296,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "abort_cmd"
-    // GuardCommand.g:232:1: abort_cmd returns [Statement command] : a= ABORT ;
+    // GuardCommand.g:233:1: abort_cmd returns [Statement command] : a= ABORT ;
     public final GuardCommandParser.abort_cmd_return abort_cmd() throws RecognitionException {
         GuardCommandParser.abort_cmd_return retval = new GuardCommandParser.abort_cmd_return();
         retval.start = input.LT(1);
@@ -1306,8 +1309,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 7) ) { return retval; }
-            // GuardCommand.g:233:2: (a= ABORT )
-            // GuardCommand.g:233:4: a= ABORT
+            // GuardCommand.g:234:2: (a= ABORT )
+            // GuardCommand.g:234:4: a= ABORT
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1354,7 +1357,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "read_cmd"
-    // GuardCommand.g:241:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
+    // GuardCommand.g:242:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
     public final GuardCommandParser.read_cmd_return read_cmd() throws RecognitionException {
         GuardCommandParser.read_cmd_return retval = new GuardCommandParser.read_cmd_return();
         retval.start = input.LT(1);
@@ -1369,8 +1372,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 8) ) { return retval; }
-            // GuardCommand.g:242:2: (rea= READ id= IDENTIFIER )
-            // GuardCommand.g:242:4: rea= READ id= IDENTIFIER
+            // GuardCommand.g:243:2: (rea= READ id= IDENTIFIER )
+            // GuardCommand.g:243:4: rea= READ id= IDENTIFIER
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1423,7 +1426,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "write_cmd"
-    // GuardCommand.g:251:1: write_cmd returns [List<Statement> commands] : wr= WRITE expression e= expression ;
+    // GuardCommand.g:252:1: write_cmd returns [List<Statement> commands] : wr= WRITE expression e= expression ;
     public final GuardCommandParser.write_cmd_return write_cmd() throws RecognitionException {
         GuardCommandParser.write_cmd_return retval = new GuardCommandParser.write_cmd_return();
         retval.start = input.LT(1);
@@ -1440,8 +1443,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 9) ) { return retval; }
-            // GuardCommand.g:252:2: (wr= WRITE expression e= expression )
-            // GuardCommand.g:252:4: wr= WRITE expression e= expression
+            // GuardCommand.g:253:2: (wr= WRITE expression e= expression )
+            // GuardCommand.g:253:4: wr= WRITE expression e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1503,7 +1506,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "if_cmd"
-    // GuardCommand.g:263:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
+    // GuardCommand.g:264:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
     public final GuardCommandParser.if_cmd_return if_cmd() throws RecognitionException {
         GuardCommandParser.if_cmd_return retval = new GuardCommandParser.if_cmd_return();
         retval.start = input.LT(1);
@@ -1520,8 +1523,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 10) ) { return retval; }
-            // GuardCommand.g:264:2: (ift= IF gc= guarded_cmd FI )
-            // GuardCommand.g:264:4: ift= IF gc= guarded_cmd FI
+            // GuardCommand.g:265:2: (ift= IF gc= guarded_cmd FI )
+            // GuardCommand.g:265:4: ift= IF gc= guarded_cmd FI
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1579,7 +1582,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "do_cmd"
-    // GuardCommand.g:272:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
+    // GuardCommand.g:273:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
     public final GuardCommandParser.do_cmd_return do_cmd() throws RecognitionException {
         GuardCommandParser.do_cmd_return retval = new GuardCommandParser.do_cmd_return();
         retval.start = input.LT(1);
@@ -1596,8 +1599,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 11) ) { return retval; }
-            // GuardCommand.g:273:2: (dot= DO gc= guarded_cmd OD )
-            // GuardCommand.g:273:4: dot= DO gc= guarded_cmd OD
+            // GuardCommand.g:274:2: (dot= DO gc= guarded_cmd OD )
+            // GuardCommand.g:274:4: dot= DO gc= guarded_cmd OD
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1655,7 +1658,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "guarded_cmd"
-    // GuardCommand.g:281:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
+    // GuardCommand.g:282:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
     public final GuardCommandParser.guarded_cmd_return guarded_cmd() throws RecognitionException {
         GuardCommandParser.guarded_cmd_return retval = new GuardCommandParser.guarded_cmd_return();
         retval.start = input.LT(1);
@@ -1676,8 +1679,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 12) ) { return retval; }
-            // GuardCommand.g:282:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
-            // GuardCommand.g:283:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
+            // GuardCommand.g:283:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
+            // GuardCommand.g:284:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1688,8 +1691,8 @@ public class GuardCommandParser extends Parser {
               		}
               	
             }
-            // GuardCommand.g:288:2: (e= expression ARROW c= command )
-            // GuardCommand.g:288:3: e= expression ARROW c= command
+            // GuardCommand.g:289:2: (e= expression ARROW c= command )
+            // GuardCommand.g:289:3: e= expression ARROW c= command
             {
             pushFollow(FOLLOW_expression_in_guarded_cmd1004);
             e=expression();
@@ -1721,7 +1724,7 @@ public class GuardCommandParser extends Parser {
               		));
               	
             }
-            // GuardCommand.g:296:2: ( GUARD gc= guarded_cmd )*
+            // GuardCommand.g:297:2: ( GUARD gc= guarded_cmd )*
             loop7:
             do {
                 int alt7=2;
@@ -1740,7 +1743,7 @@ public class GuardCommandParser extends Parser {
 
                 switch (alt7) {
             	case 1 :
-            	    // GuardCommand.g:296:3: GUARD gc= guarded_cmd
+            	    // GuardCommand.g:297:3: GUARD gc= guarded_cmd
             	    {
             	    GUARD23=(Token)match(input,GUARD,FOLLOW_GUARD_in_guarded_cmd1017); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
@@ -1796,7 +1799,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "program"
-    // GuardCommand.g:299:1: program returns [Statement command] : m= MODULE IDENTIFIER COLON c= command END ;
+    // GuardCommand.g:300:1: program returns [Statement command] : m= MODULE IDENTIFIER COLON c= command END ;
     public final GuardCommandParser.program_return program() throws RecognitionException {
         GuardCommandParser.program_return retval = new GuardCommandParser.program_return();
         retval.start = input.LT(1);
@@ -1817,8 +1820,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 13) ) { return retval; }
-            // GuardCommand.g:300:2: (m= MODULE IDENTIFIER COLON c= command END )
-            // GuardCommand.g:300:4: m= MODULE IDENTIFIER COLON c= command END
+            // GuardCommand.g:301:2: (m= MODULE IDENTIFIER COLON c= command END )
+            // GuardCommand.g:301:4: m= MODULE IDENTIFIER COLON c= command END
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1926,8 +1929,8 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
-        // GuardCommand.g:296:3: ( GUARD gc= guarded_cmd )
-        // GuardCommand.g:296:3: GUARD gc= guarded_cmd
+        // GuardCommand.g:297:3: ( GUARD gc= guarded_cmd )
+        // GuardCommand.g:297:3: GUARD gc= guarded_cmd
         {
         match(input,GUARD,FOLLOW_GUARD_in_synpred27_GuardCommand1017); if (state.failed) return ;
         pushFollow(FOLLOW_guarded_cmd_in_synpred27_GuardCommand1021);
