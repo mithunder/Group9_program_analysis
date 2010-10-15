@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CodeLocation;
-import com.github.mithunder.statements.Statement;
+import com.github.mithunder.statements.AbstractStatement;
 import com.github.mithunder.statements.StatementFactory;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
@@ -19,35 +19,35 @@ import com.github.mithunder.statements.Variable;
 public class SimpleStatementFactory extends StatementFactory{
 
 	@Override
-	public Statement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Statement... s) {
+	public AbstractStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, AbstractStatement... s) {
 		isGroupingStatement(type);
 		return new SimpleStatement(type, null, codeLoc, annotations, array2list(s));
 	}
 
 	@Override
-	public Statement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s) {
+	public AbstractStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<AbstractStatement> s) {
 		isGroupingStatement(type);
 		return new SimpleStatement(type, null, codeLoc, annotations, typecast(s));
 	}
 
 	@Override
-	public Statement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, Statement... s) {
+	public AbstractStatement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, AbstractStatement... s) {
 		return new SimpleStatement(SCOPE, null, codeLoc, annotations, array2list(s));
 	}
 
 	@Override
-	public Statement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s) {
+	public AbstractStatement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<AbstractStatement> s) {
 		return new SimpleStatement(SCOPE, null, codeLoc, annotations, typecast(s));
 	}
 
 	@Override
-	public Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Variable assign, Value... v) {
+	public AbstractStatement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Variable assign, Value... v) {
 		isSimpleStatement(type);
 		return new SimpleStatement(type, assign, codeLoc, annotations, v);
 	}
 
 	@Override
-	public Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations) {
+	public AbstractStatement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations) {
 		if(type != ABORT && type != WRITE) {
 			throw new IllegalArgumentException("Simple statement without assignment most be ABORT or WRITE.");
 		}
@@ -55,11 +55,11 @@ public class SimpleStatementFactory extends StatementFactory{
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<SimpleStatement> typecast(List<Statement> s){
+	private List<SimpleStatement> typecast(List<AbstractStatement> s){
 		return (List)s;
 	}
 
-	private List<SimpleStatement> array2list(Statement[] s){
+	private List<SimpleStatement> array2list(AbstractStatement[] s){
 		List<SimpleStatement> l = new ArrayList<SimpleStatement>(s.length);
 		for(int i = 0 ; i < s.length ; i++) {
 			l.add((SimpleStatement)s[i]);

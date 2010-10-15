@@ -4,31 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.mithunder.analysis.Analysis;
-import com.github.mithunder.statements.AbstractStatement;
+import com.github.mithunder.statements.EvaluatedStatement;
+import com.github.mithunder.statements.Statement;
 
 public class RoundRobinWorklist extends Worklist {
 
 	List<Object> objs = new ArrayList<Object>();
 
 	@Override
-	public void addToList(AbstractStatement s) {
+	public void addToList(Statement s) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public AbstractStatement getNextStatement() {
+	public Statement getNextStatement() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Object> iterate(Analysis analysis, List<? extends AbstractStatement> s) {
-		boolean changes = true;
+	public List<Object> iterate(Analysis analysis, List<? extends Statement> s) {
+		return null;
+		/*boolean changes = true;
 		while(changes) {
 			changes = false;
 			for(int i = 0; i < s.size(); i++) {
-				AbstractStatement statement = s.get(i);
-				List<? extends AbstractStatement> list = statement.getChildren();
+				Statement statement = s.get(i);
+				List<? extends Statement> list = statement.getChildren();
 				if(list.size() != 0) {
 					iterate(analysis, list);
 				}
@@ -46,6 +48,11 @@ public class RoundRobinWorklist extends Worklist {
 				}
 			}
 		}
-		return objs;
+		return objs;*/
+	}
+
+	private List<EvaluatedStatement> initiate() {
+
+		return null;
 	}
 }

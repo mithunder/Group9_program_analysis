@@ -4,7 +4,7 @@ package com.github.mithunder.parser;
 
 import com.github.mithunder.statements.VariableTable;
 import com.github.mithunder.statements.StatementFactory;
-import com.github.mithunder.statements.Statement;
+import com.github.mithunder.statements.AbstractStatement;
 import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.ValueType;
@@ -540,7 +540,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "binary_operator"
 
     public static class expression_return extends ParserRuleReturnScope {
-        public List<Statement> statList;
+        public List<AbstractStatement> statList;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -583,7 +583,7 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               		if (retval.statList == null) {
-              			retval.statList = new ArrayList<Statement>();
+              			retval.statList = new ArrayList<AbstractStatement>();
               		}
               	
             }
@@ -731,7 +731,7 @@ public class GuardCommandParser extends Parser {
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
                     if ( state.backtracking==0 ) {
 
-                      		final Statement newestStat = statementFactory.createSimpleStatement(
+                      		final AbstractStatement newestStat = statementFactory.createSimpleStatement(
                       			u.type,
                       			new CodeLocation(u.tree.getLine()),
                       			null,
@@ -799,7 +799,7 @@ public class GuardCommandParser extends Parser {
             	      			final Value valStart = retval.statList.get(retval.statList.size()-1).getAssign();
             	      			final Value valEnd = e.statList.get(e.statList.size()-1).getAssign();
             	      			retval.statList.addAll(e.statList);
-            	      			final Statement binaryStat = statementFactory.createSimpleStatement(
+            	      			final AbstractStatement binaryStat = statementFactory.createSimpleStatement(
             	      				b.type, new CodeLocation(b.tree.getLine()),
             	      				null, variableTable.createTemporaryVariable(), valStart, valEnd
             	      			);
@@ -840,7 +840,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "expression"
 
     public static class command_return extends ParserRuleReturnScope {
-        public List<Statement> commands;
+        public List<AbstractStatement> commands;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -889,7 +889,7 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               		if (retval.commands == null) {
-              			retval.commands = new ArrayList<Statement>();
+              			retval.commands = new ArrayList<AbstractStatement>();
               		}
               	
             }
@@ -1154,7 +1154,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "command"
 
     public static class assignment_cmd_return extends ParserRuleReturnScope {
-        public List<Statement> commands;
+        public List<AbstractStatement> commands;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1200,7 +1200,7 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
             if ( state.backtracking==0 ) {
 
-              			final Statement assignStatement = statementFactory.createSimpleStatement(
+              			final AbstractStatement assignStatement = statementFactory.createSimpleStatement(
               				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), null,
               				variableTable.getVariable(id.getText()), e.statList.get(e.statList.size()-1).getAssign()
               			);
@@ -1233,7 +1233,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "assignment_cmd"
 
     public static class skip_cmd_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1294,7 +1294,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "skip_cmd"
 
     public static class abort_cmd_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1355,7 +1355,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "abort_cmd"
 
     public static class read_cmd_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1424,7 +1424,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "read_cmd"
 
     public static class write_cmd_return extends ParserRuleReturnScope {
-        public List<Statement> commands;
+        public List<AbstractStatement> commands;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1471,7 +1471,7 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
             if ( state.backtracking==0 ) {
 
-              			final Statement assignStatement = statementFactory.createSimpleStatement(
+              			final AbstractStatement assignStatement = statementFactory.createSimpleStatement(
               				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,
               				null, e.statList.get(e.statList.size()-1).getAssign()
               			);
@@ -1504,7 +1504,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "write_cmd"
 
     public static class if_cmd_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1580,7 +1580,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "if_cmd"
 
     public static class do_cmd_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1656,7 +1656,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "do_cmd"
 
     public static class guarded_cmd_return extends ParserRuleReturnScope {
-        public List<Statement> commands;
+        public List<AbstractStatement> commands;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
@@ -1691,7 +1691,7 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               		if (retval.commands == null) {
-              			retval.commands = new ArrayList<Statement>();
+              			retval.commands = new ArrayList<AbstractStatement>();
               		}
               	
             }
@@ -1797,7 +1797,7 @@ public class GuardCommandParser extends Parser {
     // $ANTLR end "guarded_cmd"
 
     public static class program_return extends ParserRuleReturnScope {
-        public Statement command;
+        public AbstractStatement command;
         CommonTree tree;
         public Object getTree() { return tree; }
     };

@@ -1,10 +1,10 @@
 package com.github.mithunder.worklist;
 
-import com.github.mithunder.statements.AbstractStatement;
+import com.github.mithunder.statements.Statement;
 
 public abstract class Worklist {
 
-	public abstract void addToList(AbstractStatement s);
+	public abstract void addToList(Statement s);
 
-	public abstract AbstractStatement getNextStatement();
+	public abstract Statement getNextStatement();
 }

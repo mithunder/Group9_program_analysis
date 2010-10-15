@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CodeLocation;
-import com.github.mithunder.statements.Statement;
+import com.github.mithunder.statements.AbstractStatement;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 
-public class SimpleStatement extends Statement{
+public class SimpleStatement extends AbstractStatement{
 
 	/* Either children or values are null */
 	protected List<SimpleStatement> children;

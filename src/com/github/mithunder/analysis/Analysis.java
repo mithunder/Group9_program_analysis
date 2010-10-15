@@ -1,18 +1,16 @@
 package com.github.mithunder.analysis;
 
-import java.util.List;
-
-import com.github.mithunder.statements.AbstractStatement;
+import com.github.mithunder.statements.Statement;
 
 
 public abstract class Analysis {
 
-	public abstract Object evaluate(AbstractStatement statement, List<Object> objs);
+	public abstract Evaluation evaluate(Statement statement, Evaluation e);
 
-	public abstract int compare(Object o, Object object);
+	public abstract int compare(Evaluation e1, Evaluation e2);
 
-	public abstract Object merge(Object object, Object o);
+	public abstract Evaluation merge(Evaluation e1, Evaluation e2);
 
-	public abstract Object init(Object o);
+	public abstract Evaluation initEvaluation();
 
 }
