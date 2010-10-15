@@ -15,9 +15,9 @@ public abstract class StatementFactory {
 	 * assign := v[1] (for type = assign)
 	 * Number of arguments accepted for v is 1 or 2 depending on which type is used
 	 */
-	public abstract AbstractStatement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Variable assign, Value ... v);
+	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Variable assign, Value ... v);
 	//Meant for things like abort.
-	public abstract AbstractStatement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations);
+	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations);
 
 	/*
 	 * Creates grouping statement
@@ -25,14 +25,14 @@ public abstract class StatementFactory {
 	 * The result of a test is s[s.length - 1].getAssign() (should return temporary variable)
 	 *
 	 */
-	public abstract AbstractStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, AbstractStatement ... s);
-	public abstract AbstractStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<AbstractStatement> s);
+	public abstract Statement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Statement ... s);
+	public abstract Statement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s);
 
 	/*
 	 * Method for creating a root node containing s as its children
 	 */
-	public abstract AbstractStatement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, AbstractStatement ... s);
-	public abstract AbstractStatement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<AbstractStatement> s);
+	public abstract Statement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, Statement ... s);
+	public abstract Statement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s);
 
 	public static StatementFactory newInstance() {
 		return new SimpleStatementFactory();
