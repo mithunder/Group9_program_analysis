@@ -156,8 +156,8 @@ expression returns[List<Statement> statList]
 		final Statement newestStat = statementFactory.createSimpleStatement(
 			u.type,
 			new CodeLocation(u.tree.getLine()),
-			e.statList.get(e.statList.size()-1).getAssign(),
-			variableTable.getVariable(id.getText())
+			variableTable.createTemporaryVariable(),
+			e.statList.get(e.statList.size()-1).getAssign()
 		);
 		$statList.addAll(e.statList);
 		$statList.add(newestStat);
