@@ -4,10 +4,12 @@ public class CompilationUnit {
 
 	protected Statement root;
 	protected String unitName;
+	protected VariableTable varTable;
 
-	public CompilationUnit(String unitName, Statement root){
+	public CompilationUnit(String unitName, Statement root, VariableTable varTable){
 		this.unitName = unitName;
 		this.root = root;
+		this.varTable = varTable;
 	}
 
 	public String getUnitName(){
@@ -16,5 +18,9 @@ public class CompilationUnit {
 
 	public Statement getRootStatement(){
 		return root;
+	}
+
+	public VariableTable getVariableTable(){
+		return varTable;
 	}
 }
