@@ -11,6 +11,6 @@ public abstract class Analysis {
 
 	public abstract Evaluation merge(Evaluation e1, Evaluation e2);
 
-	public abstract Evaluation initEvaluation();
+	public abstract Evaluation initEvaluation(Statement s);
 
 }

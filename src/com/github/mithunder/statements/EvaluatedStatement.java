@@ -4,14 +4,14 @@ import java.util.List;
 
 import com.github.mithunder.analysis.Evaluation;
 
-public abstract class EvaluatedStatement extends Statement {
+public class EvaluatedStatement extends Statement {
 
 	private final Statement statement;
 	private Evaluation evaluation;
 	private List<? extends EvaluatedStatement> children;
 
-	protected EvaluatedStatement(int stype, Statement statement, Evaluation evaluation, List<? extends EvaluatedStatement> children) {
-		super(stype);
+	public EvaluatedStatement(Statement statement, Evaluation evaluation, List<EvaluatedStatement> children) {
+		super(statement.getStatementType());
 		this.statement = statement;
 		this.evaluation = evaluation;
 		this.children = children;
@@ -23,7 +23,10 @@ public abstract class EvaluatedStatement extends Statement {
 	}
 
 	@Override
-	public abstract Value[] getValues();
+	public Value[] getValues() {
+		//FIXME: Should probably not return null ...
+		return null;
+	}
 
 	@Override
 	public Variable getAssign() {

@@ -23,8 +23,13 @@ public class RoundRobinWorklist extends Worklist {
 		return null;
 	}
 
-	public List<Object> iterate(Analysis analysis, List<? extends Statement> s) {
-		return null;
+	public List<EvaluatedStatement> iterate(Analysis analysis, List<EvaluatedStatement> es) {
+		boolean changes = true;
+		while(changes) {
+			changes = false;
+
+		}
+		return es;
 		/*boolean changes = true;
 		while(changes) {
 			changes = false;
@@ -51,8 +56,15 @@ public class RoundRobinWorklist extends Worklist {
 		return objs;*/
 	}
 
-	private List<EvaluatedStatement> initiate() {
-
-		return null;
+	private List<EvaluatedStatement> initiate(Analysis analysis, List<? extends Statement> s) {
+		ArrayList<EvaluatedStatement> list = new ArrayList<EvaluatedStatement>();
+		if(s == null || s.size() == 0) {
+			return list;
+		}
+		for(Statement a : s) {
+			List<EvaluatedStatement> children = initiate(analysis, a.getChildren());
+			list.add(new EvaluatedStatement(a, analysis.initEvaluation(a), children));
+		}
+		return list;
 	}
 }
