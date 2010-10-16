@@ -1,7 +1,8 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-16 19:57:11
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-16 20:15:20
 
 package com.github.mithunder.parser;
 
+import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
@@ -25,10 +26,9 @@ import org.antlr.runtime.tree.*;
 
 public class GuardCommandParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "ML_COMMENT", "LINE_COMMENT", "ANNOTATION", "LETTER", "WS"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "AND", "OR", "ASSIGN", "SEMI", "GREATER_THAN", "GREATER_EQ", "LESS_THAN", "LESS_EQ", "EQ", "NEQ", "PLUS", "MINUS", "MUL", "DIV", "NOT", "RPAREN", "LPAREN", "RCURLY", "LCURLY", "COLON", "IF", "FI", "DO", "OD", "GUARD", "ARROW", "SKIP", "ABORT", "WRITE", "READ", "MODULE", "END", "TRUE", "FALSE", "INTEGER_LITERAL", "IDENTIFIER", "ML_COMMENT", "LINE_COMMENT", "LETTER", "WS", "'#@'", "'\"'"
     };
-    public static final int LETTER=43;
-    public static final int ANNOTATION=42;
+    public static final int LETTER=42;
     public static final int DO=26;
     public static final int NOT=18;
     public static final int AND=4;
@@ -44,6 +44,8 @@ public class GuardCommandParser extends Parser {
     public static final int ABORT=31;
     public static final int LESS_EQ=11;
     public static final int GREATER_THAN=8;
+    public static final int T__44=44;
+    public static final int T__45=45;
     public static final int LINE_COMMENT=41;
     public static final int LCURLY=22;
     public static final int MINUS=15;
@@ -56,7 +58,7 @@ public class GuardCommandParser extends Parser {
     public static final int FI=25;
     public static final int SKIP=30;
     public static final int COLON=23;
-    public static final int WS=44;
+    public static final int WS=43;
     public static final int NEQ=13;
     public static final int READ=33;
     public static final int INTEGER_LITERAL=38;
@@ -79,7 +81,7 @@ public class GuardCommandParser extends Parser {
         }
         public GuardCommandParser(TokenStream input, RecognizerSharedState state) {
             super(input, state);
-            this.state.ruleMemo = new HashMap[72+1];
+            this.state.ruleMemo = new HashMap[75+1];
              
              
         }
@@ -159,6 +161,8 @@ public class GuardCommandParser extends Parser {
     			return l1;
     		}
         }
+        
+        private final List<Annotation> annotations = new ArrayList<Annotation>();
 
 
     public static class unary_operator_return extends ParserRuleReturnScope {
@@ -169,7 +173,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "unary_operator"
-    // GuardCommand.g:144:1: unary_operator returns [int type, int vtype] : ( NOT | MINUS );
+    // GuardCommand.g:147:1: unary_operator returns [int type, int vtype] : ( NOT | MINUS );
     public final GuardCommandParser.unary_operator_return unary_operator() throws RecognitionException {
         GuardCommandParser.unary_operator_return retval = new GuardCommandParser.unary_operator_return();
         retval.start = input.LT(1);
@@ -184,7 +188,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 1) ) { return retval; }
-            // GuardCommand.g:145:2: ( NOT | MINUS )
+            // GuardCommand.g:148:2: ( NOT | MINUS )
             int alt1=2;
             int LA1_0 = input.LA(1);
 
@@ -203,7 +207,7 @@ public class GuardCommandParser extends Parser {
             }
             switch (alt1) {
                 case 1 :
-                    // GuardCommand.g:145:4: NOT
+                    // GuardCommand.g:148:4: NOT
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -219,7 +223,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:146:4: MINUS
+                    // GuardCommand.g:149:4: MINUS
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -265,7 +269,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "or"
-    // GuardCommand.g:149:1: or returns [int type, int vtype] : OR ;
+    // GuardCommand.g:152:1: or returns [int type, int vtype] : OR ;
     public final GuardCommandParser.or_return or() throws RecognitionException {
         GuardCommandParser.or_return retval = new GuardCommandParser.or_return();
         retval.start = input.LT(1);
@@ -278,8 +282,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 2) ) { return retval; }
-            // GuardCommand.g:150:2: ( OR )
-            // GuardCommand.g:150:4: OR
+            // GuardCommand.g:153:2: ( OR )
+            // GuardCommand.g:153:4: OR
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -323,7 +327,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "and"
-    // GuardCommand.g:152:1: and returns [int type, int vtype] : AND ;
+    // GuardCommand.g:155:1: and returns [int type, int vtype] : AND ;
     public final GuardCommandParser.and_return and() throws RecognitionException {
         GuardCommandParser.and_return retval = new GuardCommandParser.and_return();
         retval.start = input.LT(1);
@@ -336,8 +340,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 3) ) { return retval; }
-            // GuardCommand.g:153:2: ( AND )
-            // GuardCommand.g:153:4: AND
+            // GuardCommand.g:156:2: ( AND )
+            // GuardCommand.g:156:4: AND
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -381,7 +385,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "eq"
-    // GuardCommand.g:155:1: eq returns [int type, int vtype] : EQ ;
+    // GuardCommand.g:158:1: eq returns [int type, int vtype] : EQ ;
     public final GuardCommandParser.eq_return eq() throws RecognitionException {
         GuardCommandParser.eq_return retval = new GuardCommandParser.eq_return();
         retval.start = input.LT(1);
@@ -394,8 +398,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 4) ) { return retval; }
-            // GuardCommand.g:156:2: ( EQ )
-            // GuardCommand.g:156:4: EQ
+            // GuardCommand.g:159:2: ( EQ )
+            // GuardCommand.g:159:4: EQ
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -439,7 +443,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "neq"
-    // GuardCommand.g:157:1: neq returns [int type, int vtype] : NEQ ;
+    // GuardCommand.g:160:1: neq returns [int type, int vtype] : NEQ ;
     public final GuardCommandParser.neq_return neq() throws RecognitionException {
         GuardCommandParser.neq_return retval = new GuardCommandParser.neq_return();
         retval.start = input.LT(1);
@@ -452,8 +456,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 5) ) { return retval; }
-            // GuardCommand.g:158:2: ( NEQ )
-            // GuardCommand.g:158:4: NEQ
+            // GuardCommand.g:161:2: ( NEQ )
+            // GuardCommand.g:161:4: NEQ
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -497,7 +501,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "eqa"
-    // GuardCommand.g:159:1: eqa returns [int type, int vtype] : ( (a= eq ) | (b= neq ) );
+    // GuardCommand.g:162:1: eqa returns [int type, int vtype] : ( (a= eq ) | (b= neq ) );
     public final GuardCommandParser.eqa_return eqa() throws RecognitionException {
         GuardCommandParser.eqa_return retval = new GuardCommandParser.eqa_return();
         retval.start = input.LT(1);
@@ -512,7 +516,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 6) ) { return retval; }
-            // GuardCommand.g:160:2: ( (a= eq ) | (b= neq ) )
+            // GuardCommand.g:163:2: ( (a= eq ) | (b= neq ) )
             int alt2=2;
             int LA2_0 = input.LA(1);
 
@@ -531,12 +535,12 @@ public class GuardCommandParser extends Parser {
             }
             switch (alt2) {
                 case 1 :
-                    // GuardCommand.g:160:4: (a= eq )
+                    // GuardCommand.g:163:4: (a= eq )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:160:4: (a= eq )
-                    // GuardCommand.g:160:5: a= eq
+                    // GuardCommand.g:163:4: (a= eq )
+                    // GuardCommand.g:163:5: a= eq
                     {
                     pushFollow(FOLLOW_eq_in_eqa538);
                     a=eq();
@@ -554,12 +558,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:161:4: (b= neq )
+                    // GuardCommand.g:164:4: (b= neq )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:161:4: (b= neq )
-                    // GuardCommand.g:161:5: b= neq
+                    // GuardCommand.g:164:4: (b= neq )
+                    // GuardCommand.g:164:5: b= neq
                     {
                     pushFollow(FOLLOW_neq_in_eqa549);
                     b=neq();
@@ -607,7 +611,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "gt"
-    // GuardCommand.g:164:1: gt returns [int type, int vtype] : GREATER_THAN ;
+    // GuardCommand.g:167:1: gt returns [int type, int vtype] : GREATER_THAN ;
     public final GuardCommandParser.gt_return gt() throws RecognitionException {
         GuardCommandParser.gt_return retval = new GuardCommandParser.gt_return();
         retval.start = input.LT(1);
@@ -620,8 +624,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 7) ) { return retval; }
-            // GuardCommand.g:165:2: ( GREATER_THAN )
-            // GuardCommand.g:165:4: GREATER_THAN
+            // GuardCommand.g:168:2: ( GREATER_THAN )
+            // GuardCommand.g:168:4: GREATER_THAN
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -665,7 +669,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "gt_eq"
-    // GuardCommand.g:166:1: gt_eq returns [int type, int vtype] : GREATER_EQ ;
+    // GuardCommand.g:169:1: gt_eq returns [int type, int vtype] : GREATER_EQ ;
     public final GuardCommandParser.gt_eq_return gt_eq() throws RecognitionException {
         GuardCommandParser.gt_eq_return retval = new GuardCommandParser.gt_eq_return();
         retval.start = input.LT(1);
@@ -678,8 +682,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 8) ) { return retval; }
-            // GuardCommand.g:167:2: ( GREATER_EQ )
-            // GuardCommand.g:167:4: GREATER_EQ
+            // GuardCommand.g:170:2: ( GREATER_EQ )
+            // GuardCommand.g:170:4: GREATER_EQ
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -723,7 +727,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "lt"
-    // GuardCommand.g:168:1: lt returns [int type, int vtype] : LESS_THAN ;
+    // GuardCommand.g:171:1: lt returns [int type, int vtype] : LESS_THAN ;
     public final GuardCommandParser.lt_return lt() throws RecognitionException {
         GuardCommandParser.lt_return retval = new GuardCommandParser.lt_return();
         retval.start = input.LT(1);
@@ -736,8 +740,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 9) ) { return retval; }
-            // GuardCommand.g:169:2: ( LESS_THAN )
-            // GuardCommand.g:169:4: LESS_THAN
+            // GuardCommand.g:172:2: ( LESS_THAN )
+            // GuardCommand.g:172:4: LESS_THAN
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -781,7 +785,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "lt_eq"
-    // GuardCommand.g:170:1: lt_eq returns [int type, int vtype] : LESS_EQ ;
+    // GuardCommand.g:173:1: lt_eq returns [int type, int vtype] : LESS_EQ ;
     public final GuardCommandParser.lt_eq_return lt_eq() throws RecognitionException {
         GuardCommandParser.lt_eq_return retval = new GuardCommandParser.lt_eq_return();
         retval.start = input.LT(1);
@@ -794,8 +798,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 10) ) { return retval; }
-            // GuardCommand.g:171:2: ( LESS_EQ )
-            // GuardCommand.g:171:4: LESS_EQ
+            // GuardCommand.g:174:2: ( LESS_EQ )
+            // GuardCommand.g:174:4: LESS_EQ
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -839,7 +843,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "rel"
-    // GuardCommand.g:172:1: rel returns [int type, int vtype] : ( (a= gt ) | (b= gt_eq ) | (c= lt ) | (d= lt_eq ) );
+    // GuardCommand.g:175:1: rel returns [int type, int vtype] : ( (a= gt ) | (b= gt_eq ) | (c= lt ) | (d= lt_eq ) );
     public final GuardCommandParser.rel_return rel() throws RecognitionException {
         GuardCommandParser.rel_return retval = new GuardCommandParser.rel_return();
         retval.start = input.LT(1);
@@ -858,7 +862,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 11) ) { return retval; }
-            // GuardCommand.g:173:2: ( (a= gt ) | (b= gt_eq ) | (c= lt ) | (d= lt_eq ) )
+            // GuardCommand.g:176:2: ( (a= gt ) | (b= gt_eq ) | (c= lt ) | (d= lt_eq ) )
             int alt3=4;
             switch ( input.LA(1) ) {
             case GREATER_THAN:
@@ -891,12 +895,12 @@ public class GuardCommandParser extends Parser {
 
             switch (alt3) {
                 case 1 :
-                    // GuardCommand.g:173:4: (a= gt )
+                    // GuardCommand.g:176:4: (a= gt )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:173:4: (a= gt )
-                    // GuardCommand.g:173:5: a= gt
+                    // GuardCommand.g:176:4: (a= gt )
+                    // GuardCommand.g:176:5: a= gt
                     {
                     pushFollow(FOLLOW_gt_in_rel621);
                     a=gt();
@@ -914,12 +918,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:174:4: (b= gt_eq )
+                    // GuardCommand.g:177:4: (b= gt_eq )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:174:4: (b= gt_eq )
-                    // GuardCommand.g:174:5: b= gt_eq
+                    // GuardCommand.g:177:4: (b= gt_eq )
+                    // GuardCommand.g:177:5: b= gt_eq
                     {
                     pushFollow(FOLLOW_gt_eq_in_rel632);
                     b=gt_eq();
@@ -937,12 +941,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // GuardCommand.g:175:4: (c= lt )
+                    // GuardCommand.g:178:4: (c= lt )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:175:4: (c= lt )
-                    // GuardCommand.g:175:5: c= lt
+                    // GuardCommand.g:178:4: (c= lt )
+                    // GuardCommand.g:178:5: c= lt
                     {
                     pushFollow(FOLLOW_lt_in_rel643);
                     c=lt();
@@ -960,12 +964,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // GuardCommand.g:176:4: (d= lt_eq )
+                    // GuardCommand.g:179:4: (d= lt_eq )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:176:4: (d= lt_eq )
-                    // GuardCommand.g:176:5: d= lt_eq
+                    // GuardCommand.g:179:4: (d= lt_eq )
+                    // GuardCommand.g:179:5: d= lt_eq
                     {
                     pushFollow(FOLLOW_lt_eq_in_rel654);
                     d=lt_eq();
@@ -1013,7 +1017,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "plus"
-    // GuardCommand.g:179:1: plus returns [int type, int vtype] : PLUS ;
+    // GuardCommand.g:182:1: plus returns [int type, int vtype] : PLUS ;
     public final GuardCommandParser.plus_return plus() throws RecognitionException {
         GuardCommandParser.plus_return retval = new GuardCommandParser.plus_return();
         retval.start = input.LT(1);
@@ -1026,8 +1030,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 12) ) { return retval; }
-            // GuardCommand.g:180:2: ( PLUS )
-            // GuardCommand.g:180:4: PLUS
+            // GuardCommand.g:183:2: ( PLUS )
+            // GuardCommand.g:183:4: PLUS
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1071,7 +1075,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "minus"
-    // GuardCommand.g:181:1: minus returns [int type, int vtype] : MINUS ;
+    // GuardCommand.g:184:1: minus returns [int type, int vtype] : MINUS ;
     public final GuardCommandParser.minus_return minus() throws RecognitionException {
         GuardCommandParser.minus_return retval = new GuardCommandParser.minus_return();
         retval.start = input.LT(1);
@@ -1084,8 +1088,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 13) ) { return retval; }
-            // GuardCommand.g:182:2: ( MINUS )
-            // GuardCommand.g:182:4: MINUS
+            // GuardCommand.g:185:2: ( MINUS )
+            // GuardCommand.g:185:4: MINUS
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1129,7 +1133,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "term"
-    // GuardCommand.g:183:1: term returns [int type, int vtype] : ( (a= plus ) | (b= minus ) );
+    // GuardCommand.g:186:1: term returns [int type, int vtype] : ( (a= plus ) | (b= minus ) );
     public final GuardCommandParser.term_return term() throws RecognitionException {
         GuardCommandParser.term_return retval = new GuardCommandParser.term_return();
         retval.start = input.LT(1);
@@ -1144,7 +1148,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 14) ) { return retval; }
-            // GuardCommand.g:184:2: ( (a= plus ) | (b= minus ) )
+            // GuardCommand.g:187:2: ( (a= plus ) | (b= minus ) )
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -1163,12 +1167,12 @@ public class GuardCommandParser extends Parser {
             }
             switch (alt4) {
                 case 1 :
-                    // GuardCommand.g:184:4: (a= plus )
+                    // GuardCommand.g:187:4: (a= plus )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:184:4: (a= plus )
-                    // GuardCommand.g:184:5: a= plus
+                    // GuardCommand.g:187:4: (a= plus )
+                    // GuardCommand.g:187:5: a= plus
                     {
                     pushFollow(FOLLOW_plus_in_term700);
                     a=plus();
@@ -1186,12 +1190,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:185:4: (b= minus )
+                    // GuardCommand.g:188:4: (b= minus )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:185:4: (b= minus )
-                    // GuardCommand.g:185:5: b= minus
+                    // GuardCommand.g:188:4: (b= minus )
+                    // GuardCommand.g:188:5: b= minus
                     {
                     pushFollow(FOLLOW_minus_in_term711);
                     b=minus();
@@ -1239,7 +1243,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "mul"
-    // GuardCommand.g:188:1: mul returns [int type, int vtype] : MUL ;
+    // GuardCommand.g:191:1: mul returns [int type, int vtype] : MUL ;
     public final GuardCommandParser.mul_return mul() throws RecognitionException {
         GuardCommandParser.mul_return retval = new GuardCommandParser.mul_return();
         retval.start = input.LT(1);
@@ -1252,8 +1256,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 15) ) { return retval; }
-            // GuardCommand.g:189:2: ( MUL )
-            // GuardCommand.g:189:4: MUL
+            // GuardCommand.g:192:2: ( MUL )
+            // GuardCommand.g:192:4: MUL
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1297,7 +1301,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "div"
-    // GuardCommand.g:190:1: div returns [int type, int vtype] : DIV ;
+    // GuardCommand.g:193:1: div returns [int type, int vtype] : DIV ;
     public final GuardCommandParser.div_return div() throws RecognitionException {
         GuardCommandParser.div_return retval = new GuardCommandParser.div_return();
         retval.start = input.LT(1);
@@ -1310,8 +1314,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 16) ) { return retval; }
-            // GuardCommand.g:191:2: ( DIV )
-            // GuardCommand.g:191:4: DIV
+            // GuardCommand.g:194:2: ( DIV )
+            // GuardCommand.g:194:4: DIV
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1355,7 +1359,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "factor"
-    // GuardCommand.g:192:1: factor returns [int type, int vtype] : ( (a= mul ) | (b= div ) );
+    // GuardCommand.g:195:1: factor returns [int type, int vtype] : ( (a= mul ) | (b= div ) );
     public final GuardCommandParser.factor_return factor() throws RecognitionException {
         GuardCommandParser.factor_return retval = new GuardCommandParser.factor_return();
         retval.start = input.LT(1);
@@ -1370,7 +1374,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 17) ) { return retval; }
-            // GuardCommand.g:193:2: ( (a= mul ) | (b= div ) )
+            // GuardCommand.g:196:2: ( (a= mul ) | (b= div ) )
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -1389,12 +1393,12 @@ public class GuardCommandParser extends Parser {
             }
             switch (alt5) {
                 case 1 :
-                    // GuardCommand.g:193:4: (a= mul )
+                    // GuardCommand.g:196:4: (a= mul )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:193:4: (a= mul )
-                    // GuardCommand.g:193:5: a= mul
+                    // GuardCommand.g:196:4: (a= mul )
+                    // GuardCommand.g:196:5: a= mul
                     {
                     pushFollow(FOLLOW_mul_in_factor757);
                     a=mul();
@@ -1412,12 +1416,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:194:4: (b= div )
+                    // GuardCommand.g:197:4: (b= div )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:194:4: (b= div )
-                    // GuardCommand.g:194:5: b= div
+                    // GuardCommand.g:197:4: (b= div )
+                    // GuardCommand.g:197:5: b= div
                     {
                     pushFollow(FOLLOW_div_in_factor768);
                     b=div();
@@ -1465,7 +1469,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expression"
-    // GuardCommand.g:201:1: expression returns [List<Statement> statList, Value val] : e= expr_or ;
+    // GuardCommand.g:204:1: expression returns [List<Statement> statList, Value val] : e= expr_or ;
     public final GuardCommandParser.expression_return expression() throws RecognitionException {
         GuardCommandParser.expression_return retval = new GuardCommandParser.expression_return();
         retval.start = input.LT(1);
@@ -1478,8 +1482,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 18) ) { return retval; }
-            // GuardCommand.g:202:2: (e= expr_or )
-            // GuardCommand.g:202:4: e= expr_or
+            // GuardCommand.g:205:2: (e= expr_or )
+            // GuardCommand.g:205:4: e= expr_or
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -1524,7 +1528,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_or"
-    // GuardCommand.g:205:1: expr_or returns [List<Statement> statList, Value val] : ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) );
+    // GuardCommand.g:208:1: expr_or returns [List<Statement> statList, Value val] : ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) );
     public final GuardCommandParser.expr_or_return expr_or() throws RecognitionException {
         GuardCommandParser.expr_or_return retval = new GuardCommandParser.expr_or_return();
         retval.start = input.LT(1);
@@ -1545,17 +1549,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 19) ) { return retval; }
-            // GuardCommand.g:206:2: ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) )
+            // GuardCommand.g:209:2: ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) )
             int alt7=2;
             alt7 = dfa7.predict(input);
             switch (alt7) {
                 case 1 :
-                    // GuardCommand.g:207:2: (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )*
+                    // GuardCommand.g:210:2: (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:207:2: (e1= expr_and b= or e2= expr_and )
-                    // GuardCommand.g:207:3: e1= expr_and b= or e2= expr_and
+                    // GuardCommand.g:210:2: (e1= expr_and b= or e2= expr_and )
+                    // GuardCommand.g:210:3: e1= expr_and b= or e2= expr_and
                     {
                     pushFollow(FOLLOW_expr_and_in_expr_or816);
                     e1=expr_and();
@@ -1583,7 +1587,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:212:2: (b= or e3= expr_and )*
+                    // GuardCommand.g:215:2: (b= or e3= expr_and )*
                     loop6:
                     do {
                         int alt6=2;
@@ -1596,7 +1600,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt6) {
                     	case 1 :
-                    	    // GuardCommand.g:212:3: b= or e3= expr_and
+                    	    // GuardCommand.g:215:3: b= or e3= expr_and
                     	    {
                     	    pushFollow(FOLLOW_or_in_expr_or837);
                     	    b=or();
@@ -1628,12 +1632,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:217:4: (e4= expr_and )
+                    // GuardCommand.g:220:4: (e4= expr_and )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:217:4: (e4= expr_and )
-                    // GuardCommand.g:217:5: e4= expr_and
+                    // GuardCommand.g:220:4: (e4= expr_and )
+                    // GuardCommand.g:220:5: e4= expr_and
                     {
                     pushFollow(FOLLOW_expr_and_in_expr_or857);
                     e4=expr_and();
@@ -1681,7 +1685,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_and"
-    // GuardCommand.g:220:1: expr_and returns [List<Statement> statList, Value val] : ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) );
+    // GuardCommand.g:223:1: expr_and returns [List<Statement> statList, Value val] : ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) );
     public final GuardCommandParser.expr_and_return expr_and() throws RecognitionException {
         GuardCommandParser.expr_and_return retval = new GuardCommandParser.expr_and_return();
         retval.start = input.LT(1);
@@ -1702,17 +1706,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 20) ) { return retval; }
-            // GuardCommand.g:221:2: ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) )
+            // GuardCommand.g:224:2: ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) )
             int alt9=2;
             alt9 = dfa9.predict(input);
             switch (alt9) {
                 case 1 :
-                    // GuardCommand.g:222:2: (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )*
+                    // GuardCommand.g:225:2: (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:222:2: (e1= expr_eqa b= and e2= expr_eqa )
-                    // GuardCommand.g:222:3: e1= expr_eqa b= and e2= expr_eqa
+                    // GuardCommand.g:225:2: (e1= expr_eqa b= and e2= expr_eqa )
+                    // GuardCommand.g:225:3: e1= expr_eqa b= and e2= expr_eqa
                     {
                     pushFollow(FOLLOW_expr_eqa_in_expr_and880);
                     e1=expr_eqa();
@@ -1740,7 +1744,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:227:2: (b= and e3= expr_eqa )*
+                    // GuardCommand.g:230:2: (b= and e3= expr_eqa )*
                     loop8:
                     do {
                         int alt8=2;
@@ -1753,7 +1757,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt8) {
                     	case 1 :
-                    	    // GuardCommand.g:227:3: b= and e3= expr_eqa
+                    	    // GuardCommand.g:230:3: b= and e3= expr_eqa
                     	    {
                     	    pushFollow(FOLLOW_and_in_expr_and901);
                     	    b=and();
@@ -1785,12 +1789,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:232:4: (e4= expr_eqa )
+                    // GuardCommand.g:235:4: (e4= expr_eqa )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:232:4: (e4= expr_eqa )
-                    // GuardCommand.g:232:5: e4= expr_eqa
+                    // GuardCommand.g:235:4: (e4= expr_eqa )
+                    // GuardCommand.g:235:5: e4= expr_eqa
                     {
                     pushFollow(FOLLOW_expr_eqa_in_expr_and921);
                     e4=expr_eqa();
@@ -1838,7 +1842,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_eqa"
-    // GuardCommand.g:236:1: expr_eqa returns [List<Statement> statList, Value val] : ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) );
+    // GuardCommand.g:239:1: expr_eqa returns [List<Statement> statList, Value val] : ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) );
     public final GuardCommandParser.expr_eqa_return expr_eqa() throws RecognitionException {
         GuardCommandParser.expr_eqa_return retval = new GuardCommandParser.expr_eqa_return();
         retval.start = input.LT(1);
@@ -1859,17 +1863,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 21) ) { return retval; }
-            // GuardCommand.g:237:2: ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) )
+            // GuardCommand.g:240:2: ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) )
             int alt11=2;
             alt11 = dfa11.predict(input);
             switch (alt11) {
                 case 1 :
-                    // GuardCommand.g:238:2: (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )*
+                    // GuardCommand.g:241:2: (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:238:2: (e1= expr_rel b= eqa e2= expr_rel )
-                    // GuardCommand.g:238:3: e1= expr_rel b= eqa e2= expr_rel
+                    // GuardCommand.g:241:2: (e1= expr_rel b= eqa e2= expr_rel )
+                    // GuardCommand.g:241:3: e1= expr_rel b= eqa e2= expr_rel
                     {
                     pushFollow(FOLLOW_expr_rel_in_expr_eqa945);
                     e1=expr_rel();
@@ -1897,7 +1901,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:243:2: (b= eqa e3= expr_rel )*
+                    // GuardCommand.g:246:2: (b= eqa e3= expr_rel )*
                     loop10:
                     do {
                         int alt10=2;
@@ -1910,7 +1914,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt10) {
                     	case 1 :
-                    	    // GuardCommand.g:243:3: b= eqa e3= expr_rel
+                    	    // GuardCommand.g:246:3: b= eqa e3= expr_rel
                     	    {
                     	    pushFollow(FOLLOW_eqa_in_expr_eqa966);
                     	    b=eqa();
@@ -1942,12 +1946,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:248:4: (e4= expr_rel )
+                    // GuardCommand.g:251:4: (e4= expr_rel )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:248:4: (e4= expr_rel )
-                    // GuardCommand.g:248:5: e4= expr_rel
+                    // GuardCommand.g:251:4: (e4= expr_rel )
+                    // GuardCommand.g:251:5: e4= expr_rel
                     {
                     pushFollow(FOLLOW_expr_rel_in_expr_eqa986);
                     e4=expr_rel();
@@ -1995,7 +1999,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_rel"
-    // GuardCommand.g:251:1: expr_rel returns [List<Statement> statList, Value val] : ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) );
+    // GuardCommand.g:254:1: expr_rel returns [List<Statement> statList, Value val] : ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) );
     public final GuardCommandParser.expr_rel_return expr_rel() throws RecognitionException {
         GuardCommandParser.expr_rel_return retval = new GuardCommandParser.expr_rel_return();
         retval.start = input.LT(1);
@@ -2016,17 +2020,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 22) ) { return retval; }
-            // GuardCommand.g:252:2: ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) )
+            // GuardCommand.g:255:2: ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) )
             int alt13=2;
             alt13 = dfa13.predict(input);
             switch (alt13) {
                 case 1 :
-                    // GuardCommand.g:253:2: (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )*
+                    // GuardCommand.g:256:2: (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:253:2: (e1= expr_term b= rel e2= expr_term )
-                    // GuardCommand.g:253:3: e1= expr_term b= rel e2= expr_term
+                    // GuardCommand.g:256:2: (e1= expr_term b= rel e2= expr_term )
+                    // GuardCommand.g:256:3: e1= expr_term b= rel e2= expr_term
                     {
                     pushFollow(FOLLOW_expr_term_in_expr_rel1008);
                     e1=expr_term();
@@ -2054,7 +2058,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:258:2: (b= rel e3= expr_term )*
+                    // GuardCommand.g:261:2: (b= rel e3= expr_term )*
                     loop12:
                     do {
                         int alt12=2;
@@ -2067,7 +2071,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt12) {
                     	case 1 :
-                    	    // GuardCommand.g:258:3: b= rel e3= expr_term
+                    	    // GuardCommand.g:261:3: b= rel e3= expr_term
                     	    {
                     	    pushFollow(FOLLOW_rel_in_expr_rel1029);
                     	    b=rel();
@@ -2099,12 +2103,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:263:4: (e4= expr_term )
+                    // GuardCommand.g:266:4: (e4= expr_term )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:263:4: (e4= expr_term )
-                    // GuardCommand.g:263:5: e4= expr_term
+                    // GuardCommand.g:266:4: (e4= expr_term )
+                    // GuardCommand.g:266:5: e4= expr_term
                     {
                     pushFollow(FOLLOW_expr_term_in_expr_rel1049);
                     e4=expr_term();
@@ -2152,7 +2156,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_term"
-    // GuardCommand.g:266:1: expr_term returns [List<Statement> statList, Value val] : ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) );
+    // GuardCommand.g:269:1: expr_term returns [List<Statement> statList, Value val] : ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) );
     public final GuardCommandParser.expr_term_return expr_term() throws RecognitionException {
         GuardCommandParser.expr_term_return retval = new GuardCommandParser.expr_term_return();
         retval.start = input.LT(1);
@@ -2173,17 +2177,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 23) ) { return retval; }
-            // GuardCommand.g:267:2: ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) )
+            // GuardCommand.g:270:2: ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) )
             int alt15=2;
             alt15 = dfa15.predict(input);
             switch (alt15) {
                 case 1 :
-                    // GuardCommand.g:268:2: (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )*
+                    // GuardCommand.g:271:2: (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:268:2: (e1= expr_factor b= term e2= expr_factor )
-                    // GuardCommand.g:268:3: e1= expr_factor b= term e2= expr_factor
+                    // GuardCommand.g:271:2: (e1= expr_factor b= term e2= expr_factor )
+                    // GuardCommand.g:271:3: e1= expr_factor b= term e2= expr_factor
                     {
                     pushFollow(FOLLOW_expr_factor_in_expr_term1072);
                     e1=expr_factor();
@@ -2211,7 +2215,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:273:2: (b= term e3= expr_factor )*
+                    // GuardCommand.g:276:2: (b= term e3= expr_factor )*
                     loop14:
                     do {
                         int alt14=2;
@@ -2224,7 +2228,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt14) {
                     	case 1 :
-                    	    // GuardCommand.g:273:3: b= term e3= expr_factor
+                    	    // GuardCommand.g:276:3: b= term e3= expr_factor
                     	    {
                     	    pushFollow(FOLLOW_term_in_expr_term1093);
                     	    b=term();
@@ -2256,12 +2260,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:278:4: (e4= expr_factor )
+                    // GuardCommand.g:281:4: (e4= expr_factor )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:278:4: (e4= expr_factor )
-                    // GuardCommand.g:278:5: e4= expr_factor
+                    // GuardCommand.g:281:4: (e4= expr_factor )
+                    // GuardCommand.g:281:5: e4= expr_factor
                     {
                     pushFollow(FOLLOW_expr_factor_in_expr_term1113);
                     e4=expr_factor();
@@ -2309,7 +2313,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_factor"
-    // GuardCommand.g:281:1: expr_factor returns [List<Statement> statList, Value val] : ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) );
+    // GuardCommand.g:284:1: expr_factor returns [List<Statement> statList, Value val] : ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) );
     public final GuardCommandParser.expr_factor_return expr_factor() throws RecognitionException {
         GuardCommandParser.expr_factor_return retval = new GuardCommandParser.expr_factor_return();
         retval.start = input.LT(1);
@@ -2330,17 +2334,17 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 24) ) { return retval; }
-            // GuardCommand.g:282:2: ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) )
+            // GuardCommand.g:285:2: ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) )
             int alt17=2;
             alt17 = dfa17.predict(input);
             switch (alt17) {
                 case 1 :
-                    // GuardCommand.g:283:2: (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )*
+                    // GuardCommand.g:286:2: (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )*
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:283:2: (e1= expr_unary b= factor e2= expr_unary )
-                    // GuardCommand.g:283:3: e1= expr_unary b= factor e2= expr_unary
+                    // GuardCommand.g:286:2: (e1= expr_unary b= factor e2= expr_unary )
+                    // GuardCommand.g:286:3: e1= expr_unary b= factor e2= expr_unary
                     {
                     pushFollow(FOLLOW_expr_unary_in_expr_factor1136);
                     e1=expr_unary();
@@ -2368,7 +2372,7 @@ public class GuardCommandParser extends Parser {
 
                     }
 
-                    // GuardCommand.g:288:2: (b= factor e3= expr_unary )*
+                    // GuardCommand.g:291:2: (b= factor e3= expr_unary )*
                     loop16:
                     do {
                         int alt16=2;
@@ -2381,7 +2385,7 @@ public class GuardCommandParser extends Parser {
 
                         switch (alt16) {
                     	case 1 :
-                    	    // GuardCommand.g:288:3: b= factor e3= expr_unary
+                    	    // GuardCommand.g:291:3: b= factor e3= expr_unary
                     	    {
                     	    pushFollow(FOLLOW_factor_in_expr_factor1157);
                     	    b=factor();
@@ -2413,12 +2417,12 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:293:4: (e4= expr_unary )
+                    // GuardCommand.g:296:4: (e4= expr_unary )
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    // GuardCommand.g:293:4: (e4= expr_unary )
-                    // GuardCommand.g:293:5: e4= expr_unary
+                    // GuardCommand.g:296:4: (e4= expr_unary )
+                    // GuardCommand.g:296:5: e4= expr_unary
                     {
                     pushFollow(FOLLOW_expr_unary_in_expr_factor1177);
                     e4=expr_unary();
@@ -2466,7 +2470,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "expr_unary"
-    // GuardCommand.g:296:1: expr_unary returns [List<Statement> statList, Value val] : (u= unary_operator e= expr_unary | l= lite | lp= lite_paren );
+    // GuardCommand.g:299:1: expr_unary returns [List<Statement> statList, Value val] : (u= unary_operator e= expr_unary | l= lite | lp= lite_paren );
     public final GuardCommandParser.expr_unary_return expr_unary() throws RecognitionException {
         GuardCommandParser.expr_unary_return retval = new GuardCommandParser.expr_unary_return();
         retval.start = input.LT(1);
@@ -2485,7 +2489,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 25) ) { return retval; }
-            // GuardCommand.g:297:2: (u= unary_operator e= expr_unary | l= lite | lp= lite_paren )
+            // GuardCommand.g:300:2: (u= unary_operator e= expr_unary | l= lite | lp= lite_paren )
             int alt18=3;
             switch ( input.LA(1) ) {
             case MINUS:
@@ -2517,7 +2521,7 @@ public class GuardCommandParser extends Parser {
 
             switch (alt18) {
                 case 1 :
-                    // GuardCommand.g:297:4: u= unary_operator e= expr_unary
+                    // GuardCommand.g:300:4: u= unary_operator e= expr_unary
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2552,7 +2556,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:311:4: l= lite
+                    // GuardCommand.g:314:4: l= lite
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2569,7 +2573,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // GuardCommand.g:312:4: lp= lite_paren
+                    // GuardCommand.g:315:4: lp= lite_paren
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2616,7 +2620,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "literal"
-    // GuardCommand.g:315:1: literal returns [List<Statement> statList, Value val] : (l= lite | lp= lite_paren );
+    // GuardCommand.g:318:1: literal returns [List<Statement> statList, Value val] : (l= lite | lp= lite_paren );
     public final GuardCommandParser.literal_return literal() throws RecognitionException {
         GuardCommandParser.literal_return retval = new GuardCommandParser.literal_return();
         retval.start = input.LT(1);
@@ -2631,7 +2635,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 26) ) { return retval; }
-            // GuardCommand.g:316:2: (l= lite | lp= lite_paren )
+            // GuardCommand.g:319:2: (l= lite | lp= lite_paren )
             int alt19=2;
             int LA19_0 = input.LA(1);
 
@@ -2650,7 +2654,7 @@ public class GuardCommandParser extends Parser {
             }
             switch (alt19) {
                 case 1 :
-                    // GuardCommand.g:316:4: l= lite
+                    // GuardCommand.g:319:4: l= lite
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2667,7 +2671,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:317:4: lp= lite_paren
+                    // GuardCommand.g:320:4: lp= lite_paren
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2713,7 +2717,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "lite"
-    // GuardCommand.g:320:1: lite returns [Value val] : (inte= INTEGER_LITERAL | tru= TRUE | fal= FALSE | id= IDENTIFIER );
+    // GuardCommand.g:323:1: lite returns [Value val] : (inte= INTEGER_LITERAL | tru= TRUE | fal= FALSE | id= IDENTIFIER );
     public final GuardCommandParser.lite_return lite() throws RecognitionException {
         GuardCommandParser.lite_return retval = new GuardCommandParser.lite_return();
         retval.start = input.LT(1);
@@ -2732,7 +2736,7 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 27) ) { return retval; }
-            // GuardCommand.g:321:2: (inte= INTEGER_LITERAL | tru= TRUE | fal= FALSE | id= IDENTIFIER )
+            // GuardCommand.g:324:2: (inte= INTEGER_LITERAL | tru= TRUE | fal= FALSE | id= IDENTIFIER )
             int alt20=4;
             switch ( input.LA(1) ) {
             case INTEGER_LITERAL:
@@ -2765,7 +2769,7 @@ public class GuardCommandParser extends Parser {
 
             switch (alt20) {
                 case 1 :
-                    // GuardCommand.g:322:2: inte= INTEGER_LITERAL
+                    // GuardCommand.g:325:2: inte= INTEGER_LITERAL
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2785,7 +2789,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:328:4: tru= TRUE
+                    // GuardCommand.g:331:4: tru= TRUE
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2801,7 +2805,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // GuardCommand.g:329:4: fal= FALSE
+                    // GuardCommand.g:332:4: fal= FALSE
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2817,7 +2821,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // GuardCommand.g:330:4: id= IDENTIFIER
+                    // GuardCommand.g:333:4: id= IDENTIFIER
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
@@ -2862,7 +2866,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "lite_paren"
-    // GuardCommand.g:333:1: lite_paren returns [List<Statement> statList] : LPAREN e= expression RPAREN ;
+    // GuardCommand.g:336:1: lite_paren returns [List<Statement> statList] : LPAREN e= expression RPAREN ;
     public final GuardCommandParser.lite_paren_return lite_paren() throws RecognitionException {
         GuardCommandParser.lite_paren_return retval = new GuardCommandParser.lite_paren_return();
         retval.start = input.LT(1);
@@ -2879,8 +2883,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 28) ) { return retval; }
-            // GuardCommand.g:334:2: ( LPAREN e= expression RPAREN )
-            // GuardCommand.g:334:4: LPAREN e= expression RPAREN
+            // GuardCommand.g:337:2: ( LPAREN e= expression RPAREN )
+            // GuardCommand.g:337:4: LPAREN e= expression RPAREN
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -2937,7 +2941,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "command"
-    // GuardCommand.g:347:1: command returns [List<Statement> commands] : (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* ;
+    // GuardCommand.g:350:1: command returns [List<Statement> commands] : (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* ;
     public final GuardCommandParser.command_return command() throws RecognitionException {
         GuardCommandParser.command_return retval = new GuardCommandParser.command_return();
         retval.start = input.LT(1);
@@ -2972,8 +2976,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 29) ) { return retval; }
-            // GuardCommand.g:348:2: ( (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* )
-            // GuardCommand.g:349:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )*
+            // GuardCommand.g:351:2: ( (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* )
+            // GuardCommand.g:352:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -2984,7 +2988,7 @@ public class GuardCommandParser extends Parser {
               		}
               	
             }
-            // GuardCommand.g:355:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd )
+            // GuardCommand.g:358:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd )
             int alt21=8;
             switch ( input.LA(1) ) {
             case IDENTIFIER:
@@ -3037,7 +3041,7 @@ public class GuardCommandParser extends Parser {
 
             switch (alt21) {
                 case 1 :
-                    // GuardCommand.g:355:4: a= assignment_cmd
+                    // GuardCommand.g:358:4: a= assignment_cmd
                     {
                     pushFollow(FOLLOW_assignment_cmd_in_command1358);
                     a=assignment_cmd();
@@ -3052,7 +3056,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:356:4: b= skip_cmd
+                    // GuardCommand.g:359:4: b= skip_cmd
                     {
                     pushFollow(FOLLOW_skip_cmd_in_command1369);
                     b=skip_cmd();
@@ -3067,7 +3071,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // GuardCommand.g:357:4: c= abort_cmd
+                    // GuardCommand.g:360:4: c= abort_cmd
                     {
                     pushFollow(FOLLOW_abort_cmd_in_command1381);
                     c=abort_cmd();
@@ -3082,7 +3086,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // GuardCommand.g:358:4: d= read_cmd
+                    // GuardCommand.g:361:4: d= read_cmd
                     {
                     pushFollow(FOLLOW_read_cmd_in_command1393);
                     d=read_cmd();
@@ -3097,7 +3101,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // GuardCommand.g:359:4: e= write_cmd
+                    // GuardCommand.g:362:4: e= write_cmd
                     {
                     pushFollow(FOLLOW_write_cmd_in_command1405);
                     e=write_cmd();
@@ -3112,7 +3116,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 6 :
-                    // GuardCommand.g:360:4: l= LCURLY f= command RCURLY
+                    // GuardCommand.g:363:4: l= LCURLY f= command RCURLY
                     {
                     l=(Token)match(input,LCURLY,FOLLOW_LCURLY_in_command1417); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
@@ -3133,15 +3137,16 @@ public class GuardCommandParser extends Parser {
                     if ( state.backtracking==0 ) {
 
                       			retval.commands.add(statementFactory.createCompoundStatement(
-                      				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), null, f.commands
+                      				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
                       			));
+                      			annotations.clear();
                       		
                     }
 
                     }
                     break;
                 case 7 :
-                    // GuardCommand.g:366:4: g= if_cmd
+                    // GuardCommand.g:370:4: g= if_cmd
                     {
                     pushFollow(FOLLOW_if_cmd_in_command1434);
                     g=if_cmd();
@@ -3156,7 +3161,7 @@ public class GuardCommandParser extends Parser {
                     }
                     break;
                 case 8 :
-                    // GuardCommand.g:367:4: h= do_cmd
+                    // GuardCommand.g:371:4: h= do_cmd
                     {
                     pushFollow(FOLLOW_do_cmd_in_command1448);
                     h=do_cmd();
@@ -3173,7 +3178,7 @@ public class GuardCommandParser extends Parser {
 
             }
 
-            // GuardCommand.g:370:2: ( SEMI i= command )*
+            // GuardCommand.g:374:2: ( SEMI i= command )*
             loop22:
             do {
                 int alt22=2;
@@ -3192,7 +3197,7 @@ public class GuardCommandParser extends Parser {
 
                 switch (alt22) {
             	case 1 :
-            	    // GuardCommand.g:370:3: SEMI i= command
+            	    // GuardCommand.g:374:3: SEMI i= command
             	    {
             	    SEMI18=(Token)match(input,SEMI,FOLLOW_SEMI_in_command1464); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
@@ -3251,7 +3256,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "assignment_cmd"
-    // GuardCommand.g:378:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
+    // GuardCommand.g:382:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
     public final GuardCommandParser.assignment_cmd_return assignment_cmd() throws RecognitionException {
         GuardCommandParser.assignment_cmd_return retval = new GuardCommandParser.assignment_cmd_return();
         retval.start = input.LT(1);
@@ -3268,8 +3273,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 30) ) { return retval; }
-            // GuardCommand.g:379:2: (id= IDENTIFIER as= ASSIGN e= expression )
-            // GuardCommand.g:379:4: id= IDENTIFIER as= ASSIGN e= expression
+            // GuardCommand.g:383:2: (id= IDENTIFIER as= ASSIGN e= expression )
+            // GuardCommand.g:383:4: id= IDENTIFIER as= ASSIGN e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3294,10 +3299,11 @@ public class GuardCommandParser extends Parser {
               			if (retval.commands == null) {retval.commands = new ArrayList<Statement>();}
               			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
               			final Statement assignStatement = statementFactory.createSimpleStatement(
-              				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), null,
+              				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), annotations,
               				variableTable.getVariable(id.getText()),
               				val
               			);
+              			annotations.clear();
               			if (e.val == null) {
               				retval.commands.addAll(e.statList);
               			}
@@ -3335,7 +3341,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "skip_cmd"
-    // GuardCommand.g:395:1: skip_cmd returns [Statement command] : s= SKIP ;
+    // GuardCommand.g:400:1: skip_cmd returns [Statement command] : s= SKIP ;
     public final GuardCommandParser.skip_cmd_return skip_cmd() throws RecognitionException {
         GuardCommandParser.skip_cmd_return retval = new GuardCommandParser.skip_cmd_return();
         retval.start = input.LT(1);
@@ -3348,8 +3354,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 31) ) { return retval; }
-            // GuardCommand.g:396:2: (s= SKIP )
-            // GuardCommand.g:396:4: s= SKIP
+            // GuardCommand.g:401:2: (s= SKIP )
+            // GuardCommand.g:401:4: s= SKIP
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3361,8 +3367,9 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			retval.command = statementFactory.createSimpleStatement(
-              				StatementType.SKIP, new CodeLocation(s_tree.getLine()), null
+              				StatementType.SKIP, new CodeLocation(s_tree.getLine()), annotations
               			);
+              			annotations.clear();
               		
             }
 
@@ -3396,7 +3403,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "abort_cmd"
-    // GuardCommand.g:404:1: abort_cmd returns [Statement command] : a= ABORT ;
+    // GuardCommand.g:410:1: abort_cmd returns [Statement command] : a= ABORT ;
     public final GuardCommandParser.abort_cmd_return abort_cmd() throws RecognitionException {
         GuardCommandParser.abort_cmd_return retval = new GuardCommandParser.abort_cmd_return();
         retval.start = input.LT(1);
@@ -3409,8 +3416,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 32) ) { return retval; }
-            // GuardCommand.g:405:2: (a= ABORT )
-            // GuardCommand.g:405:4: a= ABORT
+            // GuardCommand.g:411:2: (a= ABORT )
+            // GuardCommand.g:411:4: a= ABORT
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3422,8 +3429,9 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			retval.command = statementFactory.createSimpleStatement(
-              				StatementType.ABORT, new CodeLocation(a_tree.getLine()), null
+              				StatementType.ABORT, new CodeLocation(a_tree.getLine()), annotations
               			);
+              			annotations.clear();
               		
             }
 
@@ -3457,7 +3465,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "read_cmd"
-    // GuardCommand.g:413:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
+    // GuardCommand.g:420:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
     public final GuardCommandParser.read_cmd_return read_cmd() throws RecognitionException {
         GuardCommandParser.read_cmd_return retval = new GuardCommandParser.read_cmd_return();
         retval.start = input.LT(1);
@@ -3472,8 +3480,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 33) ) { return retval; }
-            // GuardCommand.g:414:2: (rea= READ id= IDENTIFIER )
-            // GuardCommand.g:414:4: rea= READ id= IDENTIFIER
+            // GuardCommand.g:421:2: (rea= READ id= IDENTIFIER )
+            // GuardCommand.g:421:4: rea= READ id= IDENTIFIER
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3490,9 +3498,10 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			retval.command = statementFactory.createSimpleStatement(
-              				StatementType.READ, new CodeLocation(rea_tree.getLine()), null,
+              				StatementType.READ, new CodeLocation(rea_tree.getLine()), annotations,
               				variableTable.getVariable(id.getText())
               			);
+              			annotations.clear();
               		
             }
 
@@ -3526,7 +3535,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "write_cmd"
-    // GuardCommand.g:423:1: write_cmd returns [List<Statement> commands] : wr= WRITE e= expression ;
+    // GuardCommand.g:431:1: write_cmd returns [List<Statement> commands] : wr= WRITE e= expression ;
     public final GuardCommandParser.write_cmd_return write_cmd() throws RecognitionException {
         GuardCommandParser.write_cmd_return retval = new GuardCommandParser.write_cmd_return();
         retval.start = input.LT(1);
@@ -3541,8 +3550,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 34) ) { return retval; }
-            // GuardCommand.g:424:2: (wr= WRITE e= expression )
-            // GuardCommand.g:424:4: wr= WRITE e= expression
+            // GuardCommand.g:432:2: (wr= WRITE e= expression )
+            // GuardCommand.g:432:4: wr= WRITE e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3562,9 +3571,10 @@ public class GuardCommandParser extends Parser {
               			if (retval.commands == null) {retval.commands = new ArrayList<Statement>();}
               			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
               			final Statement assignStatement = statementFactory.createSimpleStatement(
-              				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,
+              				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), annotations,
               				null, val
               			);
+              			annotations.clear();
               			if (e.val == null) {
               				retval.commands.addAll(e.statList);
               			}
@@ -3602,7 +3612,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "if_cmd"
-    // GuardCommand.g:439:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
+    // GuardCommand.g:448:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
     public final GuardCommandParser.if_cmd_return if_cmd() throws RecognitionException {
         GuardCommandParser.if_cmd_return retval = new GuardCommandParser.if_cmd_return();
         retval.start = input.LT(1);
@@ -3619,8 +3629,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 35) ) { return retval; }
-            // GuardCommand.g:440:2: (ift= IF gc= guarded_cmd FI )
-            // GuardCommand.g:440:4: ift= IF gc= guarded_cmd FI
+            // GuardCommand.g:449:2: (ift= IF gc= guarded_cmd FI )
+            // GuardCommand.g:449:4: ift= IF gc= guarded_cmd FI
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3643,8 +3653,9 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			retval.command = statementFactory.createCompoundStatement(
-              				StatementType.IF, new CodeLocation(ift_tree.getLine()), null, gc.commands
+              				StatementType.IF, new CodeLocation(ift_tree.getLine()), annotations, gc.commands
               			);
+              			annotations.clear();
               		
             }
 
@@ -3678,7 +3689,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "do_cmd"
-    // GuardCommand.g:448:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
+    // GuardCommand.g:458:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
     public final GuardCommandParser.do_cmd_return do_cmd() throws RecognitionException {
         GuardCommandParser.do_cmd_return retval = new GuardCommandParser.do_cmd_return();
         retval.start = input.LT(1);
@@ -3695,8 +3706,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 36) ) { return retval; }
-            // GuardCommand.g:449:2: (dot= DO gc= guarded_cmd OD )
-            // GuardCommand.g:449:4: dot= DO gc= guarded_cmd OD
+            // GuardCommand.g:459:2: (dot= DO gc= guarded_cmd OD )
+            // GuardCommand.g:459:4: dot= DO gc= guarded_cmd OD
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3719,8 +3730,9 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			retval.command = statementFactory.createCompoundStatement(
-              				StatementType.DO, new CodeLocation(dot_tree.getLine()), null, gc.commands
+              				StatementType.DO, new CodeLocation(dot_tree.getLine()), annotations, gc.commands
               			);
+              			annotations.clear();
               		
             }
 
@@ -3754,7 +3766,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "guarded_cmd"
-    // GuardCommand.g:457:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
+    // GuardCommand.g:468:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
     public final GuardCommandParser.guarded_cmd_return guarded_cmd() throws RecognitionException {
         GuardCommandParser.guarded_cmd_return retval = new GuardCommandParser.guarded_cmd_return();
         retval.start = input.LT(1);
@@ -3775,8 +3787,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 37) ) { return retval; }
-            // GuardCommand.g:458:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
-            // GuardCommand.g:459:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
+            // GuardCommand.g:469:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
+            // GuardCommand.g:470:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3787,8 +3799,8 @@ public class GuardCommandParser extends Parser {
               		}
               	
             }
-            // GuardCommand.g:464:2: (e= expression ARROW c= command )
-            // GuardCommand.g:464:3: e= expression ARROW c= command
+            // GuardCommand.g:475:2: (e= expression ARROW c= command )
+            // GuardCommand.g:475:3: e= expression ARROW c= command
             {
             pushFollow(FOLLOW_expression_in_guarded_cmd1673);
             e=expression();
@@ -3816,7 +3828,7 @@ public class GuardCommandParser extends Parser {
               			final Statement newestStat = statementFactory.createSimpleStatement(
               				StatementType.ASSIGN,
               				new CodeLocation(e.tree.getLine()),
-              				null,
+              				annotations,
               				variableTable.createTemporaryVariable(e.val.getValueType()),
               				e.val
               			);
@@ -3824,15 +3836,17 @@ public class GuardCommandParser extends Parser {
               		}
               		else {
               			retval.commands.add(statementFactory.createCompoundStatement(
-              				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), null, e.statList
+              				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, e.statList
               			));
               		}
+              		annotations.clear();
               		retval.commands.add(statementFactory.createCompoundStatement(
-              			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), null, c.commands
+              			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), annotations, c.commands
               		));
+              		annotations.clear();
               	
             }
-            // GuardCommand.g:484:2: ( GUARD gc= guarded_cmd )*
+            // GuardCommand.g:497:2: ( GUARD gc= guarded_cmd )*
             loop23:
             do {
                 int alt23=2;
@@ -3851,7 +3865,7 @@ public class GuardCommandParser extends Parser {
 
                 switch (alt23) {
             	case 1 :
-            	    // GuardCommand.g:484:3: GUARD gc= guarded_cmd
+            	    // GuardCommand.g:497:3: GUARD gc= guarded_cmd
             	    {
             	    GUARD22=(Token)match(input,GUARD,FOLLOW_GUARD_in_guarded_cmd1686); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
@@ -3907,7 +3921,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "program"
-    // GuardCommand.g:487:1: program returns [CompilationUnit compilationUnit] : m= MODULE id= IDENTIFIER COLON c= command END ;
+    // GuardCommand.g:500:1: program returns [CompilationUnit compilationUnit] : m= MODULE id= IDENTIFIER COLON c= command END ;
     public final GuardCommandParser.program_return program() throws RecognitionException {
         GuardCommandParser.program_return retval = new GuardCommandParser.program_return();
         retval.start = input.LT(1);
@@ -3928,8 +3942,8 @@ public class GuardCommandParser extends Parser {
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 38) ) { return retval; }
-            // GuardCommand.g:488:2: (m= MODULE id= IDENTIFIER COLON c= command END )
-            // GuardCommand.g:488:4: m= MODULE id= IDENTIFIER COLON c= command END
+            // GuardCommand.g:501:2: (m= MODULE id= IDENTIFIER COLON c= command END )
+            // GuardCommand.g:501:4: m= MODULE id= IDENTIFIER COLON c= command END
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3962,8 +3976,9 @@ public class GuardCommandParser extends Parser {
             if ( state.backtracking==0 ) {
 
               			final Statement command = statementFactory.createRootStatement(
-              				new CodeLocation(m_tree.getLine()), null, c.commands
+              				new CodeLocation(m_tree.getLine()), annotations, c.commands
               			);
+              			annotations.clear();
               			retval.compilationUnit = new CompilationUnit(
               				id.getText(), command, variableTable
               			);
@@ -3993,6 +4008,144 @@ public class GuardCommandParser extends Parser {
     }
     // $ANTLR end "program"
 
+    public static class annotation_return extends ParserRuleReturnScope {
+        CommonTree tree;
+        public Object getTree() { return tree; }
+    };
+
+    // $ANTLR start "annotation"
+    // GuardCommand.g:514:1: annotation : ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' ;
+    public final GuardCommandParser.annotation_return annotation() throws RecognitionException {
+        GuardCommandParser.annotation_return retval = new GuardCommandParser.annotation_return();
+        retval.start = input.LT(1);
+        int annotation_StartIndex = input.index();
+        CommonTree root_0 = null;
+
+        Token id=null;
+        Token te=null;
+        Token string_literal25=null;
+        Token char_literal26=null;
+        Token char_literal27=null;
+        Token set28=null;
+        Token char_literal29=null;
+
+        CommonTree id_tree=null;
+        CommonTree te_tree=null;
+        CommonTree string_literal25_tree=null;
+        CommonTree char_literal26_tree=null;
+        CommonTree char_literal27_tree=null;
+        CommonTree set28_tree=null;
+        CommonTree char_literal29_tree=null;
+
+        try {
+            if ( state.backtracking>0 && alreadyParsedRule(input, 39) ) { return retval; }
+            // GuardCommand.g:515:2: ( ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' )
+            // GuardCommand.g:515:4: ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"'
+            {
+            root_0 = (CommonTree)adaptor.nil();
+
+            // GuardCommand.g:515:4: ( '#@' )
+            // GuardCommand.g:515:5: '#@'
+            {
+            string_literal25=(Token)match(input,44,FOLLOW_44_in_annotation1747); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            string_literal25_tree = (CommonTree)adaptor.create(string_literal25);
+            adaptor.addChild(root_0, string_literal25_tree);
+            }
+
+            }
+
+            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_annotation1752); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            id_tree = (CommonTree)adaptor.create(id);
+            adaptor.addChild(root_0, id_tree);
+            }
+            char_literal26=(Token)match(input,EQ,FOLLOW_EQ_in_annotation1754); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            char_literal26_tree = (CommonTree)adaptor.create(char_literal26);
+            adaptor.addChild(root_0, char_literal26_tree);
+            }
+            char_literal27=(Token)match(input,45,FOLLOW_45_in_annotation1756); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            char_literal27_tree = (CommonTree)adaptor.create(char_literal27);
+            adaptor.addChild(root_0, char_literal27_tree);
+            }
+            // GuardCommand.g:515:36: ( (~ ( '\"' ) )* )
+            // GuardCommand.g:515:37: (~ ( '\"' ) )*
+            {
+            // GuardCommand.g:515:37: (~ ( '\"' ) )*
+            loop24:
+            do {
+                int alt24=2;
+                int LA24_0 = input.LA(1);
+
+                if ( ((LA24_0>=AND && LA24_0<=44)) ) {
+                    alt24=1;
+                }
+
+
+                switch (alt24) {
+            	case 1 :
+            	    // GuardCommand.g:0:0: ~ ( '\"' )
+            	    {
+            	    set28=(Token)input.LT(1);
+            	    if ( (input.LA(1)>=AND && input.LA(1)<=44) ) {
+            	        input.consume();
+            	        if ( state.backtracking==0 ) adaptor.addChild(root_0, (CommonTree)adaptor.create(set28));
+            	        state.errorRecovery=false;state.failed=false;
+            	    }
+            	    else {
+            	        if (state.backtracking>0) {state.failed=true; return retval;}
+            	        MismatchedSetException mse = new MismatchedSetException(null,input);
+            	        throw mse;
+            	    }
+
+
+            	    }
+            	    break;
+
+            	default :
+            	    break loop24;
+                }
+            } while (true);
+
+
+            }
+
+            char_literal29=(Token)match(input,45,FOLLOW_45_in_annotation1768); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            char_literal29_tree = (CommonTree)adaptor.create(char_literal29);
+            adaptor.addChild(root_0, char_literal29_tree);
+            }
+            if ( state.backtracking==0 ) {
+
+              			annotations.add(Annotation.newInstance(id.getText(), te.getText()));
+              		
+            }
+
+            }
+
+            retval.stop = input.LT(-1);
+
+            if ( state.backtracking==0 ) {
+
+            retval.tree = (CommonTree)adaptor.rulePostProcessing(root_0);
+            adaptor.setTokenBoundaries(retval.tree, retval.start, retval.stop);
+            }
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+    	retval.tree = (CommonTree)adaptor.errorNode(input, retval.start, input.LT(-1), re);
+
+        }
+        finally {
+            if ( state.backtracking>0 ) { memoize(input, 39, annotation_StartIndex); }
+        }
+        return retval;
+    }
+    // $ANTLR end "annotation"
+
     // $ANTLR start synpred9_GuardCommand
     public final void synpred9_GuardCommand_fragment() throws RecognitionException {   
         GuardCommandParser.expr_and_return e1 = null;
@@ -4004,11 +4157,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_and_return e3 = null;
 
 
-        // GuardCommand.g:207:2: ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* )
-        // GuardCommand.g:207:2: (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )*
+        // GuardCommand.g:210:2: ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* )
+        // GuardCommand.g:210:2: (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )*
         {
-        // GuardCommand.g:207:2: (e1= expr_and b= or e2= expr_and )
-        // GuardCommand.g:207:3: e1= expr_and b= or e2= expr_and
+        // GuardCommand.g:210:2: (e1= expr_and b= or e2= expr_and )
+        // GuardCommand.g:210:3: e1= expr_and b= or e2= expr_and
         {
         pushFollow(FOLLOW_expr_and_in_synpred9_GuardCommand816);
         e1=expr_and();
@@ -4028,20 +4181,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:212:2: (b= or e3= expr_and )*
-        loop24:
+        // GuardCommand.g:215:2: (b= or e3= expr_and )*
+        loop25:
         do {
-            int alt24=2;
-            int LA24_0 = input.LA(1);
+            int alt25=2;
+            int LA25_0 = input.LA(1);
 
-            if ( (LA24_0==OR) ) {
-                alt24=1;
+            if ( (LA25_0==OR) ) {
+                alt25=1;
             }
 
 
-            switch (alt24) {
+            switch (alt25) {
         	case 1 :
-        	    // GuardCommand.g:212:3: b= or e3= expr_and
+        	    // GuardCommand.g:215:3: b= or e3= expr_and
         	    {
         	    pushFollow(FOLLOW_or_in_synpred9_GuardCommand837);
         	    b=or();
@@ -4058,7 +4211,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop24;
+        	    break loop25;
             }
         } while (true);
 
@@ -4078,11 +4231,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_eqa_return e3 = null;
 
 
-        // GuardCommand.g:222:2: ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* )
-        // GuardCommand.g:222:2: (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )*
+        // GuardCommand.g:225:2: ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* )
+        // GuardCommand.g:225:2: (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )*
         {
-        // GuardCommand.g:222:2: (e1= expr_eqa b= and e2= expr_eqa )
-        // GuardCommand.g:222:3: e1= expr_eqa b= and e2= expr_eqa
+        // GuardCommand.g:225:2: (e1= expr_eqa b= and e2= expr_eqa )
+        // GuardCommand.g:225:3: e1= expr_eqa b= and e2= expr_eqa
         {
         pushFollow(FOLLOW_expr_eqa_in_synpred11_GuardCommand880);
         e1=expr_eqa();
@@ -4102,20 +4255,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:227:2: (b= and e3= expr_eqa )*
-        loop25:
+        // GuardCommand.g:230:2: (b= and e3= expr_eqa )*
+        loop26:
         do {
-            int alt25=2;
-            int LA25_0 = input.LA(1);
+            int alt26=2;
+            int LA26_0 = input.LA(1);
 
-            if ( (LA25_0==AND) ) {
-                alt25=1;
+            if ( (LA26_0==AND) ) {
+                alt26=1;
             }
 
 
-            switch (alt25) {
+            switch (alt26) {
         	case 1 :
-        	    // GuardCommand.g:227:3: b= and e3= expr_eqa
+        	    // GuardCommand.g:230:3: b= and e3= expr_eqa
         	    {
         	    pushFollow(FOLLOW_and_in_synpred11_GuardCommand901);
         	    b=and();
@@ -4132,7 +4285,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop25;
+        	    break loop26;
             }
         } while (true);
 
@@ -4152,11 +4305,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_rel_return e3 = null;
 
 
-        // GuardCommand.g:238:2: ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* )
-        // GuardCommand.g:238:2: (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )*
+        // GuardCommand.g:241:2: ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* )
+        // GuardCommand.g:241:2: (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )*
         {
-        // GuardCommand.g:238:2: (e1= expr_rel b= eqa e2= expr_rel )
-        // GuardCommand.g:238:3: e1= expr_rel b= eqa e2= expr_rel
+        // GuardCommand.g:241:2: (e1= expr_rel b= eqa e2= expr_rel )
+        // GuardCommand.g:241:3: e1= expr_rel b= eqa e2= expr_rel
         {
         pushFollow(FOLLOW_expr_rel_in_synpred13_GuardCommand945);
         e1=expr_rel();
@@ -4176,20 +4329,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:243:2: (b= eqa e3= expr_rel )*
-        loop26:
+        // GuardCommand.g:246:2: (b= eqa e3= expr_rel )*
+        loop27:
         do {
-            int alt26=2;
-            int LA26_0 = input.LA(1);
+            int alt27=2;
+            int LA27_0 = input.LA(1);
 
-            if ( ((LA26_0>=EQ && LA26_0<=NEQ)) ) {
-                alt26=1;
+            if ( ((LA27_0>=EQ && LA27_0<=NEQ)) ) {
+                alt27=1;
             }
 
 
-            switch (alt26) {
+            switch (alt27) {
         	case 1 :
-        	    // GuardCommand.g:243:3: b= eqa e3= expr_rel
+        	    // GuardCommand.g:246:3: b= eqa e3= expr_rel
         	    {
         	    pushFollow(FOLLOW_eqa_in_synpred13_GuardCommand966);
         	    b=eqa();
@@ -4206,7 +4359,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop26;
+        	    break loop27;
             }
         } while (true);
 
@@ -4226,11 +4379,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_term_return e3 = null;
 
 
-        // GuardCommand.g:253:2: ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* )
-        // GuardCommand.g:253:2: (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )*
+        // GuardCommand.g:256:2: ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* )
+        // GuardCommand.g:256:2: (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )*
         {
-        // GuardCommand.g:253:2: (e1= expr_term b= rel e2= expr_term )
-        // GuardCommand.g:253:3: e1= expr_term b= rel e2= expr_term
+        // GuardCommand.g:256:2: (e1= expr_term b= rel e2= expr_term )
+        // GuardCommand.g:256:3: e1= expr_term b= rel e2= expr_term
         {
         pushFollow(FOLLOW_expr_term_in_synpred15_GuardCommand1008);
         e1=expr_term();
@@ -4250,20 +4403,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:258:2: (b= rel e3= expr_term )*
-        loop27:
+        // GuardCommand.g:261:2: (b= rel e3= expr_term )*
+        loop28:
         do {
-            int alt27=2;
-            int LA27_0 = input.LA(1);
+            int alt28=2;
+            int LA28_0 = input.LA(1);
 
-            if ( ((LA27_0>=GREATER_THAN && LA27_0<=LESS_EQ)) ) {
-                alt27=1;
+            if ( ((LA28_0>=GREATER_THAN && LA28_0<=LESS_EQ)) ) {
+                alt28=1;
             }
 
 
-            switch (alt27) {
+            switch (alt28) {
         	case 1 :
-        	    // GuardCommand.g:258:3: b= rel e3= expr_term
+        	    // GuardCommand.g:261:3: b= rel e3= expr_term
         	    {
         	    pushFollow(FOLLOW_rel_in_synpred15_GuardCommand1029);
         	    b=rel();
@@ -4280,7 +4433,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop27;
+        	    break loop28;
             }
         } while (true);
 
@@ -4300,11 +4453,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_factor_return e3 = null;
 
 
-        // GuardCommand.g:268:2: ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* )
-        // GuardCommand.g:268:2: (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )*
+        // GuardCommand.g:271:2: ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* )
+        // GuardCommand.g:271:2: (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )*
         {
-        // GuardCommand.g:268:2: (e1= expr_factor b= term e2= expr_factor )
-        // GuardCommand.g:268:3: e1= expr_factor b= term e2= expr_factor
+        // GuardCommand.g:271:2: (e1= expr_factor b= term e2= expr_factor )
+        // GuardCommand.g:271:3: e1= expr_factor b= term e2= expr_factor
         {
         pushFollow(FOLLOW_expr_factor_in_synpred17_GuardCommand1072);
         e1=expr_factor();
@@ -4324,20 +4477,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:273:2: (b= term e3= expr_factor )*
-        loop28:
+        // GuardCommand.g:276:2: (b= term e3= expr_factor )*
+        loop29:
         do {
-            int alt28=2;
-            int LA28_0 = input.LA(1);
+            int alt29=2;
+            int LA29_0 = input.LA(1);
 
-            if ( ((LA28_0>=PLUS && LA28_0<=MINUS)) ) {
-                alt28=1;
+            if ( ((LA29_0>=PLUS && LA29_0<=MINUS)) ) {
+                alt29=1;
             }
 
 
-            switch (alt28) {
+            switch (alt29) {
         	case 1 :
-        	    // GuardCommand.g:273:3: b= term e3= expr_factor
+        	    // GuardCommand.g:276:3: b= term e3= expr_factor
         	    {
         	    pushFollow(FOLLOW_term_in_synpred17_GuardCommand1093);
         	    b=term();
@@ -4354,7 +4507,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop28;
+        	    break loop29;
             }
         } while (true);
 
@@ -4374,11 +4527,11 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.expr_unary_return e3 = null;
 
 
-        // GuardCommand.g:283:2: ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* )
-        // GuardCommand.g:283:2: (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )*
+        // GuardCommand.g:286:2: ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* )
+        // GuardCommand.g:286:2: (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )*
         {
-        // GuardCommand.g:283:2: (e1= expr_unary b= factor e2= expr_unary )
-        // GuardCommand.g:283:3: e1= expr_unary b= factor e2= expr_unary
+        // GuardCommand.g:286:2: (e1= expr_unary b= factor e2= expr_unary )
+        // GuardCommand.g:286:3: e1= expr_unary b= factor e2= expr_unary
         {
         pushFollow(FOLLOW_expr_unary_in_synpred19_GuardCommand1136);
         e1=expr_unary();
@@ -4398,20 +4551,20 @@ public class GuardCommandParser extends Parser {
 
         }
 
-        // GuardCommand.g:288:2: (b= factor e3= expr_unary )*
-        loop29:
+        // GuardCommand.g:291:2: (b= factor e3= expr_unary )*
+        loop30:
         do {
-            int alt29=2;
-            int LA29_0 = input.LA(1);
+            int alt30=2;
+            int LA30_0 = input.LA(1);
 
-            if ( ((LA29_0>=MUL && LA29_0<=DIV)) ) {
-                alt29=1;
+            if ( ((LA30_0>=MUL && LA30_0<=DIV)) ) {
+                alt30=1;
             }
 
 
-            switch (alt29) {
+            switch (alt30) {
         	case 1 :
-        	    // GuardCommand.g:288:3: b= factor e3= expr_unary
+        	    // GuardCommand.g:291:3: b= factor e3= expr_unary
         	    {
         	    pushFollow(FOLLOW_factor_in_synpred19_GuardCommand1157);
         	    b=factor();
@@ -4428,7 +4581,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop29;
+        	    break loop30;
             }
         } while (true);
 
@@ -4442,8 +4595,8 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.command_return i = null;
 
 
-        // GuardCommand.g:370:3: ( SEMI i= command )
-        // GuardCommand.g:370:3: SEMI i= command
+        // GuardCommand.g:374:3: ( SEMI i= command )
+        // GuardCommand.g:374:3: SEMI i= command
         {
         match(input,SEMI,FOLLOW_SEMI_in_synpred33_GuardCommand1464); if (state.failed) return ;
         pushFollow(FOLLOW_command_in_synpred33_GuardCommand1468);
@@ -4461,8 +4614,8 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
-        // GuardCommand.g:484:3: ( GUARD gc= guarded_cmd )
-        // GuardCommand.g:484:3: GUARD gc= guarded_cmd
+        // GuardCommand.g:497:3: ( GUARD gc= guarded_cmd )
+        // GuardCommand.g:497:3: GUARD gc= guarded_cmd
         {
         match(input,GUARD,FOLLOW_GUARD_in_synpred34_GuardCommand1686); if (state.failed) return ;
         pushFollow(FOLLOW_guarded_cmd_in_synpred34_GuardCommand1690);
@@ -4652,7 +4805,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA7_transition;
         }
         public String getDescription() {
-            return "205:1: expr_or returns [List<Statement> statList, Value val] : ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) );";
+            return "208:1: expr_or returns [List<Statement> statList, Value val] : ( (e1= expr_and b= or e2= expr_and ) (b= or e3= expr_and )* | (e4= expr_and ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -4826,7 +4979,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA9_transition;
         }
         public String getDescription() {
-            return "220:1: expr_and returns [List<Statement> statList, Value val] : ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) );";
+            return "223:1: expr_and returns [List<Statement> statList, Value val] : ( (e1= expr_eqa b= and e2= expr_eqa ) (b= and e3= expr_eqa )* | (e4= expr_eqa ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -5000,7 +5153,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA11_transition;
         }
         public String getDescription() {
-            return "236:1: expr_eqa returns [List<Statement> statList, Value val] : ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) );";
+            return "239:1: expr_eqa returns [List<Statement> statList, Value val] : ( (e1= expr_rel b= eqa e2= expr_rel ) (b= eqa e3= expr_rel )* | (e4= expr_rel ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -5174,7 +5327,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA13_transition;
         }
         public String getDescription() {
-            return "251:1: expr_rel returns [List<Statement> statList, Value val] : ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) );";
+            return "254:1: expr_rel returns [List<Statement> statList, Value val] : ( (e1= expr_term b= rel e2= expr_term ) (b= rel e3= expr_term )* | (e4= expr_term ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -5348,7 +5501,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA15_transition;
         }
         public String getDescription() {
-            return "266:1: expr_term returns [List<Statement> statList, Value val] : ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) );";
+            return "269:1: expr_term returns [List<Statement> statList, Value val] : ( (e1= expr_factor b= term e2= expr_factor ) (b= term e3= expr_factor )* | (e4= expr_factor ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -5522,7 +5675,7 @@ public class GuardCommandParser extends Parser {
             this.transition = DFA17_transition;
         }
         public String getDescription() {
-            return "281:1: expr_factor returns [List<Statement> statList, Value val] : ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) );";
+            return "284:1: expr_factor returns [List<Statement> statList, Value val] : ( (e1= expr_unary b= factor e2= expr_unary ) (b= factor e3= expr_unary )* | (e4= expr_unary ) );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             TokenStream input = (TokenStream)_input;
@@ -5754,6 +5907,12 @@ public class GuardCommandParser extends Parser {
     public static final BitSet FOLLOW_COLON_in_program1719 = new BitSet(new long[]{0x00000083C5400000L});
     public static final BitSet FOLLOW_command_in_program1723 = new BitSet(new long[]{0x0000000800000000L});
     public static final BitSet FOLLOW_END_in_program1725 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_44_in_annotation1747 = new BitSet(new long[]{0x0000008000000000L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_annotation1752 = new BitSet(new long[]{0x0000000000001000L});
+    public static final BitSet FOLLOW_EQ_in_annotation1754 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_45_in_annotation1756 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
+    public static final BitSet FOLLOW_set_in_annotation1761 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
+    public static final BitSet FOLLOW_45_in_annotation1768 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_expr_and_in_synpred9_GuardCommand816 = new BitSet(new long[]{0x0000000000000020L});
     public static final BitSet FOLLOW_or_in_synpred9_GuardCommand820 = new BitSet(new long[]{0x000000F000148000L});
     public static final BitSet FOLLOW_expr_and_in_synpred9_GuardCommand824 = new BitSet(new long[]{0x0000000000000022L});

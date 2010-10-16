@@ -11,7 +11,8 @@ A multiline comment in the start.
 //Line comment.
 			//Another line comment.
 
-module skulls :
+#@ annotation_variable = "value1"
+module test_program :
 	x := b;
 	x := a;
 	write 3*3*3;
@@ -23,6 +24,7 @@ module skulls :
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
         ##@IDLE_CODE@;
+#@ point = "first_loop"
 	do
 		(a > 3 > x*30 + asdf / 30) -> x := 1
 	[]	a <= x -> x := 0
@@ -31,6 +33,7 @@ module skulls :
 	[]	a <= x -> x := 0
 	od
 	;
+#@ point = "first_if"
 	if 
 		(a > x) -> x := 1
 	[]	a <= x -> x := 0

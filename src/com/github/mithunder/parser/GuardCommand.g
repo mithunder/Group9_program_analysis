@@ -54,6 +54,7 @@ package com.github.mithunder.parser;
 @parser::header{
 package com.github.mithunder.parser;
 
+import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
@@ -129,6 +130,8 @@ import com.github.mithunder.statements.CodeLocation;
 			return l1;
 		}
     }
+    
+    private final List<Annotation> annotations = new ArrayList<Annotation>();
 }
 
 
@@ -360,8 +363,9 @@ command returns [List<Statement> commands]
 	| l=LCURLY f=command RCURLY
 		{
 			$commands.add(statementFactory.createCompoundStatement(
-				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), null, f.commands
+				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
 			));
+			annotations.clear();
 		}
 	| g=if_cmd 					{$commands.add(g.command);}
 	| h=do_cmd 					{$commands.add(h.command);}
@@ -381,10 +385,11 @@ assignment_cmd returns [List<Statement> commands]
 			if ($commands == null) {$commands = new ArrayList<Statement>();}
 			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
 			final Statement assignStatement = statementFactory.createSimpleStatement(
-				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), null,
+				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), annotations,
 				variableTable.getVariable(id.getText()),
 				val
 			);
+			annotations.clear();
 			if (e.val == null) {
 				$commands.addAll(e.statList);
 			}
@@ -396,8 +401,9 @@ skip_cmd returns [Statement command]
 	: s=SKIP
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.SKIP, new CodeLocation(s_tree.getLine()), null
+				StatementType.SKIP, new CodeLocation(s_tree.getLine()), annotations
 			);
+			annotations.clear();
 		}
 	;
 
@@ -405,8 +411,9 @@ abort_cmd returns [Statement command]
 	: a=ABORT
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.ABORT, new CodeLocation(a_tree.getLine()), null
+				StatementType.ABORT, new CodeLocation(a_tree.getLine()), annotations
 			);
+			annotations.clear();
 		}
 	;
 
@@ -414,9 +421,10 @@ read_cmd returns [Statement command]
 	: rea=READ id=IDENTIFIER
 		{
 			$command = statementFactory.createSimpleStatement(
-				StatementType.READ, new CodeLocation(rea_tree.getLine()), null,
+				StatementType.READ, new CodeLocation(rea_tree.getLine()), annotations,
 				variableTable.getVariable(id.getText())
 			);
+			annotations.clear();
 		}
 	;
 
@@ -426,9 +434,10 @@ write_cmd returns [List<Statement> commands]
 			if ($commands == null) {$commands = new ArrayList<Statement>();}
 			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
 			final Statement assignStatement = statementFactory.createSimpleStatement(
-				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,
+				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), annotations,
 				null, val
 			);
+			annotations.clear();
 			if (e.val == null) {
 				$commands.addAll(e.statList);
 			}
@@ -440,8 +449,9 @@ if_cmd returns [Statement command]
 	: ift=IF gc=guarded_cmd FI
 		{
 			$command = statementFactory.createCompoundStatement(
-				StatementType.IF, new CodeLocation(ift_tree.getLine()), null, gc.commands
+				StatementType.IF, new CodeLocation(ift_tree.getLine()), annotations, gc.commands
 			);
+			annotations.clear();
 		}
 	;
 
@@ -449,8 +459,9 @@ do_cmd returns [Statement command]
 	: dot=DO gc=guarded_cmd OD
 		{
 			$command = statementFactory.createCompoundStatement(
-				StatementType.DO, new CodeLocation(dot_tree.getLine()), null, gc.commands
+				StatementType.DO, new CodeLocation(dot_tree.getLine()), annotations, gc.commands
 			);
+			annotations.clear();
 		}
 	;
 
@@ -466,7 +477,7 @@ guarded_cmd returns [List<Statement> commands]
 			final Statement newestStat = statementFactory.createSimpleStatement(
 				StatementType.ASSIGN,
 				new CodeLocation(e.tree.getLine()),
-				null,
+				annotations,
 				variableTable.createTemporaryVariable(e.val.getValueType()),
 				e.val
 			);
@@ -474,12 +485,14 @@ guarded_cmd returns [List<Statement> commands]
 		}
 		else {
 			$commands.add(statementFactory.createCompoundStatement(
-				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), null, e.statList
+				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, e.statList
 			));
 		}
+		annotations.clear();
 		$commands.add(statementFactory.createCompoundStatement(
-			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), null, c.commands
+			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), annotations, c.commands
 		));
+		annotations.clear();
 	}
 	(GUARD gc=guarded_cmd {$commands.addAll(gc.commands);} )*
 	;
@@ -488,15 +501,22 @@ program returns [CompilationUnit compilationUnit]
 	: m=MODULE id=IDENTIFIER COLON c=command END
 		{
 			final Statement command = statementFactory.createRootStatement(
-				new CodeLocation(m_tree.getLine()), null, c.commands
+				new CodeLocation(m_tree.getLine()), annotations, c.commands
 			);
+			annotations.clear();
 			$compilationUnit = new CompilationUnit(
 				id.getText(), command, variableTable
 			);
 		}
 	;
 	
-
+    
+annotation
+	:	('#@') id=IDENTIFIER '=' '"' te=(~('"')*) '"'
+		{
+			annotations.add(Annotation.newInstance(id.getText(), te.getText()));
+		}
+	;
 
 /*------------------------------------------------------------------
  * LEXER RULES
@@ -511,10 +531,6 @@ LINE_COMMENT
     |   ('//'|'#') ~('\n'|'\r')* {$channel=HIDDEN;}
     // a line comment could appear at the end of the file without CR/LF
     ;
-    
-ANNOTATION
-	:	('#@') IDENTIFIER '=' '"' ~('"')* '"'
-	;
 
 INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*);
 
