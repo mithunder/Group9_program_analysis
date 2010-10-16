@@ -28,7 +28,7 @@ $subst = generate_subst();
 open($ifile, "<", $ifname) or die("$ifname: $!");
 
 while( my $line = <$ifile> ) {
-    $line =~ s|##\@IDLE_CODE\@|$subst|og;
+    $line =~ s|##\@IDLE_CODE\@;?|$subst;|og;
     print $ofile $line;
 }
 
