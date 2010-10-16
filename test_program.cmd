@@ -42,8 +42,9 @@ module skulls :
 			[]	a <= x -> x := 0
 			[]	a <= x -> x := 0; {skip; {skip; a := 3*3*3}}; skip; skip; skip
 			[]	a <= x -> x := 0; abort
-			od
+			od;
                         ##@IDLE_CODE@
+                        skip
 		}
 	fi
 	
