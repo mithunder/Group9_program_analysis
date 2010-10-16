@@ -381,7 +381,7 @@ read_cmd returns [Statement command]
 	;
 
 write_cmd returns [List<Statement> commands]
-	: wr=WRITE expression e=expression
+	: wr=WRITE e=expression
 		{
 			final Statement assignStatement = statementFactory.createSimpleStatement(
 				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,

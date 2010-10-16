@@ -12,7 +12,10 @@ A multiline comment in the start.
 			//Another line comment.
 
 module skulls :
-	write a;
+	x := b;
+	x := a;
+	write 3*3*3;
+	read a;
 	x := !!!!-!!-3;
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
