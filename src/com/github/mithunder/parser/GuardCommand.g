@@ -94,8 +94,14 @@ import com.github.mithunder.statements.CodeLocation;
     	final int binaryType, final CommonTree bTree, final int valueType) {
     	
 		final Value valStart = statList.get(statList.size()-1).getAssign();
-		final Value valEnd = eStatList.get(eStatList.size()-1).getAssign();
-		statList.addAll(eStatList);
+		final Value valEnd;
+		if (eStatList.size() > 1 || eStatList.get(eStatList.size()-1).getValues().length != 1) {
+			valEnd = eStatList.get(eStatList.size()-1).getAssign();
+			statList.addAll(eStatList);
+		}
+		else {
+			valEnd = eStatList.get(eStatList.size()-1).getValues()[0];
+		}
 		final Statement binaryStat = statementFactory.createSimpleStatement(
 			binaryType, new CodeLocation(bTree.getLine()),
 			null, variableTable.createTemporaryVariable(valueType), valStart, valEnd
@@ -234,15 +240,28 @@ expr_unary returns [List<Statement> statList]
 	:
 	( u=unary_operator e=expression
 		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
+			$statList = e.statList;
+			final Value valEnd;
+			//If the variable is a literal, take the literal instead of the temp var,
+			//and remove any previous statements.
+			final boolean literal =
+				$statList.size() == 1 && $statList.get(0).getValues().length == 1;
+			if (literal) {
+				valEnd = $statList.get($statList.size()-1).getAssign();
+			}
+			else {
+				valEnd = $statList.get($statList.size()-1).getValues()[0];
+			}
 			final Statement newestStat = statementFactory.createSimpleStatement(
 				u.type,
 				new CodeLocation(u.tree.getLine()),
 				null,
 				variableTable.createTemporaryVariable(u.vtype),
-				e.statList.get(e.statList.size()-1).getAssign()
+				valEnd
 			);
-			$statList.addAll(e.statList);
+			if (literal) {
+				$statList.clear();
+			}
 			$statList.add(newestStat);
 		}
 	| l=literal {$statList = l.statList;}
