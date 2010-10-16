@@ -4,6 +4,7 @@ import static com.github.mithunder.statements.StatementType.ABORT;
 import static com.github.mithunder.statements.StatementType.DO;
 import static com.github.mithunder.statements.StatementType.IF;
 import static com.github.mithunder.statements.StatementType.SCOPE;
+import static com.github.mithunder.statements.StatementType.SKIP;
 import static com.github.mithunder.statements.StatementType.WRITE;
 
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ public class SimpleStatementFactory extends StatementFactory{
 
 	@Override
 	public SimpleStatement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations) {
-		if(type != ABORT && type != WRITE) {
-			throw new IllegalArgumentException("Simple statement without assignment most be ABORT or WRITE.");
+		if(type != ABORT && type != SKIP && type != WRITE) {
+			throw new IllegalArgumentException("Simple statement without assignment must be ABORT, SKIP or WRITE.");
 		}
 		return new SimpleStatement(type, null, codeLoc, annotations);
 	}
