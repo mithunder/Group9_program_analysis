@@ -16,9 +16,11 @@ module skulls :
 	x := a;
 	write 3*3*3;
 	read a;
+        ##@IDLE_CODE@;
 	x := !!!!-!!-3;
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
+        ##@IDLE_CODE@;
 	do
 		(a > x) -> x := 1
 	[]	a <= x -> x := 0
@@ -33,6 +35,7 @@ module skulls :
 	[]	a <= x -> x := 0
 	[]	a <= x -> x := 0
 	[]	a <= x -> {
+                        ##@IDLE_CODE@;
 			do
 				(a > x) -> x := 1
 			[]	a <= x -> x := 0
@@ -40,6 +43,7 @@ module skulls :
 			[]	a <= x -> x := 0; {skip; {skip; a := 3*3*3}}; skip; skip; skip
 			[]	a <= x -> x := 0; abort
 			od
+                        ##@IDLE_CODE@
 		}
 	fi
 	
