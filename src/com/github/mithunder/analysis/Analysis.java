@@ -1,5 +1,6 @@
 package com.github.mithunder.analysis;
 
+import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.Statement;
 
 
@@ -19,4 +20,15 @@ public abstract class Analysis {
 	 */
 	public abstract boolean isForwardAnalysis();
 
+	/**
+	 * Start the analysis (called before any statement is reviewed).
+	 * @param unit The CompilationUnit that will be examined.
+	 */
+	public abstract void startAnalysis(CompilationUnit unit);
+
+	/**
+	 * Notify the Analysis that the last statement has been evaluated.
+	 * @param unit The CompilationUnit that was examined
+	 */
+	public abstract void finishAnalysis(CompilationUnit unit);
 }
