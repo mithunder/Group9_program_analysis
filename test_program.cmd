@@ -15,6 +15,8 @@ module skulls :
 	x := b;
 	x := a;
 	write 3*3*3;
+	write (3*3)*3;
+	write 3*(!!4*!!5);
 	read a;
         ##@IDLE_CODE@;
 	x := !!!!-!!-3;

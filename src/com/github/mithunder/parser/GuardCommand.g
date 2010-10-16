@@ -90,23 +90,44 @@ import com.github.mithunder.statements.CodeLocation;
     }
     
     //Adds everything to the first statement list given.
-    private void handleExpression(final List<Statement> statList, final List<Statement> eStatList,
-    	final int binaryType, final CommonTree bTree, final int valueType) {
+    private List<Statement> handleExpression(
+    		final List<Statement> statList, final List<Statement> eStatList,
+    		final Value v1, final Value v2,
+    		final int binaryType, final CommonTree bTree, final int valueType) {
     	
-		final Value valStart = statList.get(statList.size()-1).getAssign();
-		final Value valEnd;
-		if (eStatList.size() > 1 || eStatList.get(eStatList.size()-1).getValues().length != 1) {
-			valEnd = eStatList.get(eStatList.size()-1).getAssign();
-			statList.addAll(eStatList);
-		}
-		else {
-			valEnd = eStatList.get(eStatList.size()-1).getValues()[0];
-		}
+		final Value valStart = v1 != null ? v1 : statList.get(statList.size()-1).getAssign();
+		final Value valEnd = v2 != null ? v2 : eStatList.get(eStatList.size()-1).getAssign();
 		final Statement binaryStat = statementFactory.createSimpleStatement(
 			binaryType, new CodeLocation(bTree.getLine()),
 			null, variableTable.createTemporaryVariable(valueType), valStart, valEnd
 		);
-		statList.add(binaryStat);
+		return concatenateStatements(statList, binaryStat, eStatList);
+    }
+    
+    //TODO: This is slow if the common case is that l1 is small/null and l2 is large.
+    //Can be fixed using LinkedList, but enforcing that requirement currently seems
+    //like a bad idea.
+    private List<Statement> concatenateStatements(
+			List<Statement> l1, Statement s1, List<Statement> l2) {
+		
+		if (l1 == null && l2 == null) {
+			l1 = new ArrayList<Statement>();
+			l1.add(s1);
+			return l1;
+		}
+		else if (l1 == null && l2 != null) {
+			l2.add(s1);
+			return l2;
+		}
+		else if (l1 != null && l2 == null) {
+			l1.add(s1);
+			return l1;
+		}
+		else {
+			l1.addAll(l2);
+			l1.add(s1);
+			return l1;
+		}
     }
 }
 
@@ -177,81 +198,107 @@ factor returns[int type, int vtype]
 	
 //		* Operator precedence and literals. *
 	
-expression returns[List<Statement> statList]
-	: e=expr_or {$statList = e.statList;}
+expression returns[List<Statement> statList, Value val]
+	: e=expr_or {if (e.statList != null) {$statList = e.statList;} else {$val = e.val;}}
 	;
 
-expr_or returns [List<Statement> statList]
+expr_or returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_and b=or e2=expr_and
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=or e3=expr_and {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_and) {$statList = e4.statList;}
+	(b=or e3=expr_and
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_and) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 	
-expr_and returns [List<Statement> statList]
+expr_and returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_eqa b=and e2=expr_eqa
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=and e3=expr_eqa {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_eqa) {$statList = e4.statList;}
+	(b=and e3=expr_eqa
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_eqa) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 	
 //Both eq and neq.
-expr_eqa returns [List<Statement> statList]
+expr_eqa returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_rel b=eqa e2=expr_rel
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=eqa e3=expr_rel {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_rel) {$statList = e4.statList;}
+	(b=eqa e3=expr_rel
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_rel) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 
-expr_rel returns [List<Statement> statList]
+expr_rel returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_term b=rel e2=expr_term
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=rel e3=expr_term {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_term) {$statList = e4.statList;}
+	(b=rel e3=expr_term
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_term) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 	
-expr_term returns [List<Statement> statList]
+expr_term returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_factor b=term e2=expr_factor
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=term e3=expr_factor {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_factor) {$statList = e4.statList;}
+	(b=term e3=expr_factor
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_factor) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 	
-expr_factor returns [List<Statement> statList]
+expr_factor returns [List<Statement> statList, Value val]
 	:
 	(e1=expr_unary b=factor e2=expr_unary
-		{$statList = e1.statList; handleExpression(e1.statList, e2.statList, b.type, b.tree, b.vtype);}
+		{$statList = handleExpression(
+				e1.statList, e2.statList, e1.val, e2.val, b.type, b.tree, b.vtype
+		);}
 	)
-	(b=factor e3=expr_unary {handleExpression($statList, e3.statList, b.type, b.tree, b.vtype);})*
-	| (e4=expr_unary) {$statList = e4.statList;}
+	(b=factor e3=expr_unary
+		{handleExpression(
+			$statList, e3.statList, null, e3.val, b.type, b.tree, b.vtype
+		);}
+	)*
+	| (e4=expr_unary) {if (e4.statList != null) {$statList = e4.statList;} else {$val = e4.val;}}
 	;
 
-expr_unary returns [List<Statement> statList]
-	:
-	( u=unary_operator e=expression
+expr_unary returns [List<Statement> statList, Value val]
+	: u=unary_operator e=expr_unary
 		{
-			$statList = e.statList;
-			final Value valEnd;
-			//If the variable is a literal, take the literal instead of the temp var,
-			//and remove any previous statements.
-			final boolean literal =
-				$statList.size() == 1 && $statList.get(0).getValues().length == 1;
-			if (literal) {
-				valEnd = $statList.get($statList.size()-1).getAssign();
-			}
-			else {
-				valEnd = $statList.get($statList.size()-1).getValues()[0];
-			}
+			//Is e a literal or a non-literal unary_expr?
+			$statList = e.statList == null ? new ArrayList<Statement>() : e.statList;
+			final Value valEnd = e.val != null ? e.val : $statList.get($statList.size()-1).getAssign();
 			final Statement newestStat = statementFactory.createSimpleStatement(
 				u.type,
 				new CodeLocation(u.tree.getLine()),
@@ -259,115 +306,35 @@ expr_unary returns [List<Statement> statList]
 				variableTable.createTemporaryVariable(u.vtype),
 				valEnd
 			);
-			if (literal) {
-				$statList.clear();
-			}
 			$statList.add(newestStat);
 		}
-	| l=literal {$statList = l.statList;}
-	)
+	| l=lite {$val = l.val;}
+	| lp=lite_paren {$statList = lp.statList;}
 	;
 	
-literal returns[List<Statement> statList]
+literal returns[List<Statement> statList, Value val]
+	: l=lite {$val = l.val;}
+	| lp=lite_paren {$statList = lp.statList;}
+	;
+	
+lite returns[Value val]
 	:
 	inte=INTEGER_LITERAL
 		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(inte_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.INTEGER_TYPE),
-				ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, Integer.parseInt(inte.getText()))
-			));
+			$val = ConstantValue.getConstantValue(
+				ValueType.INTEGER_TYPE, Integer.parseInt(inte.getText())
+			);
 		}
-	| tru=TRUE
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(tru_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
-				ConstantValue.TRUE
-			));
-		}
-	| fal=FALSE
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(fal_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
-				ConstantValue.FALSE
-			));
-		}
-	| id=IDENTIFIER
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			final Variable var = variableTable.getVariable(id.getText());
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(id_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(var.getValueType()),
-				var
-			));
-		}
-	| LPAREN e=expression RPAREN
+	| tru=TRUE {$val = ConstantValue.TRUE;}
+	| fal=FALSE {$val = ConstantValue.FALSE;}
+	| id=IDENTIFIER {$val = variableTable.getVariable(id.getText());}
+	;
+	
+lite_paren returns[List<Statement> statList]
+	: LPAREN e=expression RPAREN
 		{
 			if ($statList == null) {$statList = new ArrayList<Statement>();}
 			$statList = e.statList;
-		}
-	;
-	
-lite returns[List<Statement> statList]
-	:
-	inte=INTEGER_LITERAL
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(inte_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.INTEGER_TYPE),
-				ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, Integer.parseInt(inte.getText()))
-			));
-		}
-	| tru=TRUE
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(tru_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
-				ConstantValue.TRUE
-			));
-		}
-	| fal=FALSE
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(fal_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
-				ConstantValue.FALSE
-			));
-		}
-	| id=IDENTIFIER
-		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			final Variable var = variableTable.getVariable(id.getText());
-			$statList.add(statementFactory.createSimpleStatement(
-				StatementType.ASSIGN,
-				new CodeLocation(id_tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(var.getValueType()),
-				var
-			));
 		}
 	;
 	
@@ -412,13 +379,16 @@ assignment_cmd returns [List<Statement> commands]
 	: id=IDENTIFIER as=ASSIGN e=expression
 		{
 			if ($commands == null) {$commands = new ArrayList<Statement>();}
+			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
 			final Statement assignStatement = statementFactory.createSimpleStatement(
 				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), null,
 				variableTable.getVariable(id.getText()),
-				e.statList.get(e.statList.size()-1).getAssign()
+				val
 			);
-			e.statList.add(assignStatement);
-			$commands = e.statList;
+			if (e.val == null) {
+				$commands.addAll(e.statList);
+			}
+			$commands.add(assignStatement);
 		}
 	;
 
@@ -453,12 +423,16 @@ read_cmd returns [Statement command]
 write_cmd returns [List<Statement> commands]
 	: wr=WRITE e=expression
 		{
+			if ($commands == null) {$commands = new ArrayList<Statement>();}
+			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
 			final Statement assignStatement = statementFactory.createSimpleStatement(
 				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), null,
-				null, e.statList.get(e.statList.size()-1).getAssign()
+				null, val
 			);
-			e.statList.add(assignStatement);
-			$commands = e.statList;
+			if (e.val == null) {
+				$commands.addAll(e.statList);
+			}
+			$commands.add(assignStatement);
 		}
 	;
 
@@ -488,9 +462,21 @@ guarded_cmd returns [List<Statement> commands]
 		}
 	}
 	(e=expression ARROW c=command) {
-		$commands.add(statementFactory.createCompoundStatement(
-			StatementType.SCOPE, new CodeLocation(e.tree.getLine()), null, e.statList
-		));
+		if (e.val != null) {
+			final Statement newestStat = statementFactory.createSimpleStatement(
+				StatementType.ASSIGN,
+				new CodeLocation(e.tree.getLine()),
+				null,
+				variableTable.createTemporaryVariable(e.val.getValueType()),
+				e.val
+			);
+			$commands.add(newestStat);
+		}
+		else {
+			$commands.add(statementFactory.createCompoundStatement(
+				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), null, e.statList
+			));
+		}
 		$commands.add(statementFactory.createCompoundStatement(
 			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), null, c.commands
 		));

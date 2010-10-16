@@ -15,6 +15,7 @@ public abstract class StatementFactory {
 	 * assign := v[1] (for type = assign)
 	 * Number of arguments accepted for v is 1 or 2 depending on which type is used
 	 */
+	//TODO: Determine if ASSIGN should accept temporary variables.
 	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Variable assign, Value ... v);
 	//Meant for things like abort.
 	public abstract Statement createSimpleStatement(int type, CodeLocation codeLoc, List<Annotation> annotations);
