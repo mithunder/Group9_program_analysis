@@ -41,7 +41,7 @@ public class StatementIterator {
 				boolean guard = true;
 				for(Statement c : children){
 					int vitype;
-					if(guard){
+					if(!guard){
 						vitype = StatementVisitor.VITYPE_COMMAND;
 					} else {
 						vitype = StatementVisitor.VITYPE_GUARD;
