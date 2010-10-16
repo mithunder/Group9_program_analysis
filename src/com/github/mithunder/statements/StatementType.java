@@ -31,10 +31,10 @@ public final class StatementType {
 	public static final int SCOPE = 17;		/* {...} (can also be used in do and if for grouping statements)*/
 
 	//Other.
-	public static final int ABORT = 19;
-	public static final int SKIP = 20;
-	public static final int READ = 21;
-	public static final int WRITE = 22;
+	public static final int ABORT = 18;
+	public static final int SKIP = 19;
+	public static final int READ = 20;
+	public static final int WRITE = 21;
 
 	/**
 	 * Number of operand a statement has (compound always statements have 0).
