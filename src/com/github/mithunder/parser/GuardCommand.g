@@ -322,6 +322,57 @@ literal returns[List<Statement> statList]
 		}
 	;
 	
+lite returns[List<Statement> statList]
+	:
+	inte=INTEGER_LITERAL
+		{
+			if ($statList == null) {$statList = new ArrayList<Statement>();}
+			$statList.add(statementFactory.createSimpleStatement(
+				StatementType.ASSIGN,
+				new CodeLocation(inte_tree.getLine()),
+				null,
+				variableTable.createTemporaryVariable(ValueType.INTEGER_TYPE),
+				ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, Integer.parseInt(inte.getText()))
+			));
+		}
+	| tru=TRUE
+		{
+			if ($statList == null) {$statList = new ArrayList<Statement>();}
+			$statList.add(statementFactory.createSimpleStatement(
+				StatementType.ASSIGN,
+				new CodeLocation(tru_tree.getLine()),
+				null,
+				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
+				ConstantValue.TRUE
+			));
+		}
+	| fal=FALSE
+		{
+			if ($statList == null) {$statList = new ArrayList<Statement>();}
+			$statList.add(statementFactory.createSimpleStatement(
+				StatementType.ASSIGN,
+				new CodeLocation(fal_tree.getLine()),
+				null,
+				variableTable.createTemporaryVariable(ValueType.BOOLEAN_TYPE),
+				ConstantValue.FALSE
+			));
+		}
+	| id=IDENTIFIER
+		{
+			if ($statList == null) {$statList = new ArrayList<Statement>();}
+			final Variable var = variableTable.getVariable(id.getText());
+			$statList.add(statementFactory.createSimpleStatement(
+				StatementType.ASSIGN,
+				new CodeLocation(id_tree.getLine()),
+				null,
+				variableTable.createTemporaryVariable(var.getValueType()),
+				var
+			));
+		}
+	;
+	
+
+	
 
 
 //		* Commands. *
