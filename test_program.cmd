@@ -13,8 +13,14 @@ A multiline comment in the start.
 
 #@ annotation_variable = "value1"
 module test_program :
+	y := 3;
 	x := b;
-	x := a;
+	x := (((((a)))));
+	z := a*a;
+	z := !a*a;
+	z := !!a;
+	z := -a;
+	abc := a*a*3*3*a;
 	write 3*3*3;
 	write (3*3)*3;
 	write 3*(!!4*!!5);

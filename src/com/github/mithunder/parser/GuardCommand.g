@@ -94,16 +94,45 @@ import com.github.mithunder.statements.CodeLocation;
     private List<Statement> handleExpression(
     		final List<Statement> statList, final List<Statement> eStatList,
     		final Value v1, final Value v2,
-    		final int binaryType, final CommonTree bTree, final int valueType) {
+    		final int binaryType, final CommonTree bTree, final int valueType,
+    		final Variable assignVar, final List<Annotation> annotations) {
     	
 		final Value valStart = v1 != null ? v1 : statList.get(statList.size()-1).getAssign();
 		final Value valEnd = v2 != null ? v2 : eStatList.get(eStatList.size()-1).getAssign();
 		final Statement binaryStat = statementFactory.createSimpleStatement(
 			binaryType, new CodeLocation(bTree.getLine()),
-			null, variableTable.createTemporaryVariable(valueType), valStart, valEnd
+			annotations, assignVar, valStart, valEnd
 		);
 		return concatenateStatements(statList, binaryStat, eStatList);
     }
+    
+    private List<Statement> handleExpression(
+    		final List<Statement> statList, final List<Statement> eStatList,
+    		final Value v1, final Value v2,
+    		final int binaryType, final CommonTree bTree, final int valueType) {
+    		
+		return handleExpression(statList, eStatList, v1, v2, binaryType, bTree, valueType,
+			variableTable.createTemporaryVariable(valueType), null);
+    }
+    
+    private List<Statement> handleUnaryExpression(List<Statement> eStatList,
+    		final Value val, final int unaryType, final CommonTree uTree, final Variable var,
+    		List<Annotation> annotations
+    		) {
+    		
+    	//Is e a literal or a non-literal unary_expr?
+    	if (eStatList == null) {eStatList = new ArrayList<Statement>();}
+		final Value valEnd = val != null ? val : eStatList.get(eStatList.size()-1).getAssign();
+		final Statement newestStat = statementFactory.createSimpleStatement(
+			unaryType,
+			new CodeLocation(uTree.getLine()),
+			annotations,
+			var,
+			valEnd
+		);
+		eStatList.add(newestStat);
+		return eStatList;
+	}
     
     //TODO: This is slow if the common case is that l1 is small/null and l2 is large.
     //Can be fixed using LinkedList, but enforcing that requirement currently seems
@@ -197,7 +226,16 @@ factor returns[int type, int vtype]
 	| (b=div {$type = b.type; $vtype = b.vtype;})
 	;
 	
-	
+binary_operator returns [int type, int vtype]
+	: b1=or {$type = b1.type; $vtype = b1.vtype;}
+	| b2=and {$type = b2.type; $vtype = b2.vtype;}
+	| b3=eqa {$type = b3.type; $vtype = b3.vtype;}
+	| b4=rel {$type = b4.type; $vtype = b4.vtype;}
+	| b5=term {$type = b5.type; $vtype = b5.vtype;}
+	| b6=factor {$type = b6.type; $vtype = b6.vtype;}
+	;
+
+
 	
 //		* Operator precedence and literals. *
 	
@@ -299,25 +337,17 @@ expr_factor returns [List<Statement> statList, Value val]
 expr_unary returns [List<Statement> statList, Value val]
 	: u=unary_operator e=expr_unary
 		{
-			//Is e a literal or a non-literal unary_expr?
-			$statList = e.statList == null ? new ArrayList<Statement>() : e.statList;
-			final Value valEnd = e.val != null ? e.val : $statList.get($statList.size()-1).getAssign();
-			final Statement newestStat = statementFactory.createSimpleStatement(
-				u.type,
-				new CodeLocation(u.tree.getLine()),
-				null,
-				variableTable.createTemporaryVariable(u.vtype),
-				valEnd
+			$statList = handleUnaryExpression(e.statList, e.val, u.type, u.tree,
+				variableTable.createTemporaryVariable(u.vtype), null
 			);
-			$statList.add(newestStat);
 		}
 	| l=lite {$val = l.val;}
-	| lp=lite_paren {$statList = lp.statList;}
+	| lp=lite_paren {$statList = lp.statList; $val = lp.val;}
 	;
 	
 literal returns[List<Statement> statList, Value val]
 	: l=lite {$val = l.val;}
-	| lp=lite_paren {$statList = lp.statList;}
+	| lp=lite_paren {$statList = lp.statList; $val = lp.val;}
 	;
 	
 lite returns[Value val]
@@ -333,15 +363,12 @@ lite returns[Value val]
 	| id=IDENTIFIER {$val = variableTable.getVariable(id.getText());}
 	;
 	
-lite_paren returns[List<Statement> statList]
+lite_paren returns[List<Statement> statList, Value val]
 	: LPAREN e=expression RPAREN
 		{
-			if ($statList == null) {$statList = new ArrayList<Statement>();}
-			$statList = e.statList;
+			$statList = e.statList; $val = e.val;
 		}
 	;
-	
-
 	
 
 

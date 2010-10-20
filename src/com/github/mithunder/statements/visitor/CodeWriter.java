@@ -57,7 +57,7 @@ public class CodeWriter implements StatementVisitor {
 			out.print(indent + "[] ");
 
 		} else if(StatementVisitor.VITYPE_COMMAND == vitype) {
-			out.print("->");
+			out.print(indent + "->");
 		} else {
 			out.print(indent);
 		}
@@ -72,14 +72,14 @@ public class CodeWriter implements StatementVisitor {
 		indent = indent + "  ";
 		switch(stype){
 		case DO:
-			out.print("do ");
+			out.print(indent + "do ");
 			break;
 		case IF:
-			out.print("if ");
+			out.print(indent + "if ");
 			break;
 		case SCOPE:
 			if(cno != StatementVisitor.ROOT_STATEMENT) {
-				out.println("{");
+				out.println(indent + "{");
 				out.print(indent);
 			}
 			break;
@@ -140,7 +140,7 @@ public class CodeWriter implements StatementVisitor {
 		}
 		printStatement(s);
 		if(cno + 1 < parent.getChildCount()) {
-			out.print(";");
+			out.print(indent + ";");
 		}
 		out.println();
 	}
@@ -170,25 +170,25 @@ public class CodeWriter implements StatementVisitor {
 		Value[] v = s.getValues();
 		int stype = s.getStatementType();
 		if(isBinary(stype)){
-			out.println(varTable.getVariableName(assign) + " :=  " + v2s(v[0]) + " " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[1]));
+			out.println(indent + varTable.getVariableName(assign) + " :=  " + v2s(v[0]) + " " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[1]));
 		} else if(isUnary(stype)){
 			if(stype == ASSIGN){
-				out.println(varTable.getVariableName(assign) + " := " + v2s(v[0]));
+				out.println(indent + varTable.getVariableName(assign) + " := " + v2s(v[0]));
 			} else {
 				switch(stype){
 				case READ:
-					out.println("read " + assign);
+					out.println(indent + "read " + assign);
 					break;
 				case WRITE:
-					out.println("write " + v2s(v[0]));
+					out.println(indent + "write " + v2s(v[0]));
 					break;
 				default:
-					out.println(varTable.getVariableName(assign) + " :=  " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[0]));
+					out.println(indent + varTable.getVariableName(assign) + " :=  " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[0]));
 					break;
 				}
 			}
 		} else {
-			out.println(SIMPLE_STATEMENT_SYMBOLS[stype]);
+			out.println(indent + SIMPLE_STATEMENT_SYMBOLS[stype]);
 		}
 	}
 }

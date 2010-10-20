@@ -1,0 +1,137 @@
+
+\section{General definitions}
+
+\docpar
+When arguing for the correctness of algorithms, defining the flow and labels of the language is
+valuable. Below different definitions and functions is given, mirroring those of chapter 2 of the
+book. These include init(C), final(C), blocks(C), labels(C) and flow(C). Note that C is used instead
+of S to indicate commands instead of statements.
+
+In the following, the guarded commands are a part of the domain of commands.
+
+\subsection{Termination}
+
+An important point in regards to the flow is whether or not the program is terminated
+at a certain point. For instance, the program may terminate at an if, but is not
+certain to do so. On the other hand, an abort is certain to terminate, and no flow
+occurs in a command that looks like: abort; C$_2$. To get a precise analysis, termination
+will be considered.
+
+\subsection{Labelling}
+
+A label is given to every elementary block "el". The elementary blocks consists of
+the commands assign, skip, abort, read, write, and test. Furthermore, a label is given
+to if and do, to simplify definitions later. For all intentions and purposes, the
+label of if and do can be seen as being the label of a skip elementary block.
+
+\subsection{Init}
+
+init(C) denotes the entry point for the flow of a command.
+For instance, the entry point of init(C$_1$ ; C$_2$) is equal to init(C$_1$),
+since C$_1$ contains the entry point. The domain is:
+\[init \colon Command \to Label\]
+It should be noted that the domain is different from that of the book.
+
+init(C):\newline
+init([x := a]$_l$)      = l\newline
+init([skip]$_l$)        = l\newline
+init([abort]$_l$)       = l\newline
+init([read x]$_l$)      = l\newline
+init([write x]$_l$)     = l\newline
+init(C$_1$; C$_2$)        = init(C$_1$)\newline
+init(\{C\})             = init(C)\newline
+init([if]$_l$ gC fi)        = l\newline
+init([do]$_l$ gC od)        = l\newline
+
+The reasoning behind not simply defining the entry point of an if or a do as the first
+test in that if or do is that not only the first test, but all the tests, are entry points.
+Thus, simply choosing the first label would be wrong. One way to include all tests would
+be to extend the definition of init to map to the powerset of all labels, but this
+can complicate the analysis later. Instead, all the tests are included by labelling
+the if and do.
+
+
+
+\subsection{Final}
+
+final(C) denotes the exit points for the flow of a command.
+For instance, the exit point of final([read x]_l) is l. The domain is:
+\[init \colon Command \to \mathcal{P}(Label)\]
+
+final(C):\newline
+final([x := a]$_l$)      = \{l\}\newline
+final([skip]$_l$)        = \{l\}\newline
+final([abort]$_l$)       = \{l\}\newline
+final([read x]$_l$)      = \{l\}\newline
+final([write x]$_l$)   	 = \{l\}\newline
+final(C$_1$; C$_2$)		 = \begin{cases}
+($el in C$_1$ $\wedge$ el = abort) $\cup$ final(C$_2$) if (el in final(C$_1$ $\wedge$ el $\not$ = abort) $\not = \emptyset$ \\
+($el in C$_1$ $\wedge$ el = abort) else
+\end{cases}\newline
+final(\{C\})             = final(C)\newline
+final(if gC fi)        = final(gC)\newline
+final([do]$_l$ gC od)        = {l} $\cup$ (el in final(gC) $\wedge$ el = abort)\newline
+final([e]$_l$ $\to C$)      = final(gC1)\newline
+final(gC1 [] gC2)      = final(gC1) $\cup$ final(gC2)\newline
+
+\begin{itemize}
+\item The reasoning behing the definition of the semicolon command is that the
+final commands of C$_2$ will only be reached if there is any flow at all
+between C$_1$ and C$_2$: this is not the case if C$_1$ aborts the program
+before reaching C$_2$.
+\item The reasoning behind the definition of final for if is that the exit points
+of an if consists of the final commands in all the commands of the if.
+\item The reasoning behind the definition of final for do is that the exit points
+of a do consists of all the tests in the do (represented by [do]$_l$)
+as well as the final commands that aborts, since the normal final commands
+simply flow back to the tests.
+\end{itemize}
+
+
+
+\subsection{Blocks}
+
+blocks(C):\newline
+blocks([x := a]_l)      = {[x := a]_l}\newline
+blocks([skip]_l)        = {[skip]_l}\newline
+blocks([abort]_l)       = {[abort]_l}\newline
+blocks([read x]_l)      = {[read x]_l}\newline
+blocks([write x]_l)     = {[write x]_l}\newline
+blocks(C_1; C_2)        = blocks(C_1) join blocks(C_2)\newline
+blocks({C})             = blocks(C)\newline
+blocks(if gC fi)        = blocks(gC)
+blocks(do gC od)        = join blocks(gC)
+blocks([e]_l -> C)      = {[e]_l} join blocks(C)
+blocks(gC_1 [] gC_2)= blocks(gC_1) join blocks(gC_2)
+flow(C):
+flow([x := a]_l)        =Ø
+flow([skip]_l)          =Ø
+flow([abort]_l)         =Ø
+flow([read x]_l)        =Ø
+flow([write x]_l)       =Ø
+                        = flow(C_1) union flow(C_2) union { (l, init(C_2)) | l ∈ final(C_1) }
+flow(C_1; C_2)
+flow({C})               = flow(C)
+                        = flow(gC) union { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') }
+flow(if gC fi)
+         (An expression flows to its command,
+         and every expression flows to every expression).
+flow(do gC od)          = flow(gC) union
+                          { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') } union
+                          { ((l, l') | l ∈ final(gC) and l' ∈ label(expressions(gC)) }
+         (An expression flows to its command,
+         and every expression flows to every expression,
+         and every final labels of commands goes to every expression).
+flow([e]_l -> C)        = {(l, init(C))} union flow(C)
+flow(gC1 [] gC2)        = flow(gC1) union flow(gC2)
+expressions([e]_l -> C)          = {[e]_l}
+                                                                                                   3/17
+expressions(gC1 [] gC2)      = expressions(gC1) union expressions(gC2)
+used(C):
+used([x := a])       = fv(a)
+used([skip])         =Ø
+used([abort])        =Ø
+used([read x])       =Ø
+used([write x])      = {x}
+used([e])            = fv(e)
+
