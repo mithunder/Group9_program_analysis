@@ -61,7 +61,8 @@ module test_program :
 	;
 	{{{{skip}}}; skip; skip; {skip; skip; {skip; skip; {skip; skip; {skip}}}}}
 	;
-	{skip}
+	{skip};
+	{{{{skip}}}; skip; skip; {skip; skip; {skip; skip; {skip; b := 7/3; skip; {a := 3}}}}}
 	
 end			//LineComment.
 
