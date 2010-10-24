@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-17 15:47:15
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-24 16:00:22
 
 package com.github.mithunder.parser;
 
@@ -810,12 +810,12 @@ public class GuardCommandLexer extends Lexer {
         try {
             int _type = ML_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:553:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // GuardCommand.g:553:9: '/*' ( options {greedy=false; } : . )* '*/'
+            // GuardCommand.g:579:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // GuardCommand.g:579:9: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
-            // GuardCommand.g:553:14: ( options {greedy=false; } : . )*
+            // GuardCommand.g:579:14: ( options {greedy=false; } : . )*
             loop1:
             do {
                 int alt1=2;
@@ -840,7 +840,7 @@ public class GuardCommandLexer extends Lexer {
 
                 switch (alt1) {
             	case 1 :
-            	    // GuardCommand.g:553:41: .
+            	    // GuardCommand.g:579:41: .
             	    {
             	    matchAny(); 
 
@@ -871,14 +871,14 @@ public class GuardCommandLexer extends Lexer {
         try {
             int _type = LINE_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:557:5: ( ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' ) | ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* )
+            // GuardCommand.g:583:5: ( ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' ) | ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* )
             int alt7=2;
             alt7 = dfa7.predict(input);
             switch (alt7) {
                 case 1 :
-                    // GuardCommand.g:557:9: ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' )
+                    // GuardCommand.g:583:9: ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' )
                     {
-                    // GuardCommand.g:557:9: ( '//' | '#' )
+                    // GuardCommand.g:583:9: ( '//' | '#' )
                     int alt2=2;
                     int LA2_0 = input.LA(1);
 
@@ -896,7 +896,7 @@ public class GuardCommandLexer extends Lexer {
                     }
                     switch (alt2) {
                         case 1 :
-                            // GuardCommand.g:557:10: '//'
+                            // GuardCommand.g:583:10: '//'
                             {
                             match("//"); 
 
@@ -904,7 +904,7 @@ public class GuardCommandLexer extends Lexer {
                             }
                             break;
                         case 2 :
-                            // GuardCommand.g:557:15: '#'
+                            // GuardCommand.g:583:15: '#'
                             {
                             match('#'); 
 
@@ -913,7 +913,7 @@ public class GuardCommandLexer extends Lexer {
 
                     }
 
-                    // GuardCommand.g:557:20: (~ ( '\\n' | '\\r' ) )*
+                    // GuardCommand.g:583:20: (~ ( '\\n' | '\\r' ) )*
                     loop3:
                     do {
                         int alt3=2;
@@ -926,7 +926,7 @@ public class GuardCommandLexer extends Lexer {
 
                         switch (alt3) {
                     	case 1 :
-                    	    // GuardCommand.g:557:20: ~ ( '\\n' | '\\r' )
+                    	    // GuardCommand.g:583:20: ~ ( '\\n' | '\\r' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFF') ) {
                     	        input.consume();
@@ -946,7 +946,7 @@ public class GuardCommandLexer extends Lexer {
                         }
                     } while (true);
 
-                    // GuardCommand.g:557:35: ( '\\r\\n' | '\\r' | '\\n' )
+                    // GuardCommand.g:583:35: ( '\\r\\n' | '\\r' | '\\n' )
                     int alt4=3;
                     int LA4_0 = input.LA(1);
 
@@ -970,7 +970,7 @@ public class GuardCommandLexer extends Lexer {
                     }
                     switch (alt4) {
                         case 1 :
-                            // GuardCommand.g:557:36: '\\r\\n'
+                            // GuardCommand.g:583:36: '\\r\\n'
                             {
                             match("\r\n"); 
 
@@ -978,14 +978,14 @@ public class GuardCommandLexer extends Lexer {
                             }
                             break;
                         case 2 :
-                            // GuardCommand.g:557:45: '\\r'
+                            // GuardCommand.g:583:45: '\\r'
                             {
                             match('\r'); 
 
                             }
                             break;
                         case 3 :
-                            // GuardCommand.g:557:52: '\\n'
+                            // GuardCommand.g:583:52: '\\n'
                             {
                             match('\n'); 
 
@@ -999,9 +999,9 @@ public class GuardCommandLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:558:9: ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )*
+                    // GuardCommand.g:584:9: ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )*
                     {
-                    // GuardCommand.g:558:9: ( '//' | '#' )
+                    // GuardCommand.g:584:9: ( '//' | '#' )
                     int alt5=2;
                     int LA5_0 = input.LA(1);
 
@@ -1019,7 +1019,7 @@ public class GuardCommandLexer extends Lexer {
                     }
                     switch (alt5) {
                         case 1 :
-                            // GuardCommand.g:558:10: '//'
+                            // GuardCommand.g:584:10: '//'
                             {
                             match("//"); 
 
@@ -1027,7 +1027,7 @@ public class GuardCommandLexer extends Lexer {
                             }
                             break;
                         case 2 :
-                            // GuardCommand.g:558:15: '#'
+                            // GuardCommand.g:584:15: '#'
                             {
                             match('#'); 
 
@@ -1036,7 +1036,7 @@ public class GuardCommandLexer extends Lexer {
 
                     }
 
-                    // GuardCommand.g:558:20: (~ ( '\\n' | '\\r' ) )*
+                    // GuardCommand.g:584:20: (~ ( '\\n' | '\\r' ) )*
                     loop6:
                     do {
                         int alt6=2;
@@ -1049,7 +1049,7 @@ public class GuardCommandLexer extends Lexer {
 
                         switch (alt6) {
                     	case 1 :
-                    	    // GuardCommand.g:558:20: ~ ( '\\n' | '\\r' )
+                    	    // GuardCommand.g:584:20: ~ ( '\\n' | '\\r' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFF') ) {
                     	        input.consume();
@@ -1088,10 +1088,10 @@ public class GuardCommandLexer extends Lexer {
         try {
             int _type = INTEGER_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:562:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
-            // GuardCommand.g:562:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // GuardCommand.g:588:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
+            // GuardCommand.g:588:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             {
-            // GuardCommand.g:562:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // GuardCommand.g:588:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -1109,17 +1109,17 @@ public class GuardCommandLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // GuardCommand.g:562:20: '0'
+                    // GuardCommand.g:588:20: '0'
                     {
                     match('0'); 
 
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:562:26: '1' .. '9' ( '0' .. '9' )*
+                    // GuardCommand.g:588:26: '1' .. '9' ( '0' .. '9' )*
                     {
                     matchRange('1','9'); 
-                    // GuardCommand.g:562:35: ( '0' .. '9' )*
+                    // GuardCommand.g:588:35: ( '0' .. '9' )*
                     loop8:
                     do {
                         int alt8=2;
@@ -1132,7 +1132,7 @@ public class GuardCommandLexer extends Lexer {
 
                         switch (alt8) {
                     	case 1 :
-                    	    // GuardCommand.g:562:35: '0' .. '9'
+                    	    // GuardCommand.g:588:35: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -1171,16 +1171,16 @@ public class GuardCommandLexer extends Lexer {
             int e;
             int count;
 
-            // GuardCommand.g:564:12: ( (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* ) )
-            // GuardCommand.g:564:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
+            // GuardCommand.g:590:12: ( (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* ) )
+            // GuardCommand.g:590:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
             {
-            // GuardCommand.g:564:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
-            // GuardCommand.g:564:15: b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )*
+            // GuardCommand.g:590:14: (b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )* )
+            // GuardCommand.g:590:15: b= LETTER (count= (d= LETTER | e= '0' .. '9' ) )*
             {
             int bStart460 = getCharIndex();
             mLETTER(); 
             b = new CommonToken(input, Token.INVALID_TOKEN_TYPE, Token.DEFAULT_CHANNEL, bStart460, getCharIndex()-1);
-            // GuardCommand.g:564:29: (count= (d= LETTER | e= '0' .. '9' ) )*
+            // GuardCommand.g:590:29: (count= (d= LETTER | e= '0' .. '9' ) )*
             loop11:
             do {
                 int alt11=2;
@@ -1193,9 +1193,9 @@ public class GuardCommandLexer extends Lexer {
 
                 switch (alt11) {
             	case 1 :
-            	    // GuardCommand.g:564:29: count= (d= LETTER | e= '0' .. '9' )
+            	    // GuardCommand.g:590:29: count= (d= LETTER | e= '0' .. '9' )
             	    {
-            	    // GuardCommand.g:564:30: (d= LETTER | e= '0' .. '9' )
+            	    // GuardCommand.g:590:30: (d= LETTER | e= '0' .. '9' )
             	    int alt10=2;
             	    int LA10_0 = input.LA(1);
 
@@ -1213,7 +1213,7 @@ public class GuardCommandLexer extends Lexer {
             	    }
             	    switch (alt10) {
             	        case 1 :
-            	            // GuardCommand.g:564:31: d= LETTER
+            	            // GuardCommand.g:590:31: d= LETTER
             	            {
             	            int dStart467 = getCharIndex();
             	            mLETTER(); 
@@ -1222,7 +1222,7 @@ public class GuardCommandLexer extends Lexer {
             	            }
             	            break;
             	        case 2 :
-            	            // GuardCommand.g:564:40: e= '0' .. '9'
+            	            // GuardCommand.g:590:40: e= '0' .. '9'
             	            {
             	            e = input.LA(1);
             	            matchRange('0','9'); 
@@ -1258,7 +1258,7 @@ public class GuardCommandLexer extends Lexer {
     // $ANTLR start "LETTER"
     public final void mLETTER() throws RecognitionException {
         try {
-            // GuardCommand.g:568:2: ( '$' | 'A' .. 'Z' | 'a' .. 'z' | '_' )
+            // GuardCommand.g:594:2: ( '$' | 'A' .. 'Z' | 'a' .. 'z' | '_' )
             // GuardCommand.g:
             {
             if ( input.LA(1)=='$'||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
@@ -1284,8 +1284,8 @@ public class GuardCommandLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // GuardCommand.g:574:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
-            // GuardCommand.g:574:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
+            // GuardCommand.g:600:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
+            // GuardCommand.g:600:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
                 input.consume();
@@ -1662,7 +1662,7 @@ public class GuardCommandLexer extends Lexer {
             this.transition = DFA7_transition;
         }
         public String getDescription() {
-            return "556:1: LINE_COMMENT : ( ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' ) | ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* );";
+            return "582:1: LINE_COMMENT : ( ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* ( '\\r\\n' | '\\r' | '\\n' ) | ( '//' | '#' ) (~ ( '\\n' | '\\r' ) )* );";
         }
         public int specialStateTransition(int s, IntStream _input) throws NoViableAltException {
             IntStream input = _input;

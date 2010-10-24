@@ -58,6 +58,10 @@ module test_program :
                         skip
 		}
 	fi
+	;
+	{{{{skip}}}; skip; skip; {skip; skip; {skip; skip; {skip; skip; {skip}}}}}
+	;
+	{skip}
 	
 end			//LineComment.
 

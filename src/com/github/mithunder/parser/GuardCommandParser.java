@@ -1,4 +1,4 @@
-// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-17 15:47:14
+// $ANTLR 3.2 debian-4 GuardCommand.g 2010-10-24 16:00:21
 
 package com.github.mithunder.parser;
 
@@ -81,7 +81,7 @@ public class GuardCommandParser extends Parser {
         }
         public GuardCommandParser(TokenStream input, RecognizerSharedState state) {
             super(input, state);
-            this.state.ruleMemo = new HashMap[81+1];
+            this.state.ruleMemo = new HashMap[83+1];
              
              
         }
@@ -3161,48 +3161,37 @@ public class GuardCommandParser extends Parser {
 
     public static class command_return extends ParserRuleReturnScope {
         public List<Statement> commands;
+        public Statement firstSkip;
         CommonTree tree;
         public Object getTree() { return tree; }
     };
 
     // $ANTLR start "command"
-    // GuardCommand.g:377:1: command returns [List<Statement> commands] : (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* ;
+    // GuardCommand.g:378:1: command returns [List<Statement> commands, Statement firstSkip] : (a= comm | b= skip_cmd ) ( SEMI c= comm | SEMI d= skip_cmd )* ;
     public final GuardCommandParser.command_return command() throws RecognitionException {
         GuardCommandParser.command_return retval = new GuardCommandParser.command_return();
         retval.start = input.LT(1);
         int command_StartIndex = input.index();
         CommonTree root_0 = null;
 
-        Token l=null;
-        Token RCURLY17=null;
+        Token SEMI17=null;
         Token SEMI18=null;
-        GuardCommandParser.assignment_cmd_return a = null;
+        GuardCommandParser.comm_return a = null;
 
         GuardCommandParser.skip_cmd_return b = null;
 
-        GuardCommandParser.abort_cmd_return c = null;
+        GuardCommandParser.comm_return c = null;
 
-        GuardCommandParser.read_cmd_return d = null;
-
-        GuardCommandParser.write_cmd_return e = null;
-
-        GuardCommandParser.command_return f = null;
-
-        GuardCommandParser.if_cmd_return g = null;
-
-        GuardCommandParser.do_cmd_return h = null;
-
-        GuardCommandParser.command_return i = null;
+        GuardCommandParser.skip_cmd_return d = null;
 
 
-        CommonTree l_tree=null;
-        CommonTree RCURLY17_tree=null;
+        CommonTree SEMI17_tree=null;
         CommonTree SEMI18_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 30) ) { return retval; }
-            // GuardCommand.g:378:2: ( (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )* )
-            // GuardCommand.g:379:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ( SEMI i= command )*
+            // GuardCommand.g:379:2: ( (a= comm | b= skip_cmd ) ( SEMI c= comm | SEMI d= skip_cmd )* )
+            // GuardCommand.g:380:2: (a= comm | b= skip_cmd ) ( SEMI c= comm | SEMI d= skip_cmd )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -3211,191 +3200,58 @@ public class GuardCommandParser extends Parser {
               		if (retval.commands == null) {
               			retval.commands = new ArrayList<Statement>();
               		}
+              		retval.firstSkip = null;
               	
             }
-            // GuardCommand.g:385:2: (a= assignment_cmd | b= skip_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd )
-            int alt22=8;
-            switch ( input.LA(1) ) {
-            case IDENTIFIER:
-                {
+            // GuardCommand.g:386:2: (a= comm | b= skip_cmd )
+            int alt22=2;
+            int LA22_0 = input.LA(1);
+
+            if ( (LA22_0==LCURLY||LA22_0==IF||LA22_0==DO||(LA22_0>=ABORT && LA22_0<=READ)||LA22_0==IDENTIFIER) ) {
                 alt22=1;
-                }
-                break;
-            case SKIP:
-                {
+            }
+            else if ( (LA22_0==SKIP) ) {
                 alt22=2;
-                }
-                break;
-            case ABORT:
-                {
-                alt22=3;
-                }
-                break;
-            case READ:
-                {
-                alt22=4;
-                }
-                break;
-            case WRITE:
-                {
-                alt22=5;
-                }
-                break;
-            case LCURLY:
-                {
-                alt22=6;
-                }
-                break;
-            case IF:
-                {
-                alt22=7;
-                }
-                break;
-            case DO:
-                {
-                alt22=8;
-                }
-                break;
-            default:
+            }
+            else {
                 if (state.backtracking>0) {state.failed=true; return retval;}
                 NoViableAltException nvae =
                     new NoViableAltException("", 22, 0, input);
 
                 throw nvae;
             }
-
             switch (alt22) {
                 case 1 :
-                    // GuardCommand.g:385:4: a= assignment_cmd
+                    // GuardCommand.g:386:3: a= comm
                     {
-                    pushFollow(FOLLOW_assignment_cmd_in_command1418);
-                    a=assignment_cmd();
+                    pushFollow(FOLLOW_comm_in_command1416);
+                    a=comm();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, a.getTree());
                     if ( state.backtracking==0 ) {
-                      retval.commands.addAll(a.commands);
+
+                      			for (Statement st : a.commands) {
+                      				if (st.getStatementType() != StatementType.SKIP) {retval.commands.add(st);}
+                      				else if (retval.firstSkip == null) {retval.firstSkip = st;}
+                      			}
+                      		
                     }
 
                     }
                     break;
                 case 2 :
-                    // GuardCommand.g:386:4: b= skip_cmd
+                    // GuardCommand.g:392:4: b= skip_cmd
                     {
-                    pushFollow(FOLLOW_skip_cmd_in_command1429);
+                    pushFollow(FOLLOW_skip_cmd_in_command1425);
                     b=skip_cmd();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, b.getTree());
                     if ( state.backtracking==0 ) {
-                      retval.commands.add(b.command);
-                    }
-
-                    }
-                    break;
-                case 3 :
-                    // GuardCommand.g:387:4: c= abort_cmd
-                    {
-                    pushFollow(FOLLOW_abort_cmd_in_command1441);
-                    c=abort_cmd();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, c.getTree());
-                    if ( state.backtracking==0 ) {
-                      retval.commands.add(c.command);
-                    }
-
-                    }
-                    break;
-                case 4 :
-                    // GuardCommand.g:388:4: d= read_cmd
-                    {
-                    pushFollow(FOLLOW_read_cmd_in_command1453);
-                    d=read_cmd();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, d.getTree());
-                    if ( state.backtracking==0 ) {
-                      retval.commands.add(d.command);
-                    }
-
-                    }
-                    break;
-                case 5 :
-                    // GuardCommand.g:389:4: e= write_cmd
-                    {
-                    pushFollow(FOLLOW_write_cmd_in_command1465);
-                    e=write_cmd();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
-                    if ( state.backtracking==0 ) {
-                      retval.commands.addAll(e.commands);
-                    }
-
-                    }
-                    break;
-                case 6 :
-                    // GuardCommand.g:390:4: l= LCURLY f= command RCURLY
-                    {
-                    l=(Token)match(input,LCURLY,FOLLOW_LCURLY_in_command1477); if (state.failed) return retval;
-                    if ( state.backtracking==0 ) {
-                    l_tree = (CommonTree)adaptor.create(l);
-                    adaptor.addChild(root_0, l_tree);
-                    }
-                    pushFollow(FOLLOW_command_in_command1481);
-                    f=command();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, f.getTree());
-                    RCURLY17=(Token)match(input,RCURLY,FOLLOW_RCURLY_in_command1483); if (state.failed) return retval;
-                    if ( state.backtracking==0 ) {
-                    RCURLY17_tree = (CommonTree)adaptor.create(RCURLY17);
-                    adaptor.addChild(root_0, RCURLY17_tree);
-                    }
-                    if ( state.backtracking==0 ) {
-
-                      			retval.commands.add(statementFactory.createCompoundStatement(
-                      				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
-                      			));
-                      			annotations.clear();
-                      		
-                    }
-
-                    }
-                    break;
-                case 7 :
-                    // GuardCommand.g:397:4: g= if_cmd
-                    {
-                    pushFollow(FOLLOW_if_cmd_in_command1494);
-                    g=if_cmd();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, g.getTree());
-                    if ( state.backtracking==0 ) {
-                      retval.commands.add(g.command);
-                    }
-
-                    }
-                    break;
-                case 8 :
-                    // GuardCommand.g:398:4: h= do_cmd
-                    {
-                    pushFollow(FOLLOW_do_cmd_in_command1508);
-                    h=do_cmd();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, h.getTree());
-                    if ( state.backtracking==0 ) {
-                      retval.commands.add(h.command);
+                      retval.firstSkip = b.command;
                     }
 
                     }
@@ -3403,17 +3259,20 @@ public class GuardCommandParser extends Parser {
 
             }
 
-            // GuardCommand.g:401:2: ( SEMI i= command )*
+            // GuardCommand.g:395:2: ( SEMI c= comm | SEMI d= skip_cmd )*
             loop23:
             do {
-                int alt23=2;
+                int alt23=3;
                 int LA23_0 = input.LA(1);
 
                 if ( (LA23_0==SEMI) ) {
                     int LA23_2 = input.LA(2);
 
-                    if ( (synpred38_GuardCommand()) ) {
+                    if ( (LA23_2==LCURLY||LA23_2==IF||LA23_2==DO||(LA23_2>=ABORT && LA23_2<=READ)||LA23_2==IDENTIFIER) ) {
                         alt23=1;
+                    }
+                    else if ( (LA23_2==SKIP) ) {
+                        alt23=2;
                     }
 
 
@@ -3422,24 +3281,46 @@ public class GuardCommandParser extends Parser {
 
                 switch (alt23) {
             	case 1 :
-            	    // GuardCommand.g:401:3: SEMI i= command
+            	    // GuardCommand.g:395:3: SEMI c= comm
             	    {
-            	    SEMI18=(Token)match(input,SEMI,FOLLOW_SEMI_in_command1524); if (state.failed) return retval;
+            	    SEMI17=(Token)match(input,SEMI,FOLLOW_SEMI_in_command1436); if (state.failed) return retval;
+            	    if ( state.backtracking==0 ) {
+            	    SEMI17_tree = (CommonTree)adaptor.create(SEMI17);
+            	    adaptor.addChild(root_0, SEMI17_tree);
+            	    }
+            	    pushFollow(FOLLOW_comm_in_command1440);
+            	    c=comm();
+
+            	    state._fsp--;
+            	    if (state.failed) return retval;
+            	    if ( state.backtracking==0 ) adaptor.addChild(root_0, c.getTree());
+            	    if ( state.backtracking==0 ) {
+
+            	      			for (Statement st : c.commands) {
+            	      				if (st.getStatementType() != StatementType.SKIP) {retval.commands.add(st);}
+            	      				else if (retval.firstSkip == null) {retval.firstSkip = st;}
+            	      			}
+            	      		
+            	    }
+
+            	    }
+            	    break;
+            	case 2 :
+            	    // GuardCommand.g:401:4: SEMI d= skip_cmd
+            	    {
+            	    SEMI18=(Token)match(input,SEMI,FOLLOW_SEMI_in_command1447); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
             	    SEMI18_tree = (CommonTree)adaptor.create(SEMI18);
             	    adaptor.addChild(root_0, SEMI18_tree);
             	    }
-            	    pushFollow(FOLLOW_command_in_command1528);
-            	    i=command();
+            	    pushFollow(FOLLOW_skip_cmd_in_command1451);
+            	    d=skip_cmd();
 
             	    state._fsp--;
             	    if (state.failed) return retval;
-            	    if ( state.backtracking==0 ) adaptor.addChild(root_0, i.getTree());
+            	    if ( state.backtracking==0 ) adaptor.addChild(root_0, d.getTree());
             	    if ( state.backtracking==0 ) {
-
-            	      			//TODO: Ensure that skip statements are not added.
-            	      			retval.commands.addAll(i.commands);
-            	      		
+            	      if (retval.firstSkip == null) {retval.firstSkip = d.command;}
             	    }
 
             	    }
@@ -3450,6 +3331,13 @@ public class GuardCommandParser extends Parser {
                 }
             } while (true);
 
+            if ( state.backtracking==0 ) {
+
+              		if (retval.commands.size() == 0) {
+              			retval.commands.add(retval.firstSkip);
+              		}
+              	
+            }
 
             }
 
@@ -3474,6 +3362,249 @@ public class GuardCommandParser extends Parser {
     }
     // $ANTLR end "command"
 
+    public static class comm_return extends ParserRuleReturnScope {
+        public List<Statement> commands;
+        CommonTree tree;
+        public Object getTree() { return tree; }
+    };
+
+    // $ANTLR start "comm"
+    // GuardCommand.g:410:1: comm returns [List<Statement> commands] : (a= assignment_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) ;
+    public final GuardCommandParser.comm_return comm() throws RecognitionException {
+        GuardCommandParser.comm_return retval = new GuardCommandParser.comm_return();
+        retval.start = input.LT(1);
+        int comm_StartIndex = input.index();
+        CommonTree root_0 = null;
+
+        Token l=null;
+        Token RCURLY19=null;
+        GuardCommandParser.assignment_cmd_return a = null;
+
+        GuardCommandParser.abort_cmd_return c = null;
+
+        GuardCommandParser.read_cmd_return d = null;
+
+        GuardCommandParser.write_cmd_return e = null;
+
+        GuardCommandParser.command_return f = null;
+
+        GuardCommandParser.if_cmd_return g = null;
+
+        GuardCommandParser.do_cmd_return h = null;
+
+
+        CommonTree l_tree=null;
+        CommonTree RCURLY19_tree=null;
+
+        try {
+            if ( state.backtracking>0 && alreadyParsedRule(input, 31) ) { return retval; }
+            // GuardCommand.g:411:2: ( (a= assignment_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd ) )
+            // GuardCommand.g:412:2: (a= assignment_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd )
+            {
+            root_0 = (CommonTree)adaptor.nil();
+
+            if ( state.backtracking==0 ) {
+
+              		if (retval.commands == null) {
+              			retval.commands = new ArrayList<Statement>();
+              		}
+              	
+            }
+            // GuardCommand.g:418:2: (a= assignment_cmd | c= abort_cmd | d= read_cmd | e= write_cmd | l= LCURLY f= command RCURLY | g= if_cmd | h= do_cmd )
+            int alt24=7;
+            switch ( input.LA(1) ) {
+            case IDENTIFIER:
+                {
+                alt24=1;
+                }
+                break;
+            case ABORT:
+                {
+                alt24=2;
+                }
+                break;
+            case READ:
+                {
+                alt24=3;
+                }
+                break;
+            case WRITE:
+                {
+                alt24=4;
+                }
+                break;
+            case LCURLY:
+                {
+                alt24=5;
+                }
+                break;
+            case IF:
+                {
+                alt24=6;
+                }
+                break;
+            case DO:
+                {
+                alt24=7;
+                }
+                break;
+            default:
+                if (state.backtracking>0) {state.failed=true; return retval;}
+                NoViableAltException nvae =
+                    new NoViableAltException("", 24, 0, input);
+
+                throw nvae;
+            }
+
+            switch (alt24) {
+                case 1 :
+                    // GuardCommand.g:418:4: a= assignment_cmd
+                    {
+                    pushFollow(FOLLOW_assignment_cmd_in_comm1486);
+                    a=assignment_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, a.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.addAll(a.commands);
+                    }
+
+                    }
+                    break;
+                case 2 :
+                    // GuardCommand.g:419:4: c= abort_cmd
+                    {
+                    pushFollow(FOLLOW_abort_cmd_in_comm1497);
+                    c=abort_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, c.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.add(c.command);
+                    }
+
+                    }
+                    break;
+                case 3 :
+                    // GuardCommand.g:420:4: d= read_cmd
+                    {
+                    pushFollow(FOLLOW_read_cmd_in_comm1509);
+                    d=read_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, d.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.add(d.command);
+                    }
+
+                    }
+                    break;
+                case 4 :
+                    // GuardCommand.g:421:4: e= write_cmd
+                    {
+                    pushFollow(FOLLOW_write_cmd_in_comm1521);
+                    e=write_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.addAll(e.commands);
+                    }
+
+                    }
+                    break;
+                case 5 :
+                    // GuardCommand.g:422:4: l= LCURLY f= command RCURLY
+                    {
+                    l=(Token)match(input,LCURLY,FOLLOW_LCURLY_in_comm1533); if (state.failed) return retval;
+                    if ( state.backtracking==0 ) {
+                    l_tree = (CommonTree)adaptor.create(l);
+                    adaptor.addChild(root_0, l_tree);
+                    }
+                    pushFollow(FOLLOW_command_in_comm1537);
+                    f=command();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, f.getTree());
+                    RCURLY19=(Token)match(input,RCURLY,FOLLOW_RCURLY_in_comm1539); if (state.failed) return retval;
+                    if ( state.backtracking==0 ) {
+                    RCURLY19_tree = (CommonTree)adaptor.create(RCURLY19);
+                    adaptor.addChild(root_0, RCURLY19_tree);
+                    }
+                    if ( state.backtracking==0 ) {
+
+                      			/*retval.commands.add(statementFactory.createCompoundStatement(
+                      				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
+                      			));
+                      			annotations.clear();*/
+                      			retval.commands.addAll(f.commands);
+                      		
+                    }
+
+                    }
+                    break;
+                case 6 :
+                    // GuardCommand.g:430:4: g= if_cmd
+                    {
+                    pushFollow(FOLLOW_if_cmd_in_comm1550);
+                    g=if_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, g.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.add(g.command);
+                    }
+
+                    }
+                    break;
+                case 7 :
+                    // GuardCommand.g:431:4: h= do_cmd
+                    {
+                    pushFollow(FOLLOW_do_cmd_in_comm1564);
+                    h=do_cmd();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, h.getTree());
+                    if ( state.backtracking==0 ) {
+                      retval.commands.add(h.command);
+                    }
+
+                    }
+                    break;
+
+            }
+
+
+            }
+
+            retval.stop = input.LT(-1);
+
+            if ( state.backtracking==0 ) {
+
+            retval.tree = (CommonTree)adaptor.rulePostProcessing(root_0);
+            adaptor.setTokenBoundaries(retval.tree, retval.start, retval.stop);
+            }
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+    	retval.tree = (CommonTree)adaptor.errorNode(input, retval.start, input.LT(-1), re);
+
+        }
+        finally {
+            if ( state.backtracking>0 ) { memoize(input, 31, comm_StartIndex); }
+        }
+        return retval;
+    }
+    // $ANTLR end "comm"
+
     public static class assignment_cmd_return extends ParserRuleReturnScope {
         public List<Statement> commands;
         CommonTree tree;
@@ -3481,7 +3612,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "assignment_cmd"
-    // GuardCommand.g:409:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
+    // GuardCommand.g:435:1: assignment_cmd returns [List<Statement> commands] : id= IDENTIFIER as= ASSIGN e= expression ;
     public final GuardCommandParser.assignment_cmd_return assignment_cmd() throws RecognitionException {
         GuardCommandParser.assignment_cmd_return retval = new GuardCommandParser.assignment_cmd_return();
         retval.start = input.LT(1);
@@ -3497,23 +3628,23 @@ public class GuardCommandParser extends Parser {
         CommonTree as_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 31) ) { return retval; }
-            // GuardCommand.g:410:2: (id= IDENTIFIER as= ASSIGN e= expression )
-            // GuardCommand.g:410:4: id= IDENTIFIER as= ASSIGN e= expression
+            if ( state.backtracking>0 && alreadyParsedRule(input, 32) ) { return retval; }
+            // GuardCommand.g:436:2: (id= IDENTIFIER as= ASSIGN e= expression )
+            // GuardCommand.g:436:4: id= IDENTIFIER as= ASSIGN e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_assignment_cmd1553); if (state.failed) return retval;
+            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_assignment_cmd1591); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             id_tree = (CommonTree)adaptor.create(id);
             adaptor.addChild(root_0, id_tree);
             }
-            as=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_assignment_cmd1557); if (state.failed) return retval;
+            as=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_assignment_cmd1595); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             as_tree = (CommonTree)adaptor.create(as);
             adaptor.addChild(root_0, as_tree);
             }
-            pushFollow(FOLLOW_expression_in_assignment_cmd1561);
+            pushFollow(FOLLOW_expression_in_assignment_cmd1599);
             e=expression();
 
             state._fsp--;
@@ -3553,7 +3684,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 31, assignment_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 32, assignment_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3566,7 +3697,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "skip_cmd"
-    // GuardCommand.g:427:1: skip_cmd returns [Statement command] : s= SKIP ;
+    // GuardCommand.g:453:1: skip_cmd returns [Statement command] : s= SKIP ;
     public final GuardCommandParser.skip_cmd_return skip_cmd() throws RecognitionException {
         GuardCommandParser.skip_cmd_return retval = new GuardCommandParser.skip_cmd_return();
         retval.start = input.LT(1);
@@ -3578,13 +3709,13 @@ public class GuardCommandParser extends Parser {
         CommonTree s_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 32) ) { return retval; }
-            // GuardCommand.g:428:2: (s= SKIP )
-            // GuardCommand.g:428:4: s= SKIP
+            if ( state.backtracking>0 && alreadyParsedRule(input, 33) ) { return retval; }
+            // GuardCommand.g:454:2: (s= SKIP )
+            // GuardCommand.g:454:4: s= SKIP
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            s=(Token)match(input,SKIP,FOLLOW_SKIP_in_skip_cmd1582); if (state.failed) return retval;
+            s=(Token)match(input,SKIP,FOLLOW_SKIP_in_skip_cmd1620); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             s_tree = (CommonTree)adaptor.create(s);
             adaptor.addChild(root_0, s_tree);
@@ -3615,7 +3746,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 32, skip_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 33, skip_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3628,7 +3759,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "abort_cmd"
-    // GuardCommand.g:437:1: abort_cmd returns [Statement command] : a= ABORT ;
+    // GuardCommand.g:463:1: abort_cmd returns [Statement command] : a= ABORT ;
     public final GuardCommandParser.abort_cmd_return abort_cmd() throws RecognitionException {
         GuardCommandParser.abort_cmd_return retval = new GuardCommandParser.abort_cmd_return();
         retval.start = input.LT(1);
@@ -3640,13 +3771,13 @@ public class GuardCommandParser extends Parser {
         CommonTree a_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 33) ) { return retval; }
-            // GuardCommand.g:438:2: (a= ABORT )
-            // GuardCommand.g:438:4: a= ABORT
+            if ( state.backtracking>0 && alreadyParsedRule(input, 34) ) { return retval; }
+            // GuardCommand.g:464:2: (a= ABORT )
+            // GuardCommand.g:464:4: a= ABORT
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            a=(Token)match(input,ABORT,FOLLOW_ABORT_in_abort_cmd1603); if (state.failed) return retval;
+            a=(Token)match(input,ABORT,FOLLOW_ABORT_in_abort_cmd1641); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             a_tree = (CommonTree)adaptor.create(a);
             adaptor.addChild(root_0, a_tree);
@@ -3677,7 +3808,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 33, abort_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 34, abort_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3690,7 +3821,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "read_cmd"
-    // GuardCommand.g:447:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
+    // GuardCommand.g:473:1: read_cmd returns [Statement command] : rea= READ id= IDENTIFIER ;
     public final GuardCommandParser.read_cmd_return read_cmd() throws RecognitionException {
         GuardCommandParser.read_cmd_return retval = new GuardCommandParser.read_cmd_return();
         retval.start = input.LT(1);
@@ -3704,18 +3835,18 @@ public class GuardCommandParser extends Parser {
         CommonTree id_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 34) ) { return retval; }
-            // GuardCommand.g:448:2: (rea= READ id= IDENTIFIER )
-            // GuardCommand.g:448:4: rea= READ id= IDENTIFIER
+            if ( state.backtracking>0 && alreadyParsedRule(input, 35) ) { return retval; }
+            // GuardCommand.g:474:2: (rea= READ id= IDENTIFIER )
+            // GuardCommand.g:474:4: rea= READ id= IDENTIFIER
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            rea=(Token)match(input,READ,FOLLOW_READ_in_read_cmd1624); if (state.failed) return retval;
+            rea=(Token)match(input,READ,FOLLOW_READ_in_read_cmd1662); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             rea_tree = (CommonTree)adaptor.create(rea);
             adaptor.addChild(root_0, rea_tree);
             }
-            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_read_cmd1628); if (state.failed) return retval;
+            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_read_cmd1666); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             id_tree = (CommonTree)adaptor.create(id);
             adaptor.addChild(root_0, id_tree);
@@ -3747,7 +3878,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 34, read_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 35, read_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3760,7 +3891,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "write_cmd"
-    // GuardCommand.g:458:1: write_cmd returns [List<Statement> commands] : wr= WRITE e= expression ;
+    // GuardCommand.g:484:1: write_cmd returns [List<Statement> commands] : wr= WRITE e= expression ;
     public final GuardCommandParser.write_cmd_return write_cmd() throws RecognitionException {
         GuardCommandParser.write_cmd_return retval = new GuardCommandParser.write_cmd_return();
         retval.start = input.LT(1);
@@ -3774,18 +3905,18 @@ public class GuardCommandParser extends Parser {
         CommonTree wr_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 35) ) { return retval; }
-            // GuardCommand.g:459:2: (wr= WRITE e= expression )
-            // GuardCommand.g:459:4: wr= WRITE e= expression
+            if ( state.backtracking>0 && alreadyParsedRule(input, 36) ) { return retval; }
+            // GuardCommand.g:485:2: (wr= WRITE e= expression )
+            // GuardCommand.g:485:4: wr= WRITE e= expression
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            wr=(Token)match(input,WRITE,FOLLOW_WRITE_in_write_cmd1649); if (state.failed) return retval;
+            wr=(Token)match(input,WRITE,FOLLOW_WRITE_in_write_cmd1687); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             wr_tree = (CommonTree)adaptor.create(wr);
             adaptor.addChild(root_0, wr_tree);
             }
-            pushFollow(FOLLOW_expression_in_write_cmd1653);
+            pushFollow(FOLLOW_expression_in_write_cmd1691);
             e=expression();
 
             state._fsp--;
@@ -3824,7 +3955,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 35, write_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 36, write_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3837,7 +3968,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "if_cmd"
-    // GuardCommand.g:475:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
+    // GuardCommand.g:501:1: if_cmd returns [Statement command] : ift= IF gc= guarded_cmd FI ;
     public final GuardCommandParser.if_cmd_return if_cmd() throws RecognitionException {
         GuardCommandParser.if_cmd_return retval = new GuardCommandParser.if_cmd_return();
         retval.start = input.LT(1);
@@ -3845,35 +3976,35 @@ public class GuardCommandParser extends Parser {
         CommonTree root_0 = null;
 
         Token ift=null;
-        Token FI19=null;
+        Token FI20=null;
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
         CommonTree ift_tree=null;
-        CommonTree FI19_tree=null;
+        CommonTree FI20_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 36) ) { return retval; }
-            // GuardCommand.g:476:2: (ift= IF gc= guarded_cmd FI )
-            // GuardCommand.g:476:4: ift= IF gc= guarded_cmd FI
+            if ( state.backtracking>0 && alreadyParsedRule(input, 37) ) { return retval; }
+            // GuardCommand.g:502:2: (ift= IF gc= guarded_cmd FI )
+            // GuardCommand.g:502:4: ift= IF gc= guarded_cmd FI
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            ift=(Token)match(input,IF,FOLLOW_IF_in_if_cmd1674); if (state.failed) return retval;
+            ift=(Token)match(input,IF,FOLLOW_IF_in_if_cmd1712); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             ift_tree = (CommonTree)adaptor.create(ift);
             adaptor.addChild(root_0, ift_tree);
             }
-            pushFollow(FOLLOW_guarded_cmd_in_if_cmd1678);
+            pushFollow(FOLLOW_guarded_cmd_in_if_cmd1716);
             gc=guarded_cmd();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, gc.getTree());
-            FI19=(Token)match(input,FI,FOLLOW_FI_in_if_cmd1680); if (state.failed) return retval;
+            FI20=(Token)match(input,FI,FOLLOW_FI_in_if_cmd1718); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            FI19_tree = (CommonTree)adaptor.create(FI19);
-            adaptor.addChild(root_0, FI19_tree);
+            FI20_tree = (CommonTree)adaptor.create(FI20);
+            adaptor.addChild(root_0, FI20_tree);
             }
             if ( state.backtracking==0 ) {
 
@@ -3901,7 +4032,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 36, if_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 37, if_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3914,7 +4045,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "do_cmd"
-    // GuardCommand.g:485:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
+    // GuardCommand.g:511:1: do_cmd returns [Statement command] : dot= DO gc= guarded_cmd OD ;
     public final GuardCommandParser.do_cmd_return do_cmd() throws RecognitionException {
         GuardCommandParser.do_cmd_return retval = new GuardCommandParser.do_cmd_return();
         retval.start = input.LT(1);
@@ -3922,35 +4053,35 @@ public class GuardCommandParser extends Parser {
         CommonTree root_0 = null;
 
         Token dot=null;
-        Token OD20=null;
+        Token OD21=null;
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
         CommonTree dot_tree=null;
-        CommonTree OD20_tree=null;
+        CommonTree OD21_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 37) ) { return retval; }
-            // GuardCommand.g:486:2: (dot= DO gc= guarded_cmd OD )
-            // GuardCommand.g:486:4: dot= DO gc= guarded_cmd OD
+            if ( state.backtracking>0 && alreadyParsedRule(input, 38) ) { return retval; }
+            // GuardCommand.g:512:2: (dot= DO gc= guarded_cmd OD )
+            // GuardCommand.g:512:4: dot= DO gc= guarded_cmd OD
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            dot=(Token)match(input,DO,FOLLOW_DO_in_do_cmd1701); if (state.failed) return retval;
+            dot=(Token)match(input,DO,FOLLOW_DO_in_do_cmd1739); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             dot_tree = (CommonTree)adaptor.create(dot);
             adaptor.addChild(root_0, dot_tree);
             }
-            pushFollow(FOLLOW_guarded_cmd_in_do_cmd1705);
+            pushFollow(FOLLOW_guarded_cmd_in_do_cmd1743);
             gc=guarded_cmd();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, gc.getTree());
-            OD20=(Token)match(input,OD,FOLLOW_OD_in_do_cmd1707); if (state.failed) return retval;
+            OD21=(Token)match(input,OD,FOLLOW_OD_in_do_cmd1745); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            OD20_tree = (CommonTree)adaptor.create(OD20);
-            adaptor.addChild(root_0, OD20_tree);
+            OD21_tree = (CommonTree)adaptor.create(OD21);
+            adaptor.addChild(root_0, OD21_tree);
             }
             if ( state.backtracking==0 ) {
 
@@ -3978,7 +4109,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 37, do_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 38, do_cmd_StartIndex); }
         }
         return retval;
     }
@@ -3991,15 +4122,15 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "guarded_cmd"
-    // GuardCommand.g:495:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
+    // GuardCommand.g:521:1: guarded_cmd returns [List<Statement> commands] : (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* ;
     public final GuardCommandParser.guarded_cmd_return guarded_cmd() throws RecognitionException {
         GuardCommandParser.guarded_cmd_return retval = new GuardCommandParser.guarded_cmd_return();
         retval.start = input.LT(1);
         int guarded_cmd_StartIndex = input.index();
         CommonTree root_0 = null;
 
-        Token ARROW21=null;
-        Token GUARD22=null;
+        Token ARROW22=null;
+        Token GUARD23=null;
         GuardCommandParser.expression_return e = null;
 
         GuardCommandParser.command_return c = null;
@@ -4007,13 +4138,13 @@ public class GuardCommandParser extends Parser {
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
-        CommonTree ARROW21_tree=null;
-        CommonTree GUARD22_tree=null;
+        CommonTree ARROW22_tree=null;
+        CommonTree GUARD23_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 38) ) { return retval; }
-            // GuardCommand.g:496:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
-            // GuardCommand.g:497:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
+            if ( state.backtracking>0 && alreadyParsedRule(input, 39) ) { return retval; }
+            // GuardCommand.g:522:2: ( (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )* )
+            // GuardCommand.g:523:2: (e= expression ARROW c= command ) ( GUARD gc= guarded_cmd )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
@@ -4024,21 +4155,21 @@ public class GuardCommandParser extends Parser {
               		}
               	
             }
-            // GuardCommand.g:502:2: (e= expression ARROW c= command )
-            // GuardCommand.g:502:3: e= expression ARROW c= command
+            // GuardCommand.g:528:2: (e= expression ARROW c= command )
+            // GuardCommand.g:528:3: e= expression ARROW c= command
             {
-            pushFollow(FOLLOW_expression_in_guarded_cmd1733);
+            pushFollow(FOLLOW_expression_in_guarded_cmd1771);
             e=expression();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, e.getTree());
-            ARROW21=(Token)match(input,ARROW,FOLLOW_ARROW_in_guarded_cmd1735); if (state.failed) return retval;
+            ARROW22=(Token)match(input,ARROW,FOLLOW_ARROW_in_guarded_cmd1773); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            ARROW21_tree = (CommonTree)adaptor.create(ARROW21);
-            adaptor.addChild(root_0, ARROW21_tree);
+            ARROW22_tree = (CommonTree)adaptor.create(ARROW22);
+            adaptor.addChild(root_0, ARROW22_tree);
             }
-            pushFollow(FOLLOW_command_in_guarded_cmd1739);
+            pushFollow(FOLLOW_command_in_guarded_cmd1777);
             c=command();
 
             state._fsp--;
@@ -4071,33 +4202,33 @@ public class GuardCommandParser extends Parser {
               		annotations.clear();
               	
             }
-            // GuardCommand.g:524:2: ( GUARD gc= guarded_cmd )*
-            loop24:
+            // GuardCommand.g:550:2: ( GUARD gc= guarded_cmd )*
+            loop25:
             do {
-                int alt24=2;
-                int LA24_0 = input.LA(1);
+                int alt25=2;
+                int LA25_0 = input.LA(1);
 
-                if ( (LA24_0==GUARD) ) {
-                    int LA24_2 = input.LA(2);
+                if ( (LA25_0==GUARD) ) {
+                    int LA25_2 = input.LA(2);
 
-                    if ( (synpred39_GuardCommand()) ) {
-                        alt24=1;
+                    if ( (synpred40_GuardCommand()) ) {
+                        alt25=1;
                     }
 
 
                 }
 
 
-                switch (alt24) {
+                switch (alt25) {
             	case 1 :
-            	    // GuardCommand.g:524:3: GUARD gc= guarded_cmd
+            	    // GuardCommand.g:550:3: GUARD gc= guarded_cmd
             	    {
-            	    GUARD22=(Token)match(input,GUARD,FOLLOW_GUARD_in_guarded_cmd1746); if (state.failed) return retval;
+            	    GUARD23=(Token)match(input,GUARD,FOLLOW_GUARD_in_guarded_cmd1784); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
-            	    GUARD22_tree = (CommonTree)adaptor.create(GUARD22);
-            	    adaptor.addChild(root_0, GUARD22_tree);
+            	    GUARD23_tree = (CommonTree)adaptor.create(GUARD23);
+            	    adaptor.addChild(root_0, GUARD23_tree);
             	    }
-            	    pushFollow(FOLLOW_guarded_cmd_in_guarded_cmd1750);
+            	    pushFollow(FOLLOW_guarded_cmd_in_guarded_cmd1788);
             	    gc=guarded_cmd();
 
             	    state._fsp--;
@@ -4111,7 +4242,7 @@ public class GuardCommandParser extends Parser {
             	    break;
 
             	default :
-            	    break loop24;
+            	    break loop25;
                 }
             } while (true);
 
@@ -4133,7 +4264,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 38, guarded_cmd_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 39, guarded_cmd_StartIndex); }
         }
         return retval;
     }
@@ -4146,7 +4277,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "program"
-    // GuardCommand.g:527:1: program returns [CompilationUnit compilationUnit] : m= MODULE id= IDENTIFIER COLON c= command END ;
+    // GuardCommand.g:553:1: program returns [CompilationUnit compilationUnit] : m= MODULE id= IDENTIFIER COLON c= command END ;
     public final GuardCommandParser.program_return program() throws RecognitionException {
         GuardCommandParser.program_return retval = new GuardCommandParser.program_return();
         retval.start = input.LT(1);
@@ -4155,48 +4286,48 @@ public class GuardCommandParser extends Parser {
 
         Token m=null;
         Token id=null;
-        Token COLON23=null;
-        Token END24=null;
+        Token COLON24=null;
+        Token END25=null;
         GuardCommandParser.command_return c = null;
 
 
         CommonTree m_tree=null;
         CommonTree id_tree=null;
-        CommonTree COLON23_tree=null;
-        CommonTree END24_tree=null;
+        CommonTree COLON24_tree=null;
+        CommonTree END25_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 39) ) { return retval; }
-            // GuardCommand.g:528:2: (m= MODULE id= IDENTIFIER COLON c= command END )
-            // GuardCommand.g:528:4: m= MODULE id= IDENTIFIER COLON c= command END
+            if ( state.backtracking>0 && alreadyParsedRule(input, 40) ) { return retval; }
+            // GuardCommand.g:554:2: (m= MODULE id= IDENTIFIER COLON c= command END )
+            // GuardCommand.g:554:4: m= MODULE id= IDENTIFIER COLON c= command END
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            m=(Token)match(input,MODULE,FOLLOW_MODULE_in_program1773); if (state.failed) return retval;
+            m=(Token)match(input,MODULE,FOLLOW_MODULE_in_program1811); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             m_tree = (CommonTree)adaptor.create(m);
             adaptor.addChild(root_0, m_tree);
             }
-            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_program1777); if (state.failed) return retval;
+            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_program1815); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             id_tree = (CommonTree)adaptor.create(id);
             adaptor.addChild(root_0, id_tree);
             }
-            COLON23=(Token)match(input,COLON,FOLLOW_COLON_in_program1779); if (state.failed) return retval;
+            COLON24=(Token)match(input,COLON,FOLLOW_COLON_in_program1817); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            COLON23_tree = (CommonTree)adaptor.create(COLON23);
-            adaptor.addChild(root_0, COLON23_tree);
+            COLON24_tree = (CommonTree)adaptor.create(COLON24);
+            adaptor.addChild(root_0, COLON24_tree);
             }
-            pushFollow(FOLLOW_command_in_program1783);
+            pushFollow(FOLLOW_command_in_program1821);
             c=command();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, c.getTree());
-            END24=(Token)match(input,END,FOLLOW_END_in_program1785); if (state.failed) return retval;
+            END25=(Token)match(input,END,FOLLOW_END_in_program1823); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            END24_tree = (CommonTree)adaptor.create(END24);
-            adaptor.addChild(root_0, END24_tree);
+            END25_tree = (CommonTree)adaptor.create(END25);
+            adaptor.addChild(root_0, END25_tree);
             }
             if ( state.backtracking==0 ) {
 
@@ -4227,7 +4358,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 39, program_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 40, program_StartIndex); }
         }
         return retval;
     }
@@ -4239,7 +4370,7 @@ public class GuardCommandParser extends Parser {
     };
 
     // $ANTLR start "annotation"
-    // GuardCommand.g:541:1: annotation : ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' ;
+    // GuardCommand.g:567:1: annotation : ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' ;
     public final GuardCommandParser.annotation_return annotation() throws RecognitionException {
         GuardCommandParser.annotation_return retval = new GuardCommandParser.annotation_return();
         retval.start = input.LT(1);
@@ -4248,75 +4379,75 @@ public class GuardCommandParser extends Parser {
 
         Token id=null;
         Token te=null;
-        Token string_literal25=null;
-        Token char_literal26=null;
+        Token string_literal26=null;
         Token char_literal27=null;
-        Token set28=null;
-        Token char_literal29=null;
+        Token char_literal28=null;
+        Token set29=null;
+        Token char_literal30=null;
 
         CommonTree id_tree=null;
         CommonTree te_tree=null;
-        CommonTree string_literal25_tree=null;
-        CommonTree char_literal26_tree=null;
+        CommonTree string_literal26_tree=null;
         CommonTree char_literal27_tree=null;
-        CommonTree set28_tree=null;
-        CommonTree char_literal29_tree=null;
+        CommonTree char_literal28_tree=null;
+        CommonTree set29_tree=null;
+        CommonTree char_literal30_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 40) ) { return retval; }
-            // GuardCommand.g:542:2: ( ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' )
-            // GuardCommand.g:542:4: ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"'
+            if ( state.backtracking>0 && alreadyParsedRule(input, 41) ) { return retval; }
+            // GuardCommand.g:568:2: ( ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"' )
+            // GuardCommand.g:568:4: ( '#@' ) id= IDENTIFIER '=' '\"' te= ( (~ ( '\"' ) )* ) '\"'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            // GuardCommand.g:542:4: ( '#@' )
-            // GuardCommand.g:542:5: '#@'
+            // GuardCommand.g:568:4: ( '#@' )
+            // GuardCommand.g:568:5: '#@'
             {
-            string_literal25=(Token)match(input,44,FOLLOW_44_in_annotation1807); if (state.failed) return retval;
+            string_literal26=(Token)match(input,44,FOLLOW_44_in_annotation1845); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            string_literal25_tree = (CommonTree)adaptor.create(string_literal25);
-            adaptor.addChild(root_0, string_literal25_tree);
+            string_literal26_tree = (CommonTree)adaptor.create(string_literal26);
+            adaptor.addChild(root_0, string_literal26_tree);
             }
 
             }
 
-            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_annotation1812); if (state.failed) return retval;
+            id=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_annotation1850); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             id_tree = (CommonTree)adaptor.create(id);
             adaptor.addChild(root_0, id_tree);
             }
-            char_literal26=(Token)match(input,EQ,FOLLOW_EQ_in_annotation1814); if (state.failed) return retval;
-            if ( state.backtracking==0 ) {
-            char_literal26_tree = (CommonTree)adaptor.create(char_literal26);
-            adaptor.addChild(root_0, char_literal26_tree);
-            }
-            char_literal27=(Token)match(input,45,FOLLOW_45_in_annotation1816); if (state.failed) return retval;
+            char_literal27=(Token)match(input,EQ,FOLLOW_EQ_in_annotation1852); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             char_literal27_tree = (CommonTree)adaptor.create(char_literal27);
             adaptor.addChild(root_0, char_literal27_tree);
             }
-            // GuardCommand.g:542:36: ( (~ ( '\"' ) )* )
-            // GuardCommand.g:542:37: (~ ( '\"' ) )*
+            char_literal28=(Token)match(input,45,FOLLOW_45_in_annotation1854); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            char_literal28_tree = (CommonTree)adaptor.create(char_literal28);
+            adaptor.addChild(root_0, char_literal28_tree);
+            }
+            // GuardCommand.g:568:36: ( (~ ( '\"' ) )* )
+            // GuardCommand.g:568:37: (~ ( '\"' ) )*
             {
-            // GuardCommand.g:542:37: (~ ( '\"' ) )*
-            loop25:
+            // GuardCommand.g:568:37: (~ ( '\"' ) )*
+            loop26:
             do {
-                int alt25=2;
-                int LA25_0 = input.LA(1);
+                int alt26=2;
+                int LA26_0 = input.LA(1);
 
-                if ( ((LA25_0>=AND && LA25_0<=44)) ) {
-                    alt25=1;
+                if ( ((LA26_0>=AND && LA26_0<=44)) ) {
+                    alt26=1;
                 }
 
 
-                switch (alt25) {
+                switch (alt26) {
             	case 1 :
             	    // GuardCommand.g:0:0: ~ ( '\"' )
             	    {
-            	    set28=(Token)input.LT(1);
+            	    set29=(Token)input.LT(1);
             	    if ( (input.LA(1)>=AND && input.LA(1)<=44) ) {
             	        input.consume();
-            	        if ( state.backtracking==0 ) adaptor.addChild(root_0, (CommonTree)adaptor.create(set28));
+            	        if ( state.backtracking==0 ) adaptor.addChild(root_0, (CommonTree)adaptor.create(set29));
             	        state.errorRecovery=false;state.failed=false;
             	    }
             	    else {
@@ -4330,17 +4461,17 @@ public class GuardCommandParser extends Parser {
             	    break;
 
             	default :
-            	    break loop25;
+            	    break loop26;
                 }
             } while (true);
 
 
             }
 
-            char_literal29=(Token)match(input,45,FOLLOW_45_in_annotation1828); if (state.failed) return retval;
+            char_literal30=(Token)match(input,45,FOLLOW_45_in_annotation1866); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            char_literal29_tree = (CommonTree)adaptor.create(char_literal29);
-            adaptor.addChild(root_0, char_literal29_tree);
+            char_literal30_tree = (CommonTree)adaptor.create(char_literal30);
+            adaptor.addChild(root_0, char_literal30_tree);
             }
             if ( state.backtracking==0 ) {
 
@@ -4365,7 +4496,7 @@ public class GuardCommandParser extends Parser {
 
         }
         finally {
-            if ( state.backtracking>0 ) { memoize(input, 40, annotation_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 41, annotation_StartIndex); }
         }
         return retval;
     }
@@ -4407,17 +4538,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:253:2: (b= or e3= expr_and )*
-        loop26:
+        loop27:
         do {
-            int alt26=2;
-            int LA26_0 = input.LA(1);
+            int alt27=2;
+            int LA27_0 = input.LA(1);
 
-            if ( (LA26_0==OR) ) {
-                alt26=1;
+            if ( (LA27_0==OR) ) {
+                alt27=1;
             }
 
 
-            switch (alt26) {
+            switch (alt27) {
         	case 1 :
         	    // GuardCommand.g:253:3: b= or e3= expr_and
         	    {
@@ -4436,7 +4567,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop26;
+        	    break loop27;
             }
         } while (true);
 
@@ -4481,17 +4612,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:268:2: (b= and e3= expr_eqa )*
-        loop27:
+        loop28:
         do {
-            int alt27=2;
-            int LA27_0 = input.LA(1);
+            int alt28=2;
+            int LA28_0 = input.LA(1);
 
-            if ( (LA27_0==AND) ) {
-                alt27=1;
+            if ( (LA28_0==AND) ) {
+                alt28=1;
             }
 
 
-            switch (alt27) {
+            switch (alt28) {
         	case 1 :
         	    // GuardCommand.g:268:3: b= and e3= expr_eqa
         	    {
@@ -4510,7 +4641,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop27;
+        	    break loop28;
             }
         } while (true);
 
@@ -4555,17 +4686,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:284:2: (b= eqa e3= expr_rel )*
-        loop28:
+        loop29:
         do {
-            int alt28=2;
-            int LA28_0 = input.LA(1);
+            int alt29=2;
+            int LA29_0 = input.LA(1);
 
-            if ( ((LA28_0>=EQ && LA28_0<=NEQ)) ) {
-                alt28=1;
+            if ( ((LA29_0>=EQ && LA29_0<=NEQ)) ) {
+                alt29=1;
             }
 
 
-            switch (alt28) {
+            switch (alt29) {
         	case 1 :
         	    // GuardCommand.g:284:3: b= eqa e3= expr_rel
         	    {
@@ -4584,7 +4715,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop28;
+        	    break loop29;
             }
         } while (true);
 
@@ -4629,17 +4760,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:299:2: (b= rel e3= expr_term )*
-        loop29:
+        loop30:
         do {
-            int alt29=2;
-            int LA29_0 = input.LA(1);
+            int alt30=2;
+            int LA30_0 = input.LA(1);
 
-            if ( ((LA29_0>=GREATER_THAN && LA29_0<=LESS_EQ)) ) {
-                alt29=1;
+            if ( ((LA30_0>=GREATER_THAN && LA30_0<=LESS_EQ)) ) {
+                alt30=1;
             }
 
 
-            switch (alt29) {
+            switch (alt30) {
         	case 1 :
         	    // GuardCommand.g:299:3: b= rel e3= expr_term
         	    {
@@ -4658,7 +4789,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop29;
+        	    break loop30;
             }
         } while (true);
 
@@ -4703,17 +4834,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:314:2: (b= term e3= expr_factor )*
-        loop30:
+        loop31:
         do {
-            int alt30=2;
-            int LA30_0 = input.LA(1);
+            int alt31=2;
+            int LA31_0 = input.LA(1);
 
-            if ( ((LA30_0>=PLUS && LA30_0<=MINUS)) ) {
-                alt30=1;
+            if ( ((LA31_0>=PLUS && LA31_0<=MINUS)) ) {
+                alt31=1;
             }
 
 
-            switch (alt30) {
+            switch (alt31) {
         	case 1 :
         	    // GuardCommand.g:314:3: b= term e3= expr_factor
         	    {
@@ -4732,7 +4863,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop30;
+        	    break loop31;
             }
         } while (true);
 
@@ -4777,17 +4908,17 @@ public class GuardCommandParser extends Parser {
         }
 
         // GuardCommand.g:329:2: (b= factor e3= expr_unary )*
-        loop31:
+        loop32:
         do {
-            int alt31=2;
-            int LA31_0 = input.LA(1);
+            int alt32=2;
+            int LA32_0 = input.LA(1);
 
-            if ( ((LA31_0>=MUL && LA31_0<=DIV)) ) {
-                alt31=1;
+            if ( ((LA32_0>=MUL && LA32_0<=DIV)) ) {
+                alt32=1;
             }
 
 
-            switch (alt31) {
+            switch (alt32) {
         	case 1 :
         	    // GuardCommand.g:329:3: b= factor e3= expr_unary
         	    {
@@ -4806,7 +4937,7 @@ public class GuardCommandParser extends Parser {
         	    break;
 
         	default :
-        	    break loop31;
+        	    break loop32;
             }
         } while (true);
 
@@ -4815,35 +4946,16 @@ public class GuardCommandParser extends Parser {
     }
     // $ANTLR end synpred24_GuardCommand
 
-    // $ANTLR start synpred38_GuardCommand
-    public final void synpred38_GuardCommand_fragment() throws RecognitionException {   
-        GuardCommandParser.command_return i = null;
-
-
-        // GuardCommand.g:401:3: ( SEMI i= command )
-        // GuardCommand.g:401:3: SEMI i= command
-        {
-        match(input,SEMI,FOLLOW_SEMI_in_synpred38_GuardCommand1524); if (state.failed) return ;
-        pushFollow(FOLLOW_command_in_synpred38_GuardCommand1528);
-        i=command();
-
-        state._fsp--;
-        if (state.failed) return ;
-
-        }
-    }
-    // $ANTLR end synpred38_GuardCommand
-
-    // $ANTLR start synpred39_GuardCommand
-    public final void synpred39_GuardCommand_fragment() throws RecognitionException {   
+    // $ANTLR start synpred40_GuardCommand
+    public final void synpred40_GuardCommand_fragment() throws RecognitionException {   
         GuardCommandParser.guarded_cmd_return gc = null;
 
 
-        // GuardCommand.g:524:3: ( GUARD gc= guarded_cmd )
-        // GuardCommand.g:524:3: GUARD gc= guarded_cmd
+        // GuardCommand.g:550:3: ( GUARD gc= guarded_cmd )
+        // GuardCommand.g:550:3: GUARD gc= guarded_cmd
         {
-        match(input,GUARD,FOLLOW_GUARD_in_synpred39_GuardCommand1746); if (state.failed) return ;
-        pushFollow(FOLLOW_guarded_cmd_in_synpred39_GuardCommand1750);
+        match(input,GUARD,FOLLOW_GUARD_in_synpred40_GuardCommand1784); if (state.failed) return ;
+        pushFollow(FOLLOW_guarded_cmd_in_synpred40_GuardCommand1788);
         gc=guarded_cmd();
 
         state._fsp--;
@@ -4851,7 +4963,7 @@ public class GuardCommandParser extends Parser {
 
         }
     }
-    // $ANTLR end synpred39_GuardCommand
+    // $ANTLR end synpred40_GuardCommand
 
     // Delegated rules
 
@@ -4883,11 +4995,11 @@ public class GuardCommandParser extends Parser {
         state.failed=false;
         return success;
     }
-    public final boolean synpred39_GuardCommand() {
+    public final boolean synpred40_GuardCommand() {
         state.backtracking++;
         int start = input.mark();
         try {
-            synpred39_GuardCommand_fragment(); // can never throw exception
+            synpred40_GuardCommand_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -4930,20 +5042,6 @@ public class GuardCommandParser extends Parser {
         int start = input.mark();
         try {
             synpred20_GuardCommand_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
-    public final boolean synpred38_GuardCommand() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred38_GuardCommand_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -6101,49 +6199,52 @@ public class GuardCommandParser extends Parser {
     public static final BitSet FOLLOW_LPAREN_in_lite_paren1378 = new BitSet(new long[]{0x000000F000148000L});
     public static final BitSet FOLLOW_expression_in_lite_paren1382 = new BitSet(new long[]{0x0000000000080000L});
     public static final BitSet FOLLOW_RPAREN_in_lite_paren1384 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_assignment_cmd_in_command1418 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_skip_cmd_in_command1429 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_abort_cmd_in_command1441 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_read_cmd_in_command1453 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_write_cmd_in_command1465 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_LCURLY_in_command1477 = new BitSet(new long[]{0x00000083C5400000L});
-    public static final BitSet FOLLOW_command_in_command1481 = new BitSet(new long[]{0x0000000000200000L});
-    public static final BitSet FOLLOW_RCURLY_in_command1483 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_if_cmd_in_command1494 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_do_cmd_in_command1508 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_SEMI_in_command1524 = new BitSet(new long[]{0x00000083C5400000L});
-    public static final BitSet FOLLOW_command_in_command1528 = new BitSet(new long[]{0x0000000000000082L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_assignment_cmd1553 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_ASSIGN_in_assignment_cmd1557 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_expression_in_assignment_cmd1561 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SKIP_in_skip_cmd1582 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ABORT_in_abort_cmd1603 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_READ_in_read_cmd1624 = new BitSet(new long[]{0x0000008000000000L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_read_cmd1628 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_WRITE_in_write_cmd1649 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_expression_in_write_cmd1653 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IF_in_if_cmd1674 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_guarded_cmd_in_if_cmd1678 = new BitSet(new long[]{0x0000000002000000L});
-    public static final BitSet FOLLOW_FI_in_if_cmd1680 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DO_in_do_cmd1701 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_guarded_cmd_in_do_cmd1705 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_OD_in_do_cmd1707 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_expression_in_guarded_cmd1733 = new BitSet(new long[]{0x0000000020000000L});
-    public static final BitSet FOLLOW_ARROW_in_guarded_cmd1735 = new BitSet(new long[]{0x00000083C5400000L});
-    public static final BitSet FOLLOW_command_in_guarded_cmd1739 = new BitSet(new long[]{0x0000000010000002L});
-    public static final BitSet FOLLOW_GUARD_in_guarded_cmd1746 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_guarded_cmd_in_guarded_cmd1750 = new BitSet(new long[]{0x0000000010000002L});
-    public static final BitSet FOLLOW_MODULE_in_program1773 = new BitSet(new long[]{0x0000008000000000L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_program1777 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_COLON_in_program1779 = new BitSet(new long[]{0x00000083C5400000L});
-    public static final BitSet FOLLOW_command_in_program1783 = new BitSet(new long[]{0x0000000800000000L});
-    public static final BitSet FOLLOW_END_in_program1785 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_44_in_annotation1807 = new BitSet(new long[]{0x0000008000000000L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_annotation1812 = new BitSet(new long[]{0x0000000000001000L});
-    public static final BitSet FOLLOW_EQ_in_annotation1814 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_45_in_annotation1816 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
-    public static final BitSet FOLLOW_set_in_annotation1821 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
-    public static final BitSet FOLLOW_45_in_annotation1828 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_comm_in_command1416 = new BitSet(new long[]{0x0000000000000082L});
+    public static final BitSet FOLLOW_skip_cmd_in_command1425 = new BitSet(new long[]{0x0000000000000082L});
+    public static final BitSet FOLLOW_SEMI_in_command1436 = new BitSet(new long[]{0x0000008385400000L});
+    public static final BitSet FOLLOW_comm_in_command1440 = new BitSet(new long[]{0x0000000000000082L});
+    public static final BitSet FOLLOW_SEMI_in_command1447 = new BitSet(new long[]{0x0000000040000000L});
+    public static final BitSet FOLLOW_skip_cmd_in_command1451 = new BitSet(new long[]{0x0000000000000082L});
+    public static final BitSet FOLLOW_assignment_cmd_in_comm1486 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_abort_cmd_in_comm1497 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_read_cmd_in_comm1509 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_write_cmd_in_comm1521 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LCURLY_in_comm1533 = new BitSet(new long[]{0x00000083C5400000L});
+    public static final BitSet FOLLOW_command_in_comm1537 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_RCURLY_in_comm1539 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_if_cmd_in_comm1550 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_do_cmd_in_comm1564 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_assignment_cmd1591 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_ASSIGN_in_assignment_cmd1595 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_expression_in_assignment_cmd1599 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SKIP_in_skip_cmd1620 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ABORT_in_abort_cmd1641 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_READ_in_read_cmd1662 = new BitSet(new long[]{0x0000008000000000L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_read_cmd1666 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_WRITE_in_write_cmd1687 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_expression_in_write_cmd1691 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IF_in_if_cmd1712 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_guarded_cmd_in_if_cmd1716 = new BitSet(new long[]{0x0000000002000000L});
+    public static final BitSet FOLLOW_FI_in_if_cmd1718 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DO_in_do_cmd1739 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_guarded_cmd_in_do_cmd1743 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_OD_in_do_cmd1745 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expression_in_guarded_cmd1771 = new BitSet(new long[]{0x0000000020000000L});
+    public static final BitSet FOLLOW_ARROW_in_guarded_cmd1773 = new BitSet(new long[]{0x00000083C5400000L});
+    public static final BitSet FOLLOW_command_in_guarded_cmd1777 = new BitSet(new long[]{0x0000000010000002L});
+    public static final BitSet FOLLOW_GUARD_in_guarded_cmd1784 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_guarded_cmd_in_guarded_cmd1788 = new BitSet(new long[]{0x0000000010000002L});
+    public static final BitSet FOLLOW_MODULE_in_program1811 = new BitSet(new long[]{0x0000008000000000L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_program1815 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_COLON_in_program1817 = new BitSet(new long[]{0x00000083C5400000L});
+    public static final BitSet FOLLOW_command_in_program1821 = new BitSet(new long[]{0x0000000800000000L});
+    public static final BitSet FOLLOW_END_in_program1823 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_44_in_annotation1845 = new BitSet(new long[]{0x0000008000000000L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_annotation1850 = new BitSet(new long[]{0x0000000000001000L});
+    public static final BitSet FOLLOW_EQ_in_annotation1852 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_45_in_annotation1854 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
+    public static final BitSet FOLLOW_set_in_annotation1859 = new BitSet(new long[]{0x00003FFFFFFFFFF0L});
+    public static final BitSet FOLLOW_45_in_annotation1866 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_expr_and_in_synpred14_GuardCommand879 = new BitSet(new long[]{0x0000000000000020L});
     public static final BitSet FOLLOW_or_in_synpred14_GuardCommand883 = new BitSet(new long[]{0x000000F000148000L});
     public static final BitSet FOLLOW_expr_and_in_synpred14_GuardCommand887 = new BitSet(new long[]{0x0000000000000022L});
@@ -6174,9 +6275,7 @@ public class GuardCommandParser extends Parser {
     public static final BitSet FOLLOW_expr_unary_in_synpred24_GuardCommand1207 = new BitSet(new long[]{0x0000000000030002L});
     public static final BitSet FOLLOW_factor_in_synpred24_GuardCommand1220 = new BitSet(new long[]{0x000000F000148000L});
     public static final BitSet FOLLOW_expr_unary_in_synpred24_GuardCommand1224 = new BitSet(new long[]{0x0000000000030002L});
-    public static final BitSet FOLLOW_SEMI_in_synpred38_GuardCommand1524 = new BitSet(new long[]{0x00000083C5400000L});
-    public static final BitSet FOLLOW_command_in_synpred38_GuardCommand1528 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_GUARD_in_synpred39_GuardCommand1746 = new BitSet(new long[]{0x000000F000148000L});
-    public static final BitSet FOLLOW_guarded_cmd_in_synpred39_GuardCommand1750 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_GUARD_in_synpred40_GuardCommand1784 = new BitSet(new long[]{0x000000F000148000L});
+    public static final BitSet FOLLOW_guarded_cmd_in_synpred40_GuardCommand1788 = new BitSet(new long[]{0x0000000000000002L});
 
 }

@@ -374,7 +374,40 @@ lite_paren returns[List<Statement> statList, Value val]
 
 //		* Commands. *
 
-command returns [List<Statement> commands]
+//firstSkip is used to avoid skips.
+command returns [List<Statement> commands, Statement firstSkip]
+	:
+	{
+		if ($commands == null) {
+			$commands = new ArrayList<Statement>();
+		}
+		$firstSkip = null;
+	}
+	(a=comm {
+			for (Statement st : a.commands) {
+				if (st.getStatementType() != StatementType.SKIP) {$commands.add(st);}
+				else if ($firstSkip == null) {$firstSkip = st;}
+			}
+		}
+	| b=skip_cmd {$firstSkip = b.command;}
+	)
+	
+	(SEMI c=comm {
+			for (Statement st : c.commands) {
+				if (st.getStatementType() != StatementType.SKIP) {$commands.add(st);}
+				else if ($firstSkip == null) {$firstSkip = st;}
+			}
+		}
+	| SEMI d=skip_cmd {if ($firstSkip == null) {$firstSkip = d.command;}}
+	)*
+	{
+		if ($commands.size() == 0) {
+			$commands.add($firstSkip);
+		}
+	}
+	;
+	
+comm returns [List<Statement> commands]
 	:
 	{
 		if ($commands == null) {
@@ -383,27 +416,20 @@ command returns [List<Statement> commands]
 	}
 	
 	( a=assignment_cmd			{$commands.addAll(a.commands);}
-	| b=skip_cmd				{$commands.add(b.command);}
 	| c=abort_cmd				{$commands.add(c.command);}
 	| d=read_cmd				{$commands.add(d.command);}
 	| e=write_cmd				{$commands.addAll(e.commands);}
 	| l=LCURLY f=command RCURLY
 		{
-			$commands.add(statementFactory.createCompoundStatement(
+			/*$commands.add(statementFactory.createCompoundStatement(
 				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
 			));
-			annotations.clear();
+			annotations.clear();*/
+			$commands.addAll(f.commands);
 		}
 	| g=if_cmd 					{$commands.add(g.command);}
 	| h=do_cmd 					{$commands.add(h.command);}
 	)
-	
-	(SEMI i=command
-		{
-			//TODO: Ensure that skip statements are not added.
-			$commands.addAll(i.commands);
-		}
-	)*
 	;
 
 assignment_cmd returns [List<Statement> commands]
