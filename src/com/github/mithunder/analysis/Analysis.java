@@ -6,12 +6,27 @@ import com.github.mithunder.statements.Statement;
 
 public abstract class Analysis {
 
-	public abstract Evaluation evaluate(Statement statement, Evaluation e);
+	/**
+	 * Evaluates a statement given the resulting evaluation of the last evaluated statement according to the analysis
+	 * @param statement the statement which is about to be evaluated
+	 * @param e the entry evaluation for the statement
+	 * @return true or false depending on if the evaluated value have been changed
+	 */
+	public abstract boolean evaluate(Statement statement, Evaluation e);
 
-	public abstract int compare(Evaluation e1, Evaluation e2);
-
+	/**
+	 * Merges two evaluations into one
+	 * @param e1 the first evaluation
+	 * @param e2 the second evaluation
+	 * @return the merged evaluation
+	 */
 	public abstract Evaluation merge(Evaluation e1, Evaluation e2);
 
+	/**
+	 * Initiates the chain of evaluations, should only be used on the very first statement
+	 * @param s the first statement
+	 * @return the evaluation
+	 */
 	public abstract Evaluation initEvaluation(Statement s);
 
 	/**
