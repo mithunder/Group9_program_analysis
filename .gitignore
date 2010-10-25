@@ -1,3 +1,6 @@
 .classpath
 .project
 bin
+GuardCommand*.java
+GuardCommand.tokens
+*.pdf
