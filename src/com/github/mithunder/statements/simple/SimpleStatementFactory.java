@@ -19,6 +19,8 @@ import com.github.mithunder.statements.Variable;
 
 public class SimpleStatementFactory extends StatementFactory{
 
+	//TODO: For if, the first half of the children is conditions, the second half is statements
+
 	@Override
 	public SimpleStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Statement... s) {
 		isGroupingStatement(type);

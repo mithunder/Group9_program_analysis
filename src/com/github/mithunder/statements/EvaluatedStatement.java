@@ -58,4 +58,8 @@ public class EvaluatedStatement extends Statement {
 	public void setEvaluation(Evaluation e) {
 		evaluation = e;
 	}
+
+	public void setChildren(List<EvaluatedStatement> c) {
+		children = c;
+	}
 }
