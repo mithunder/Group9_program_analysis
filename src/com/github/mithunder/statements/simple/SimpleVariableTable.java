@@ -44,7 +44,7 @@ public class SimpleVariableTable extends VariableTable {
 	public String getVariableName(Variable var) {
 		SimpleVariable v = (SimpleVariable)var;
 		if(v.vid < 0){
-			return "Temp#" + v.vid;
+			return "Temp#" + Math.abs(v.vid);
 		}
 		return names.get(v.vid);
 	}

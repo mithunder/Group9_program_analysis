@@ -34,8 +34,7 @@ public class StatementIterator {
 			visitor.enterCompound(s, parent, cno);
 			if(stype == SCOPE){
 				for(Statement c : children){
-					doVisit(c, s, i);
-					i++;
+					doVisit(c, s, i++);
 				}
 			} else {
 				boolean guard = true;
@@ -48,7 +47,7 @@ public class StatementIterator {
 					}
 					guard = !guard;
 					visitor.enter(vitype, s, parent, cno);
-					doVisit(c, parent, cno);
+					doVisit(c, parent, i++);
 					visitor.leave(vitype, s, parent, cno);
 				}
 			}

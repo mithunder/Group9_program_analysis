@@ -68,8 +68,10 @@ import com.github.mithunder.statements.CodeLocation;
 }
 
 @members {
-	StatementFactory statementFactory = StatementFactory.newInstance();
-	VariableTable variableTable = VariableTable.newInstance();
+	private StatementFactory statementFactory = StatementFactory.newInstance();
+	private VariableTable variableTable = VariableTable.newInstance();
+    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private final List<Statement> endCommands = new ArrayList<Statement>();
 
     public static void main(String[] args) throws Exception {
     
@@ -159,8 +161,6 @@ import com.github.mithunder.statements.CodeLocation;
 			return l1;
 		}
     }
-    
-    private final List<Annotation> annotations = new ArrayList<Annotation>();
 }
 
 
@@ -424,7 +424,7 @@ comm returns [List<Statement> commands]
 			/*$commands.add(statementFactory.createCompoundStatement(
 				StatementType.SCOPE, new CodeLocation(l_tree.getLine()), annotations, f.commands
 			));
-			annotations.clear();*/
+			annotations = new ArrayList<Annotation>();*/
 			$commands.addAll(f.commands);
 		}
 	| g=if_cmd 					{$commands.add(g.command);}
@@ -435,18 +435,47 @@ comm returns [List<Statement> commands]
 assignment_cmd returns [List<Statement> commands]
 	: id=IDENTIFIER as=ASSIGN e=expression
 		{
-			if ($commands == null) {$commands = new ArrayList<Statement>();}
+			/*if ($commands == null) {$commands = new ArrayList<Statement>();}
 			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
 			final Statement assignStatement = statementFactory.createSimpleStatement(
 				StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), annotations,
 				variableTable.getVariable(id.getText()),
 				val
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 			if (e.val == null) {
 				$commands.addAll(e.statList);
 			}
-			$commands.add(assignStatement);
+			$commands.add(assignStatement);*/
+			
+			if ($commands == null) {$commands = new ArrayList<Statement>();}
+			final List<Statement> eList = e.statList;
+			if (eList == null) {
+				//We have a literal!
+				final Statement assignStatement = statementFactory.createSimpleStatement(
+					StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), annotations,
+					variableTable.getVariable(id.getText()),
+					e.val
+				);
+				annotations = new ArrayList<Annotation>();
+				$commands.add(assignStatement);
+			}
+			else {
+				//We don't have a literal...
+				//We have a unary or binary operator.
+				
+				final Statement lastTempAssign = eList.get(eList.size()-1);
+				final int sType = lastTempAssign.getStatementType();
+				final Statement assignStatement = statementFactory.createSimpleStatement(
+					sType, new CodeLocation(as_tree.getLine()), annotations,
+					variableTable.getVariable(id.getText()),
+					lastTempAssign.getValues()
+				);
+				annotations = new ArrayList<Annotation>();
+				eList.remove(eList.size()-1);
+				$commands.addAll(eList);
+				$commands.add(assignStatement);
+			}
 		}
 	;
 
@@ -456,7 +485,7 @@ skip_cmd returns [Statement command]
 			$command = statementFactory.createSimpleStatement(
 				StatementType.SKIP, new CodeLocation(s_tree.getLine()), annotations
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 		}
 	;
 
@@ -466,7 +495,8 @@ abort_cmd returns [Statement command]
 			$command = statementFactory.createSimpleStatement(
 				StatementType.ABORT, new CodeLocation(a_tree.getLine()), annotations
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
+			endCommands.add($command);
 		}
 	;
 
@@ -477,7 +507,7 @@ read_cmd returns [Statement command]
 				StatementType.READ, new CodeLocation(rea_tree.getLine()), annotations,
 				variableTable.getVariable(id.getText())
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 		}
 	;
 
@@ -490,7 +520,7 @@ write_cmd returns [List<Statement> commands]
 				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), annotations,
 				null, val
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 			if (e.val == null) {
 				$commands.addAll(e.statList);
 			}
@@ -504,7 +534,7 @@ if_cmd returns [Statement command]
 			$command = statementFactory.createCompoundStatement(
 				StatementType.IF, new CodeLocation(ift_tree.getLine()), annotations, gc.commands
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 		}
 	;
 
@@ -514,7 +544,7 @@ do_cmd returns [Statement command]
 			$command = statementFactory.createCompoundStatement(
 				StatementType.DO, new CodeLocation(dot_tree.getLine()), annotations, gc.commands
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
 		}
 	;
 
@@ -541,11 +571,11 @@ guarded_cmd returns [List<Statement> commands]
 				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, e.statList
 			));
 		}
-		annotations.clear();
+		annotations = new ArrayList<Annotation>();
 		$commands.add(statementFactory.createCompoundStatement(
 			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), annotations, c.commands
 		));
-		annotations.clear();
+		annotations = new ArrayList<Annotation>();
 	}
 	(GUARD gc=guarded_cmd {$commands.addAll(gc.commands);} )*
 	;
@@ -556,9 +586,13 @@ program returns [CompilationUnit compilationUnit]
 			final Statement command = statementFactory.createRootStatement(
 				new CodeLocation(m_tree.getLine()), annotations, c.commands
 			);
-			annotations.clear();
+			annotations = new ArrayList<Annotation>();
+			final Statement lastCommand = c.commands.get(c.commands.size()-1);
+			if (!endCommands.contains(lastCommand)) {
+				endCommands.add(lastCommand);
+			}
 			$compilationUnit = new CompilationUnit(
-				id.getText(), command, variableTable
+				id.getText(), command, variableTable, endCommands
 			);
 		}
 	;

@@ -33,7 +33,7 @@ public class PrintRunner {
 		}
 		
 		if (fileName.equals("")) {
-			fileName = args[0];
+			fileName = "test_program.cmd";
 		}
 		GuardCommandLexer lex = new GuardCommandLexer(new ANTLRFileStream(fileName));
        	CommonTokenStream tokens = new CommonTokenStream(lex);

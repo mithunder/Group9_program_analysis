@@ -69,21 +69,20 @@ public class CodeWriter implements StatementVisitor {
 	@Override
 	public void enterCompound(Statement s, Statement parent, int cno) {
 		int stype = s.getStatementType();
-		indent = indent + "  ";
 		switch(stype){
 		case DO:
-			out.print(indent + "do ");
+			out.println(indent + "do ");
 			break;
 		case IF:
-			out.print(indent + "if ");
+			out.println(indent + "if ");
 			break;
 		case SCOPE:
 			if(cno != StatementVisitor.ROOT_STATEMENT) {
 				out.println(indent + "{");
-				out.print(indent);
 			}
 			break;
 		}
+		indent = indent + "  ";
 	}
 
 
@@ -94,18 +93,21 @@ public class CodeWriter implements StatementVisitor {
 		indent = indent.substring(2);
 		switch(stype){
 		case DO:
-			out.println(indent + "od");
+			out.print(indent + "od");
 			break;
 		case IF:
 			out.print(indent + "fi");
 			break;
 		case SCOPE:
 			if(cno != StatementVisitor.ROOT_STATEMENT) {
-				out.println(indent + "}");
+				out.print(indent + "}");
 			}
 			break;
 		}
-
+		if(cno != StatementVisitor.ROOT_STATEMENT && cno + 1 < parent.getChildCount()) {
+			out.print(";");
+		}
+		out.println();
 	}
 
 	@Override
@@ -140,7 +142,7 @@ public class CodeWriter implements StatementVisitor {
 		}
 		printStatement(s);
 		if(cno + 1 < parent.getChildCount()) {
-			out.print(indent + ";");
+			out.print(";");
 		}
 		out.println();
 	}
@@ -170,25 +172,25 @@ public class CodeWriter implements StatementVisitor {
 		Value[] v = s.getValues();
 		int stype = s.getStatementType();
 		if(isBinary(stype)){
-			out.println(indent + varTable.getVariableName(assign) + " :=  " + v2s(v[0]) + " " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[1]));
+			out.print(indent + varTable.getVariableName(assign) + " :=  " + v2s(v[0]) + " " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[1]));
 		} else if(isUnary(stype)){
 			if(stype == ASSIGN){
-				out.println(indent + varTable.getVariableName(assign) + " := " + v2s(v[0]));
+				out.print(indent + varTable.getVariableName(assign) + " := " + v2s(v[0]));
 			} else {
 				switch(stype){
 				case READ:
-					out.println(indent + "read " + assign);
+					out.print(indent + "read " + varTable.getVariableName(assign));
 					break;
 				case WRITE:
-					out.println(indent + "write " + v2s(v[0]));
+					out.print(indent + "write " + v2s(v[0]));
 					break;
 				default:
-					out.println(indent + varTable.getVariableName(assign) + " :=  " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[0]));
+					out.print(indent + varTable.getVariableName(assign) + " :=  " + SIMPLE_STATEMENT_SYMBOLS[stype] + " " + v2s(v[0]));
 					break;
 				}
 			}
 		} else {
-			out.println(indent + SIMPLE_STATEMENT_SYMBOLS[stype]);
+			out.print(indent + SIMPLE_STATEMENT_SYMBOLS[stype]);
 		}
 	}
 }
