@@ -8,7 +8,7 @@ public class EvaluatedStatement extends Statement {
 
 	private final Statement statement;
 	private Evaluation evaluation;
-	private List<? extends EvaluatedStatement> children;
+	private List<EvaluatedStatement> children;
 
 	public EvaluatedStatement(Statement statement, Evaluation evaluation, List<EvaluatedStatement> children) {
 		super(statement.getStatementType());
@@ -18,7 +18,7 @@ public class EvaluatedStatement extends Statement {
 	}
 
 	@Override
-	public List<? extends EvaluatedStatement> getChildren() {
+	public List<EvaluatedStatement> getChildren() {
 		return children;
 	}
 
@@ -29,8 +29,7 @@ public class EvaluatedStatement extends Statement {
 
 	@Override
 	public Value[] getValues() {
-		//FIXME: Should probably not return null ...
-		return null;
+		return statement.getValues();
 	}
 
 	@Override

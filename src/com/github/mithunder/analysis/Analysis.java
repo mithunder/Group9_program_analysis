@@ -1,6 +1,7 @@
 package com.github.mithunder.analysis;
 
 import com.github.mithunder.statements.CompilationUnit;
+import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 
 
@@ -12,7 +13,7 @@ public abstract class Analysis {
 	 * @param e the entry evaluation for the statement
 	 * @return true or false depending on if the evaluated value have been changed
 	 */
-	public abstract boolean evaluate(Statement statement, Evaluation e);
+	public abstract boolean evaluate(EvaluatedStatement statement, Evaluation e);
 
 	/**
 	 * Merges two evaluations into one
