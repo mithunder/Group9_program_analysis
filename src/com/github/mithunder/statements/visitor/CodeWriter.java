@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.ConstantValue;
+import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.ValueType;
@@ -107,6 +108,9 @@ public class CodeWriter implements StatementVisitor {
 		if(cno != StatementVisitor.ROOT_STATEMENT && cno + 1 < parent.getChildCount()) {
 			out.print(";");
 		}
+		if(s instanceof EvaluatedStatement){
+			out.print(" // " + s);
+		}
 		out.println();
 	}
 
@@ -143,6 +147,9 @@ public class CodeWriter implements StatementVisitor {
 		printStatement(s);
 		if(cno + 1 < parent.getChildCount()) {
 			out.print(";");
+		}
+		if(s instanceof EvaluatedStatement){
+			out.print(" // " + s);
 		}
 		out.println();
 	}

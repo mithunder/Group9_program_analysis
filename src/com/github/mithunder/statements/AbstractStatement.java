@@ -8,6 +8,7 @@ public abstract class AbstractStatement extends Statement {
 	// Can be null in some cases (e.g. abort statements)
 	protected Variable assign;
 	protected List<Annotation> annotations;
+	protected boolean killed;
 
 	protected CodeLocation cloc;
 
@@ -37,4 +38,17 @@ public abstract class AbstractStatement extends Statement {
 		return cloc;
 	}
 
+
+	@Override
+	public boolean isKilled() {
+		return killed;
+	}
+
+	@Override
+	public void killStatement() {
+		killed = true;
+		for(Statement child : getChildren()) {
+			child.killStatement();
+		}
+	}
 }

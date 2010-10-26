@@ -43,10 +43,20 @@ public class SimpleVariableTable extends VariableTable {
 	@Override
 	public String getVariableName(Variable var) {
 		SimpleVariable v = (SimpleVariable)var;
-		if(v.vid < 0){
+		if(isTemporaryVariable(var)){
 			return "Temp#" + Math.abs(v.vid);
 		}
 		return names.get(v.vid);
+	}
+
+	public int getNamedVariableCount(){
+		return names.size();
+	}
+
+	@Override
+	public boolean isTemporaryVariable(Variable var) {
+		SimpleVariable v = (SimpleVariable)var;
+		return v.vid < 0;
 	}
 
 }

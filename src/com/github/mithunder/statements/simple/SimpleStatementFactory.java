@@ -57,7 +57,7 @@ public class SimpleStatementFactory extends StatementFactory{
 		return new SimpleStatement(type, null, codeLoc, annotations);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<SimpleStatement> typecast(List<Statement> s){
 		return (List)s;
 	}

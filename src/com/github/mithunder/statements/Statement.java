@@ -25,4 +25,8 @@ public abstract class Statement {
 	public abstract List<Annotation> getAnnotations();
 
 	public abstract CodeLocation getCodeLocation();
+
+	public abstract boolean isKilled();
+
+	public abstract void killStatement();
 }

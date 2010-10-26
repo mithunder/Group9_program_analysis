@@ -62,4 +62,18 @@ public class EvaluatedStatement extends Statement {
 	public void setChildren(List<EvaluatedStatement> c) {
 		children = c;
 	}
+
+	@Override
+	public boolean isKilled() {
+		return statement.isKilled();
+	}
+
+	@Override
+	public void killStatement() {
+		statement.killStatement();
+		for(EvaluatedStatement e : children) {
+			e.killStatement();
+		}
+		evaluation = null;
+	}
 }
