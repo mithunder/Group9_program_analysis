@@ -168,13 +168,23 @@ public class ReachingDefinitionAnalysis extends Analysis {
 			String s = "";
 			TreeSet<String> t = new TreeSet<String>();
 			for(Map.Entry<Variable, Set<Statement>> e : map.entrySet()){
-				final int c = e.getValue().size();
+				String sts = null;
 				final String varname = te.getVariableName(e.getKey());
-				t.add(varname + " = " + c);
+				for(Statement st : e.getValue()){
+					if(sts != null) {
+						sts += ", " + Integer.toHexString(System.identityHashCode(st));
+					} else {
+						sts = Integer.toHexString(System.identityHashCode(st));
+					}
+				}
+				if(sts == null) {
+					sts = "";
+				}
+				t.add(varname + " = " + sts);
 			}
 			if(t.size() > 0) {
 				for(String str : t){
-					s += ", " + str;
+					s += "; " + str;
 				}
 				s = s.substring(2);
 			}

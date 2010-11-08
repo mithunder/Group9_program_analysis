@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.ConstantValue;
 import com.github.mithunder.statements.EvaluatedStatement;
@@ -109,9 +110,25 @@ public class CodeWriter implements StatementVisitor {
 			out.print(";");
 		}
 		if(s instanceof EvaluatedStatement){
-			out.print(" // " + s);
+			printEvaluation((EvaluatedStatement)s);
 		}
 		out.println();
+	}
+
+	private void printEvaluation(EvaluatedStatement e){
+		Statement o = e.getStatement();
+		String name = null;
+		for(Annotation a : e.getAnnotations()) {
+			if("Name".equalsIgnoreCase(a.getName())) {
+				name = a.getValue();
+				break;
+			}
+		}
+		out.print(" //");
+		if(name != null) {
+			out.print("Name: " + name + ", ");
+		}
+		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getEvaluation());
 	}
 
 	@Override
@@ -149,7 +166,7 @@ public class CodeWriter implements StatementVisitor {
 			out.print(";");
 		}
 		if(s instanceof EvaluatedStatement){
-			out.print(" // " + s);
+			printEvaluation((EvaluatedStatement)s);
 		}
 		out.println();
 	}
@@ -185,9 +202,6 @@ public class CodeWriter implements StatementVisitor {
 				out.print(indent + varTable.getVariableName(assign) + " := " + v2s(v[0]));
 			} else {
 				switch(stype){
-				case READ:
-					out.print(indent + "read " + varTable.getVariableName(assign));
-					break;
 				case WRITE:
 					out.print(indent + "write " + v2s(v[0]));
 					break;
@@ -197,7 +211,11 @@ public class CodeWriter implements StatementVisitor {
 				}
 			}
 		} else {
-			out.print(indent + SIMPLE_STATEMENT_SYMBOLS[stype]);
+			if(stype == READ) {
+				out.print(indent + "read " + varTable.getVariableName(assign));
+			} else {
+				out.print(indent + SIMPLE_STATEMENT_SYMBOLS[stype]);
+			}
 		}
 	}
 }

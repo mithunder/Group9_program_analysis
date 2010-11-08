@@ -38,26 +38,29 @@ public class PrintRunner {
 		}
 
 		if (fileName.equals("")) {
-			fileName = "test_program.cmd";
+			fileName = "test_program_simple.cmd";
 		}
 		GuardCommandLexer lex = new GuardCommandLexer(new ANTLRFileStream(fileName));
-       	CommonTokenStream tokens = new CommonTokenStream(lex);
+		CommonTokenStream tokens = new CommonTokenStream(lex);
 
-        GuardCommandParser parser = new GuardCommandParser(tokens);
+		GuardCommandParser parser = new GuardCommandParser(tokens);
 
 		CompilationUnit unit;
 
-        try {
+		try {
 
-        	program_return program_r = parser.program();
-        	unit = program_r.compilationUnit;
-        	Analysis ana = new ReachingDefinitionAnalysis();
-        	Worklist wl = new RoundRobinWorklist();
-        	StatementIterator staIte = new StatementIterator(new CodeWriter());
-        	EvaluatedStatement nroot = wl.run(ana, unit);
-        	staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
-        } catch (RecognitionException e)  {
-            e.printStackTrace();
-        }
+			program_return program_r = parser.program();
+			unit = program_r.compilationUnit;
+			Analysis ana = new ReachingDefinitionAnalysis();
+			Worklist wl = new RoundRobinWorklist();
+			StatementIterator staIte = new StatementIterator(new CodeWriter());
+			System.out.println("Starting analysis");
+			long st = System.currentTimeMillis();
+			EvaluatedStatement nroot = wl.run(ana, unit);
+			System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
+			staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
+		} catch (RecognitionException e)  {
+			e.printStackTrace();
+		}
 	}
 }
