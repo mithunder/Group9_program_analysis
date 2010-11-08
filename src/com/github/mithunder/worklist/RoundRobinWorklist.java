@@ -13,9 +13,6 @@ import com.github.mithunder.statements.StatementType;
 
 public class RoundRobinWorklist extends Worklist {
 
-	//TODO: Perhaps remove handleDo?
-	//TODO: In handleIf, if a reverse iterator is used, the conditions is first ....
-	//FIXME: Assumes random access lists.
 	private Analysis analysis;
 
 	@Override
@@ -36,12 +33,11 @@ public class RoundRobinWorklist extends Worklist {
 		while(changes) {
 			changes = false;
 			ListIterator<EvaluatedStatement> iterator = getListIterator(list);
-			if(statementType == StatementType.DO) {
-				changes = handleDo(iterator, e);
-				e = findMergedEvaluation(list, StatementType.DO);
-			} else if(statementType == StatementType.IF) {
-				changes = handleIf(iterator, e, list.size());
-				e = findMergedEvaluation(list, StatementType.IF);
+			if(statementType == StatementType.IF) {
+				changes = handleIf(list, iterator, e, list.size());
+				if(analysis.isForwardAnalysis()) {
+					e = findMergedEvaluation(list, StatementType.IF);
+				}
 			} else {
 				while(iterator.hasNext()) {
 					EvaluatedStatement es = iterator.next();
@@ -54,6 +50,9 @@ public class RoundRobinWorklist extends Worklist {
 						es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
 					}
 					iterator.set(es);
+				}
+				if(statementType == StatementType.DO) {
+					e = findMergedEvaluation(list, StatementType.DO);
 				}
 			}
 		}
@@ -72,25 +71,15 @@ public class RoundRobinWorklist extends Worklist {
 		return list;
 	}
 
-	//FIXME: Unless how do should be handled is changed, this could be deleted (same procedure as simple statements)
-	private boolean handleDo(ListIterator<EvaluatedStatement> iterator, Evaluation e) {
-		boolean changes = false;
-		while(iterator.hasNext()) {
-			EvaluatedStatement es = iterator.next();
-			if(es.isKilled()) {
-				continue;
-			}
-			changes = analysis.evaluate(es, e) || changes;
-			e = es.getEvaluation();
-			if(es.getChildCount() > 0) {
-				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
-			}
-			iterator.set(es);
+	private boolean handleIf(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+		if(analysis.isForwardAnalysis()) {
+			return handleIfForward(iterator, e, size);
+		} else {
+			return handleIfBackward(list, iterator, e, size);
 		}
-		return changes;
 	}
 
-	private boolean handleIf(ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+	private boolean handleIfForward(ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
 		int index = 0;
 		boolean changes = false;
 		for(index = 0; index < size/2; index++) {
@@ -119,6 +108,36 @@ public class RoundRobinWorklist extends Worklist {
 		return changes;
 	}
 
+	private boolean handleIfBackward(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+		int index = 0;
+		boolean changes = false;
+		for(index = 0; index < size/2; index++) {
+			EvaluatedStatement es = iterator.next();
+			if(es.isKilled()) {
+				continue;
+			}
+			changes = analysis.evaluate(es, e) || changes;
+			if(es.getChildCount() > 0) {
+				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+			}
+			iterator.set(es);
+		}
+		e = findMergedEvaluation(list, StatementType.IF);
+		for(; index < size; index++) {
+			EvaluatedStatement es = iterator.next();
+			if(es.isKilled()) {
+				continue;
+			}
+			changes = analysis.evaluate(es, e) || changes;
+			e = es.getEvaluation();
+			if(es.getChildCount() > 0) {
+				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+			}
+			iterator.set(es);
+		}
+		return changes;
+	}
+
 	private ListIterator<EvaluatedStatement> getListIterator(List<EvaluatedStatement> list) {
 		if(analysis.isForwardAnalysis()) {
 			return list.listIterator();
@@ -127,22 +146,17 @@ public class RoundRobinWorklist extends Worklist {
 		}
 	}
 
-	//TODO: In do, every statement will have the same evaluation ... perhaps use that knowledge
+	private ListIterator<EvaluatedStatement> getReversedListIterator(List<EvaluatedStatement> list) {
+		if(!analysis.isForwardAnalysis()) {
+			return list.listIterator();
+		} else {
+			return new ReverseListIterator<EvaluatedStatement>(list);
+		}
+	}
+
 	private Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
 		Evaluation toReturn = null;
-		if(statementType == StatementType.DO) {
-			for(int i = 1; i < list.size(); i = i + 2) {
-				EvaluatedStatement es = list.get(i);
-				if(es.isKilled()) {
-					continue;
-				}
-				if(es.getChildCount() > 0) {
-					toReturn = analysis.merge(toReturn, findMergedEvaluation(es.getChildren(), es.getStatementType()));
-				} else {
-					toReturn = analysis.merge(toReturn, es.getEvaluation());
-				}
-			}
-		} else if(statementType == StatementType.IF) {
+		if(statementType == StatementType.IF) {
 			for(int i = list.size()/2; i < list.size(); i++) {
 				EvaluatedStatement es = list.get(i);
 				if(es.isKilled()) {
@@ -155,8 +169,9 @@ public class RoundRobinWorklist extends Worklist {
 				}
 			}
 		} else {
-			for(int i = list.size() - 1; i >= 0; i--) {
-				EvaluatedStatement es = list.get(i);
+			ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
+			while(iterator.hasNext()) {
+				EvaluatedStatement es = iterator.next();
 				if(es.isKilled()) {
 					continue;
 				}
