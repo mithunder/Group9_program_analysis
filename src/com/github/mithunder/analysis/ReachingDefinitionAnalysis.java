@@ -31,8 +31,6 @@ public class ReachingDefinitionAnalysis extends Analysis {
 			changed = rde.merge(orde);
 		}
 
-		System.out.println("Visiting " + Integer.toHexString(System.identityHashCode(statement.getStatement())) + ", "
-				+ Integer.toHexString(System.identityHashCode(rde)) + " - " + Integer.toHexString(System.identityHashCode(orde)));
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
 			Variable assign = statement.getAssign();
