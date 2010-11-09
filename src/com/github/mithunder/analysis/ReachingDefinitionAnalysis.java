@@ -10,7 +10,6 @@ import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
-import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 
@@ -31,34 +30,20 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		} else {
 			changed = rde.merge(orde);
 		}
+
+		System.out.println("Visiting " + Integer.toHexString(System.identityHashCode(statement.getStatement())) + ", "
+				+ Integer.toHexString(System.identityHashCode(rde)) + " - " + Integer.toHexString(System.identityHashCode(orde)));
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
 			Variable assign = statement.getAssign();
 			if(stype != StatementType.WRITE && !table.isTemporaryVariable(assign)){
-				changed = rde.remove(assign) || changed;
-			}
-			if(stype != StatementType.READ){
-				Value[] v = statement.getValues();
-				changed = checkValue(rde, v[0], statement, changed);
-				if(StatementType.isBinary(stype)) {
-					changed = checkValue(rde, v[1], statement, changed);
-				}
+				rde.remove(assign);
+				rde.add(assign, statement);
 			}
 		}
 		return changed;
 	}
 
-	protected boolean checkValue(ReachingDefinitionEvaluation rde, Value v, Statement s, boolean changed){
-		Variable var;
-		if(v.isConstant()) {
-			return changed;
-		}
-		var = (Variable)v;
-		if(table.isTemporaryVariable(var)) {
-			return changed;
-		}
-		return rde.add(var, s) || changed;
-	}
 
 	@Override
 	public Evaluation merge(Evaluation e1, Evaluation e2) {
@@ -69,11 +54,11 @@ public class ReachingDefinitionAnalysis extends Analysis {
 			return new ReachingDefinitionEvaluation(table);
 		} else if(e1 == null) {
 			return new ReachingDefinitionEvaluation(re2.map, table);
-		} else if(e2 == null) {
-			return new ReachingDefinitionEvaluation(re1.map, table);
 		} else {
 			rde = new ReachingDefinitionEvaluation(re1.map, table);
-			rde.merge(re2);
+			if(e2 != null) {
+				rde.merge(re2);
+			}
 			return rde;
 		}
 	}
@@ -103,10 +88,13 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		Map<Variable,Set<Statement>> map;
 		VariableTable te;
 
-		ReachingDefinitionEvaluation(Map<Variable, Set<Statement>> map, VariableTable table) {
-			this.map = new HashMap<Variable, Set<Statement>>(map);
+		ReachingDefinitionEvaluation(Map<Variable, Set<Statement>> m, VariableTable table) {
+			this.map = new HashMap<Variable, Set<Statement>>();
 			this.te = table;
-			if(te == null || map == null) {
+			for(Map.Entry<Variable, Set<Statement>> e : m.entrySet()){
+				this.map.put(e.getKey(), makeSet(e.getValue()));
+			}
+			if(te == null) {
 				throw new IllegalArgumentException();
 			}
 		}
@@ -114,16 +102,16 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		ReachingDefinitionEvaluation(VariableTable table) {
 			map = new HashMap<Variable, Set<Statement>>(1);
 			this.te = table;
-			if(te == null || map == null) {
-				throw new IllegalArgumentException(te + " " + map);
+			if(te == null) {
+				throw new IllegalArgumentException("" + te);
 			}
 		}
 
 		Set<Statement> makeSet(Set<Statement> s){
-			TreeSet<Statement> t =new TreeSet<Statement>(new Comparator<Statement>() {
+			TreeSet<Statement> t = new TreeSet<Statement>(new Comparator<Statement>() {
 				@Override
 				public int compare(Statement o1, Statement o2) {
-					return 0;
+					return System.identityHashCode(o1) - System.identityHashCode(o2);
 				}
 			});
 			if(s != null) {
@@ -134,6 +122,9 @@ public class ReachingDefinitionAnalysis extends Analysis {
 
 		boolean add(Variable var, Statement s){
 			Set<Statement> set = map.get(var);
+			if(s instanceof EvaluatedStatement){
+				s = ((EvaluatedStatement)s).getStatement();
+			}
 			if(set == null) {
 				set = makeSet(null);
 				map.put(var, set);
@@ -171,6 +162,9 @@ public class ReachingDefinitionAnalysis extends Analysis {
 				String sts = null;
 				final String varname = te.getVariableName(e.getKey());
 				for(Statement st : e.getValue()){
+					if(st instanceof EvaluatedStatement){
+						st = ((EvaluatedStatement)st).getStatement();
+					}
 					if(sts != null) {
 						sts += ", " + Integer.toHexString(System.identityHashCode(st));
 					} else {
