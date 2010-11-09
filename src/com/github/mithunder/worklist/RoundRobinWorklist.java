@@ -20,25 +20,36 @@ public class RoundRobinWorklist extends Worklist {
 		Statement root = unit.getRootStatement();
 		Evaluation e;
 		EvaluatedStatement s;
+		List<EvaluatedStatement> children;
 		this.analysis = ana;
 		analysis.startAnalysis(unit);
 		e = ana.initEvaluation(root);
-		s = new EvaluatedStatement(root, e, iterate(initiate(root.getChildren()), e, root.getStatementType()));
+		children = initiate(root.getChildren());
+		s = new EvaluatedStatement(root, e, children);
+		iterate(s, e, root.getStatementType());
 		analysis.finishAnalysis(unit);
 		return s;
 	}
 
-	private List<EvaluatedStatement> iterate(List<EvaluatedStatement> list, Evaluation e, int statementType) {
+	private boolean iterate(EvaluatedStatement parent, Evaluation org, int statementType) {
 		boolean changes = true;
+		Evaluation e = org;
+		List<EvaluatedStatement> list = parent.getChildren();
 		while(changes) {
 			changes = false;
 			ListIterator<EvaluatedStatement> iterator = getListIterator(list);
 			if(statementType == StatementType.IF) {
+				e = org;
 				changes = handleIf(list, iterator, e, list.size());
 				if(analysis.isForwardAnalysis()) {
 					e = findMergedEvaluation(list, StatementType.IF);
 				}
+				System.err.println("Propagated MIF: " + e);
+				break;
 			} else {
+				if(statementType != StatementType.DO) {
+					e = org;
+				}
 				while(iterator.hasNext()) {
 					EvaluatedStatement es = iterator.next();
 					if(es.isKilled()) {
@@ -47,16 +58,18 @@ public class RoundRobinWorklist extends Worklist {
 					changes = analysis.evaluate(es, e) || changes;
 					e = es.getEvaluation();
 					if(es.getChildCount() > 0) {
-						es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+						changes = iterate(es, e, es.getStatementType()) || changes;
 					}
-					iterator.set(es);
 				}
 				if(statementType == StatementType.DO) {
 					e = findMergedEvaluation(list, StatementType.DO);
+				} else {
+					break;
 				}
 			}
 		}
-		return list;
+		parent.setEvaluation(e);
+		return changes;
 	}
 
 	private List<EvaluatedStatement> initiate(List<? extends Statement> s) {
@@ -87,23 +100,23 @@ public class RoundRobinWorklist extends Worklist {
 			if(es.isKilled()) {
 				continue;
 			}
-			changes = analysis.evaluate(es, e) || changes;
-			e = es.getEvaluation();
 			if(es.getChildCount() > 0) {
-				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
 			}
-			iterator.set(es);
+			e = es.getEvaluation();
 		}
 		for(; index < size; index++) {
 			EvaluatedStatement es = iterator.next();
 			if(es.isKilled()) {
 				continue;
 			}
-			changes = analysis.evaluate(es, e) || changes;
 			if(es.getChildCount() > 0) {
-				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
 			}
-			iterator.set(es);
 		}
 		return changes;
 	}
@@ -116,11 +129,11 @@ public class RoundRobinWorklist extends Worklist {
 			if(es.isKilled()) {
 				continue;
 			}
-			changes = analysis.evaluate(es, e) || changes;
 			if(es.getChildCount() > 0) {
-				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
 			}
-			iterator.set(es);
 		}
 		e = findMergedEvaluation(list, StatementType.IF);
 		for(; index < size; index++) {
@@ -128,12 +141,12 @@ public class RoundRobinWorklist extends Worklist {
 			if(es.isKilled()) {
 				continue;
 			}
-			changes = analysis.evaluate(es, e) || changes;
-			e = es.getEvaluation();
 			if(es.getChildCount() > 0) {
-				es.setChildren(iterate(es.getChildren(), e, es.getStatementType()));
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
 			}
-			iterator.set(es);
+			e = es.getEvaluation();
 		}
 		return changes;
 	}
@@ -154,6 +167,7 @@ public class RoundRobinWorklist extends Worklist {
 		}
 	}
 
+	//FIXME: Returns null, null and empty set with RD!?
 	private Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
 		Evaluation toReturn = null;
 		if(statementType == StatementType.IF) {
