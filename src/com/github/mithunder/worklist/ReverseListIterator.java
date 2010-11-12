@@ -13,8 +13,8 @@ public class ReverseListIterator<E> implements ListIterator<E> {
 
 	@Override
 	public void add(E e) {
-		// TODO Auto-generated method stub
-		// Read documentation
+		iterator.add(e);
+		iterator.next();
 	}
 
 	@Override

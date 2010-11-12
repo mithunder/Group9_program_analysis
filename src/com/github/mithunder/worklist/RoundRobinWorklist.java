@@ -6,42 +6,70 @@ import java.util.ListIterator;
 
 import com.github.mithunder.analysis.Analysis;
 import com.github.mithunder.analysis.Evaluation;
+import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 
 public class RoundRobinWorklist extends Worklist {
 
-	//TODO: Handle dead statements
-
 	private Analysis analysis;
 
 	@Override
-	public List<EvaluatedStatement> run(Analysis analysis, List<? extends Statement> ss, int statementType) {
-		this.analysis = analysis;
-		return iterate(initiate(ss), null, statementType);
+	public EvaluatedStatement run(Analysis ana, CompilationUnit unit){
+		Statement root = unit.getRootStatement();
+		Evaluation e;
+		EvaluatedStatement s;
+		List<EvaluatedStatement> children;
+		this.analysis = ana;
+		analysis.startAnalysis(unit);
+		e = ana.initEvaluation(root);
+		children = initiate(root.getChildren());
+		s = new EvaluatedStatement(root, e, children);
+		iterate(s, e, root.getStatementType());
+		analysis.finishAnalysis(unit);
+		return s;
 	}
 
-	private List<EvaluatedStatement> iterate(List<EvaluatedStatement> list, Evaluation e, int statementType) {
+	private boolean iterate(EvaluatedStatement parent, Evaluation org, int statementType) {
 		boolean changes = true;
+		Evaluation e = org;
+		List<EvaluatedStatement> list = parent.getChildren();
 		while(changes) {
 			changes = false;
 			ListIterator<EvaluatedStatement> iterator = getListIterator(list);
-			if(statementType == StatementType.DO) {
-				changes = handleDo(iterator, e);
+			if(statementType == StatementType.IF) {
+				e = org;
+				changes = handleIf(list, iterator, e, list.size());
+				if(analysis.isForwardAnalysis()) {
+					e = findMergedEvaluation(list, StatementType.IF);
+				}
+				System.err.println("Propagated MIF: " + e);
+				break;
 			} else {
+				if(statementType != StatementType.DO) {
+					e = org;
+				}
 				while(iterator.hasNext()) {
-					EvaluatedStatement s = iterator.next();
-					changes = analysis.evaluate(s, e) || changes;
-					e = s.getEvaluation();
-					if(s.getChildCount() > 0) {
-						iterate(s.getChildren(), e, s.getStatementType());
+					EvaluatedStatement es = iterator.next();
+					if(es.isKilled()) {
+						continue;
 					}
-					iterator.set(s);
+					changes = analysis.evaluate(es, e) || changes;
+					e = es.getEvaluation();
+					if(es.getChildCount() > 0) {
+						changes = iterate(es, e, es.getStatementType()) || changes;
+					}
+				}
+				if(statementType == StatementType.DO) {
+					e = findMergedEvaluation(list, StatementType.DO);
+				} else {
+					break;
 				}
 			}
 		}
-		return list;
+		parent.setEvaluation(e);
+		return changes;
 	}
 
 	private List<EvaluatedStatement> initiate(List<? extends Statement> s) {
@@ -56,16 +84,69 @@ public class RoundRobinWorklist extends Worklist {
 		return list;
 	}
 
-	private boolean handleDo(ListIterator<EvaluatedStatement> iterator, Evaluation e) {
+	private boolean handleIf(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+		if(analysis.isForwardAnalysis()) {
+			return handleIfForward(iterator, e, size);
+		} else {
+			return handleIfBackward(list, iterator, e, size);
+		}
+	}
+
+	private boolean handleIfForward(ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+		int index = 0;
 		boolean changes = false;
-		while(iterator.hasNext()) {
+		for(index = 0; index < size/2; index++) {
 			EvaluatedStatement es = iterator.next();
-			changes = analysis.evaluate(es, e) || changes;
-			e = es.getEvaluation();
-			if(es.getChildCount() > 0) {
-				iterate(es.getChildren(), e, es.getStatementType());
+			if(es.isKilled()) {
+				continue;
 			}
-			iterator.set(es);
+			if(es.getChildCount() > 0) {
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
+			}
+			e = es.getEvaluation();
+		}
+		for(; index < size; index++) {
+			EvaluatedStatement es = iterator.next();
+			if(es.isKilled()) {
+				continue;
+			}
+			if(es.getChildCount() > 0) {
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
+			}
+		}
+		return changes;
+	}
+
+	private boolean handleIfBackward(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+		int index = 0;
+		boolean changes = false;
+		for(index = 0; index < size/2; index++) {
+			EvaluatedStatement es = iterator.next();
+			if(es.isKilled()) {
+				continue;
+			}
+			if(es.getChildCount() > 0) {
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
+			}
+		}
+		e = findMergedEvaluation(list, StatementType.IF);
+		for(; index < size; index++) {
+			EvaluatedStatement es = iterator.next();
+			if(es.isKilled()) {
+				continue;
+			}
+			if(es.getChildCount() > 0) {
+				changes = iterate(es, e, es.getStatementType()) || changes;
+			} else {
+				changes = analysis.evaluate(es, e) || changes;
+			}
+			e = es.getEvaluation();
 		}
 		return changes;
 	}
@@ -76,5 +157,46 @@ public class RoundRobinWorklist extends Worklist {
 		} else {
 			return new ReverseListIterator<EvaluatedStatement>(list);
 		}
+	}
+
+	private ListIterator<EvaluatedStatement> getReversedListIterator(List<EvaluatedStatement> list) {
+		if(!analysis.isForwardAnalysis()) {
+			return list.listIterator();
+		} else {
+			return new ReverseListIterator<EvaluatedStatement>(list);
+		}
+	}
+
+	//FIXME: Returns null, null and empty set with RD!?
+	private Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
+		Evaluation toReturn = null;
+		if(statementType == StatementType.IF) {
+			for(int i = list.size()/2; i < list.size(); i++) {
+				EvaluatedStatement es = list.get(i);
+				if(es.isKilled()) {
+					continue;
+				}
+				if(es.getChildCount() > 0) {
+					toReturn = analysis.merge(toReturn, findMergedEvaluation(es.getChildren(), es.getStatementType()));
+				} else {
+					toReturn = analysis.merge(toReturn, es.getEvaluation());
+				}
+			}
+		} else {
+			ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
+			while(iterator.hasNext()) {
+				EvaluatedStatement es = iterator.next();
+				if(es.isKilled()) {
+					continue;
+				}
+				if(es.getChildCount() > 0) {
+					toReturn = findMergedEvaluation(es.getChildren(), es.getStatementType());
+				} else {
+					toReturn = es.getEvaluation();
+				}
+				break;
+			}
+		}
+		return toReturn;
 	}
 }

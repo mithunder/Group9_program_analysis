@@ -22,13 +22,13 @@ public class SimpleStatementFactory extends StatementFactory{
 	@Override
 	public SimpleStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, Statement... s) {
 		isGroupingStatement(type);
-		return new SimpleStatement(type, null, codeLoc, annotations, array2list(s));
+		return new SimpleStatement(type, null, codeLoc, annotations, reorder(type, array2list(s)));
 	}
 
 	@Override
 	public SimpleStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s) {
 		isGroupingStatement(type);
-		return new SimpleStatement(type, null, codeLoc, annotations, typecast(s));
+		return new SimpleStatement(type, null, codeLoc, annotations, reorder(type, typecast(s)));
 	}
 
 	@Override
@@ -55,9 +55,31 @@ public class SimpleStatementFactory extends StatementFactory{
 		return new SimpleStatement(type, null, codeLoc, annotations);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	private List<SimpleStatement> typecast(List<Statement> s){
 		return (List)s;
+	}
+
+	private List<SimpleStatement> reorder(int type, List<SimpleStatement> s){
+		final int size;
+		final int sh;
+		List<SimpleStatement> copy;
+		if(type == SCOPE) {
+			return s;
+		}
+		size = s.size();
+		sh = size/2;
+		copy = new ArrayList<SimpleStatement>(s.size());
+		for(int i = 0 ; i < size ; i++){
+			SimpleStatement st1;
+			if(i >= sh){
+				st1 = s.get((i-sh)* 2 + 1);
+			} else {
+				st1 = s.get(i* 2);
+			}
+			copy.add(st1);
+		}
+		return copy;
 	}
 
 	private List<SimpleStatement> array2list(Statement[] s){

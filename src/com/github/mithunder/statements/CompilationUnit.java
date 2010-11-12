@@ -28,4 +28,8 @@ public class CompilationUnit {
 	public VariableTable getVariableTable(){
 		return varTable;
 	}
+
+	public List<Statement> getFinalStatements(){
+		return endStatements;
+	}
 }

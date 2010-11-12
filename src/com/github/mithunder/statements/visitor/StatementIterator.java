@@ -36,6 +36,16 @@ public class StatementIterator {
 				for(Statement c : children){
 					doVisit(c, s, i++);
 				}
+			} else if(stype == IF){
+				final int hmax = children.size() / 2;
+				for(i = 0 ; i < hmax ; i++){
+					visitor.enter(StatementVisitor.VITYPE_GUARD, s, parent, cno);
+					doVisit(children.get(i), parent, i);
+					visitor.leave(StatementVisitor.VITYPE_GUARD, s, parent, cno);
+					visitor.enter(StatementVisitor.VITYPE_COMMAND, s, parent, cno);
+					doVisit(children.get(i+hmax), parent, i+hmax);
+					visitor.leave(StatementVisitor.VITYPE_COMMAND, s, parent, cno);
+				}
 			} else {
 				boolean guard = true;
 				for(Statement c : children){
