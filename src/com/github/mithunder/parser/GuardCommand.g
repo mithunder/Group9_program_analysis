@@ -375,16 +375,24 @@ lite_paren returns[List<Statement> statList, Value val]
 //		* Commands. *
 
 //firstSkip is used to avoid skips.
-command returns [List<Statement> commands, Statement firstSkip]
+//encounteredAbort is indicated whether an abort was encountered.
+command returns [List<Statement> commands, Statement firstSkip, Boolean encounteredAbort]
 	:
 	{
 		if ($commands == null) {
 			$commands = new ArrayList<Statement>();
 		}
 		$firstSkip = null;
+		$encounteredAbort = false;
 	}
 	(a=comm {
 			for (Statement st : a.commands) {
+				//If we encounter an abort, do not add any more commands.
+				if (st.getStatementType() == StatementType.ABORT) {
+					$commands.add(st);
+					$encounteredAbort = true;
+					break;
+				}
 				if (st.getStatementType() != StatementType.SKIP) {$commands.add(st);}
 				else if ($firstSkip == null) {$firstSkip = st;}
 			}
@@ -393,12 +401,20 @@ command returns [List<Statement> commands, Statement firstSkip]
 	)
 	
 	(SEMI c=comm {
-			for (Statement st : c.commands) {
-				if (st.getStatementType() != StatementType.SKIP) {$commands.add(st);}
-				else if ($firstSkip == null) {$firstSkip = st;}
+			if (!$encounteredAbort) {
+				for (Statement st : c.commands) {
+					//If we encounter an abort, do not add any more commands.
+					if (st.getStatementType() == StatementType.ABORT) {
+						$commands.add(st);
+						$encounteredAbort = true;
+						break;
+					}
+					if (st.getStatementType() != StatementType.SKIP) {$commands.add(st);}
+					else if ($firstSkip == null) {$firstSkip = st;}
+				}
 			}
 		}
-	| SEMI d=skip_cmd {if ($firstSkip == null) {$firstSkip = d.command;}}
+	| SEMI d=skip_cmd {if (!$encounteredAbort && $firstSkip == null) {$firstSkip = d.command;}}
 	)*
 	{
 		if ($commands.size() == 0) {
