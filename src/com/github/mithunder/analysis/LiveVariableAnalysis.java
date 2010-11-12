@@ -9,11 +9,8 @@ import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
-import com.github.mithunder.statements.VariableTable;
 
 public class LiveVariableAnalysis extends Analysis {
-
-	protected VariableTable table;
 
 	@Override
 	public boolean evaluate(EvaluatedStatement statement, Evaluation e) {
@@ -24,9 +21,7 @@ public class LiveVariableAnalysis extends Analysis {
 			for(int i = 0; i < values.length; i++) {
 				if(!values[i].isConstant()) {
 					Variable v = (Variable) values[i];
-					if(!table.isTemporaryVariable(v)) {
-						changed = olve.add(v);
-					}
+					changed = olve.add(v);
 				}
 			}
 		}
@@ -63,12 +58,10 @@ public class LiveVariableAnalysis extends Analysis {
 
 	@Override
 	public void startAnalysis(CompilationUnit unit) {
-		table = unit.getVariableTable();
 	}
 
 	@Override
 	public void finishAnalysis(CompilationUnit unit) {
-		table = null;
 	}
 
 	static class LiveVariableEvaluation extends Evaluation {
