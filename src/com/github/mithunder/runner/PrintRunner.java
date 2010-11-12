@@ -8,6 +8,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
 import com.github.mithunder.analysis.Analysis;
+import com.github.mithunder.analysis.LiveVariableAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
@@ -20,8 +21,8 @@ import com.github.mithunder.worklist.RoundRobinWorklist;
 import com.github.mithunder.worklist.Worklist;
 
 public class PrintRunner {
-	
-	private enum Options {PRINT, RD};
+
+	private enum Options {PRINT, RD, LV};
 
 	public static void main(String[] args) throws Exception {
 
@@ -30,10 +31,10 @@ public class PrintRunner {
 		BufferedReader reader = null;
 		try {
 			System.out.println("Please input the name of the program (enter for default):");
-			
+
 			reader = new BufferedReader(new InputStreamReader(System.in));
 			fileName = reader.readLine();
-			
+
 			System.out.println("Please choose an option:");
 			for (Options o : Options.values()) {
 				System.out.println(o.ordinal() + ": " + o.toString());
@@ -50,7 +51,7 @@ public class PrintRunner {
 				System.out.println("Didn't recognized option: " + option);
 				System.exit(0);
 			}
-			
+
 		}
 		finally {
 			if (reader != null) {
@@ -59,7 +60,7 @@ public class PrintRunner {
 		}
 
 		if (fileName.equals("")) {
-			fileName = "test_program_simple.cmd";
+			fileName = "test_program_simple2.cmd";
 		}
 		GuardCommandLexer lex = new GuardCommandLexer(new ANTLRFileStream(fileName));
 		CommonTokenStream tokens = new CommonTokenStream(lex);
@@ -67,12 +68,12 @@ public class PrintRunner {
 		GuardCommandParser parser = new GuardCommandParser(tokens);
 
 		CompilationUnit unit;
-		
+
 		try {
 
 			program_return program_r = parser.program();
 			unit = program_r.compilationUnit;
-			
+
 			switch (chosenOption) {
 			case PRINT : {
 				StatementIterator staIte = new StatementIterator(new CodeWriter());
@@ -90,8 +91,18 @@ public class PrintRunner {
 				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
 				break;
 			}
+			case LV : {
+				Analysis ana = new LiveVariableAnalysis();
+				Worklist wl = new RoundRobinWorklist();
+				StatementIterator staIte = new StatementIterator(new CodeWriter());
+				System.out.println("Starting analysis");
+				long st = System.currentTimeMillis();
+				EvaluatedStatement nroot = wl.run(ana, unit);
+				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
+				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
 			}
-			
+			}
+
 		} catch (RecognitionException e)  {
 			e.printStackTrace();
 		}

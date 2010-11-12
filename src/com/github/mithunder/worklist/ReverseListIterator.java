@@ -8,7 +8,7 @@ public class ReverseListIterator<E> implements ListIterator<E> {
 	private ListIterator<E> iterator;
 
 	public ReverseListIterator(List<E> e) {
-		iterator = e.listIterator();
+		iterator = e.listIterator(e.size());
 	}
 
 	@Override

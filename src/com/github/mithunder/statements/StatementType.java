@@ -66,6 +66,10 @@ public final class StatementType {
 		return OPERANDS[stype] == 2;
 	}
 
+	public static final boolean isComparison(int stype) {
+		return (LT <= stype) && (stype <= NEQ);
+	}
+
 	static {
 		if(SIMPLE_STATEMENT_SYMBOLS.length != OPERANDS.length) {
 			throw new AssertionError("Operand and SS-Symbol table disagree in number of statement types!");

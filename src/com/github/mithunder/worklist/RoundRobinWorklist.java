@@ -43,6 +43,9 @@ public class RoundRobinWorklist extends Worklist {
 				changes = handleIf(list, iterator, e, list.size());
 				if(analysis.isForwardAnalysis()) {
 					e = findMergedEvaluation(list, StatementType.IF);
+				} else {
+					EvaluatedStatement child = getFirstChild(list);
+					e = child.getEvaluation();
 				}
 				break;
 			} else {
@@ -195,16 +198,20 @@ public class RoundRobinWorklist extends Worklist {
 				toReturn = merge(es, toReturn);
 			}
 		} else {
-			ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
-			while(iterator.hasNext()) {
-				EvaluatedStatement es = iterator.next();
-				if(es.isKilled()) {
-					continue;
-				}
-				toReturn = merge(es, toReturn);
-				break;
-			}
+			EvaluatedStatement es = getFirstChild(list);
+			toReturn = merge(es, toReturn);
 		}
 		return toReturn;
+	}
+
+	private EvaluatedStatement getFirstChild(List<EvaluatedStatement> list) {
+		ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
+		while(iterator.hasNext()) {
+			EvaluatedStatement es = iterator.next();
+			if(!es.isKilled()) {
+				return es;
+			}
+		}
+		throw new AssertionError();
 	}
 }
