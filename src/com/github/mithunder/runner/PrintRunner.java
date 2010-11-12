@@ -11,7 +11,7 @@ import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
 import com.github.mithunder.statements.CompilationUnit;
-import com.github.mithunder.statements.visitor.CodeWriter;
+import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
 
 public class PrintRunner {
@@ -47,7 +47,7 @@ public class PrintRunner {
         	program_return program_r = parser.program();
         	compilationUnit = program_r.compilationUnit;
         	
-        	StatementIterator staIte = new StatementIterator(new CodeWriter());
+        	StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
         	staIte.tour(compilationUnit);
         
         } catch (RecognitionException e)  {
