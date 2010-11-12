@@ -44,7 +44,6 @@ public class RoundRobinWorklist extends Worklist {
 				if(analysis.isForwardAnalysis()) {
 					e = findMergedEvaluation(list, StatementType.IF);
 				}
-				System.err.println("Propagated MIF: " + e);
 				break;
 			} else {
 				if(statementType != StatementType.DO) {
@@ -55,11 +54,12 @@ public class RoundRobinWorklist extends Worklist {
 					if(es.isKilled()) {
 						continue;
 					}
-					changes = analysis.evaluate(es, e) || changes;
-					e = es.getEvaluation();
 					if(es.getChildCount() > 0) {
 						changes = iterate(es, e, es.getStatementType()) || changes;
+					} else {
+						changes = analysis.evaluate(es, e) || changes;
 					}
+					e = es.getEvaluation();
 				}
 				if(statementType == StatementType.DO) {
 					e = findMergedEvaluation(list, StatementType.DO);
@@ -167,7 +167,23 @@ public class RoundRobinWorklist extends Worklist {
 		}
 	}
 
-	//FIXME: Returns null, null and empty set with RD!?
+	private Evaluation merge(EvaluatedStatement es, Evaluation e){
+		Evaluation toReturn;
+		if(es.getChildCount() > 0) {
+			List<EvaluatedStatement> children = es.getChildren();
+			EvaluatedStatement c;
+			if(analysis.isForwardAnalysis()){
+				c = children.get(children.size() - 1);
+			} else {
+				c = children.get(0);
+			}
+			toReturn = analysis.merge(e, c.getEvaluation());
+		} else {
+			toReturn = analysis.merge(e, es.getEvaluation());
+		}
+		return toReturn;
+	}
+
 	private Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
 		Evaluation toReturn = null;
 		if(statementType == StatementType.IF) {
@@ -176,11 +192,7 @@ public class RoundRobinWorklist extends Worklist {
 				if(es.isKilled()) {
 					continue;
 				}
-				if(es.getChildCount() > 0) {
-					toReturn = analysis.merge(toReturn, findMergedEvaluation(es.getChildren(), es.getStatementType()));
-				} else {
-					toReturn = analysis.merge(toReturn, es.getEvaluation());
-				}
+				toReturn = merge(es, toReturn);
 			}
 		} else {
 			ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
@@ -189,11 +201,7 @@ public class RoundRobinWorklist extends Worklist {
 				if(es.isKilled()) {
 					continue;
 				}
-				if(es.getChildCount() > 0) {
-					toReturn = findMergedEvaluation(es.getChildren(), es.getStatementType());
-				} else {
-					toReturn = es.getEvaluation();
-				}
+				toReturn = merge(es, toReturn);
 				break;
 			}
 		}

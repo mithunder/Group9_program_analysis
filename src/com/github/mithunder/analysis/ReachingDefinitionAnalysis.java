@@ -30,11 +30,13 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		} else {
 			changed = rde.merge(orde);
 		}
-
+		if(stype == StatementType.WRITE) {
+			return changed;
+		}
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
 			Variable assign = statement.getAssign();
-			if(stype != StatementType.WRITE && !table.isTemporaryVariable(assign)){
+			if(!table.isTemporaryVariable(assign)){
 				rde.remove(assign);
 				rde.add(assign, statement);
 			}
