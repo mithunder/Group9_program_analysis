@@ -28,8 +28,9 @@ public class ConstantPropagationAnalysis extends Analysis {
 		CPAEvaluation cpae = (CPAEvaluation)statement.getEvaluation();
 		boolean changed = false;
 		if(cpae == null){
-			cpae = new CPAEvaluation(table, cpae);
+			cpae = new CPAEvaluation(table);
 			statement.setEvaluation(cpae);
+			cpae.merge(ocpae);
 			changed = true;
 		} else {
 			changed = cpae.merge(ocpae);
@@ -62,7 +63,6 @@ public class ConstantPropagationAnalysis extends Analysis {
 			} else if(StatementType.isBinary(stype)){
 				ConstantValue lhs = getConstantValue(cpae, v[0]);
 				ConstantValue rhs = getConstantValue(cpae, v[1]);
-
 				// Are both sides constants (or is it a minus [check for x - x = 0 ])
 				if((lhs == null || rhs == null) && stype != StatementType.MINUS){
 					// The result is unknown unless we are doing x * 0.
@@ -106,8 +106,8 @@ public class ConstantPropagationAnalysis extends Analysis {
 				case StatementType.LOGIC_OR:  result = lhs.getValue() != 0 || rhs.getValue() != 0? ConstantValue.TRUE : ConstantValue.FALSE;    break;
 				case StatementType.GT: 		  result = lhs.getValue()      >  rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
 				case StatementType.GT_EQ:     result = lhs.getValue()      >= rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
-				case StatementType.LT: 		  result = lhs.getValue()      >  rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
-				case StatementType.LT_EQ:     result = lhs.getValue()      >= rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
+				case StatementType.LT: 		  result = lhs.getValue()      <  rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
+				case StatementType.LT_EQ:     result = lhs.getValue()      <= rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
 				case StatementType.EQ: 		  result = lhs.getValue()      == rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
 				case StatementType.NEQ:       result = lhs.getValue()      != rhs.getValue()     ? ConstantValue.TRUE : ConstantValue.FALSE;    break;
 				}
@@ -230,17 +230,12 @@ public class ConstantPropagationAnalysis extends Analysis {
 		}
 	}
 
-	static class CPAEvaluation extends Evaluation {
+	public static class CPAEvaluation extends Evaluation {
 		Map<Variable, CPAInfo> cpadata = new HashMap<Variable, CPAInfo>();
 		final VariableTable table;
 
 		public CPAEvaluation(VariableTable table){
 			this.table = table;
-		}
-
-		public CPAEvaluation(VariableTable table, CPAEvaluation copy){
-			this(table);
-			cpadata.putAll(cpadata);
 		}
 
 		public boolean add(Variable v, ConstantValue c){

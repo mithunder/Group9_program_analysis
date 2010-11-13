@@ -13,7 +13,8 @@ import com.github.mithunder.statements.StatementType;
 
 public class RoundRobinWorklist implements Worklist {
 
-	private Analysis analysis;
+	protected Analysis analysis;
+	protected boolean forward;
 
 	@Override
 	public EvaluatedStatement run(Analysis ana, CompilationUnit unit){
@@ -23,6 +24,7 @@ public class RoundRobinWorklist implements Worklist {
 		List<EvaluatedStatement> children;
 		this.analysis = ana;
 		analysis.startAnalysis(unit);
+		forward = analysis.isForwardAnalysis();
 		e = ana.initEvaluation(root);
 		children = initiate(root.getChildren());
 		s = new EvaluatedStatement(root, e, children);
@@ -88,7 +90,7 @@ public class RoundRobinWorklist implements Worklist {
 		return changes;
 	}
 
-	private List<EvaluatedStatement> initiate(List<? extends Statement> s) {
+	protected List<EvaluatedStatement> initiate(List<? extends Statement> s) {
 		ArrayList<EvaluatedStatement> list = new ArrayList<EvaluatedStatement>();
 		if(s == null || s.size() == 0) {
 			return list;
@@ -100,7 +102,7 @@ public class RoundRobinWorklist implements Worklist {
 		return list;
 	}
 
-	private boolean handleIf(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+	protected boolean handleIf(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
 		if(analysis.isForwardAnalysis()) {
 			return handleIfForward(list, e, size);
 		} else {
@@ -108,7 +110,8 @@ public class RoundRobinWorklist implements Worklist {
 		}
 	}
 
-	private boolean handleIfForward(List<EvaluatedStatement> list, Evaluation e, int size) {
+
+	protected boolean handleIfForward(List<EvaluatedStatement> list, Evaluation e, int size) {
 		int index = 0;
 		boolean changes = false;
 		final int noConds = size/2;
@@ -120,7 +123,7 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluate(es, e) || changes;
+				changes = evaluate(es, e) || changes;
 			}
 			e = es.getEvaluation();
 		}
@@ -132,13 +135,13 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluateCondition(list.get(index - noConds), es, e) || changes;
+				changes = evaluateCondition(list.get(index - noConds), es, e) || changes;
 			}
 		}
 		return changes;
 	}
 
-	private boolean handleIfBackward(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+	protected boolean handleIfBackward(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
 		int index = 0;
 		boolean changes = false;
 		final int noConds = size/2;
@@ -150,7 +153,7 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluateCondition(list.get(index - noConds), es, e) || changes;
+				changes = evaluateCondition(list.get(index - noConds), es, e) || changes;
 			}
 		}
 		e = findMergedEvaluation(list, StatementType.IF);
@@ -162,14 +165,14 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluate(es, e) || changes;
+				changes = evaluate(es, e) || changes;
 			}
 			e = es.getEvaluation();
 		}
 		return changes;
 	}
 
-	private ListIterator<EvaluatedStatement> getListIterator(List<EvaluatedStatement> list) {
+	protected ListIterator<EvaluatedStatement> getListIterator(List<EvaluatedStatement> list) {
 		if(analysis.isForwardAnalysis()) {
 			return list.listIterator();
 		} else {
@@ -177,7 +180,7 @@ public class RoundRobinWorklist implements Worklist {
 		}
 	}
 
-	private ListIterator<EvaluatedStatement> getReversedListIterator(List<EvaluatedStatement> list) {
+	protected ListIterator<EvaluatedStatement> getReversedListIterator(List<EvaluatedStatement> list) {
 		if(!analysis.isForwardAnalysis()) {
 			return list.listIterator();
 		} else {
@@ -185,16 +188,11 @@ public class RoundRobinWorklist implements Worklist {
 		}
 	}
 
-	private Evaluation merge(EvaluatedStatement es, Evaluation e){
+	protected Evaluation merge(EvaluatedStatement es, Evaluation e){
 		Evaluation toReturn;
 		if(es.getChildCount() > 0) {
 			List<EvaluatedStatement> children = es.getChildren();
-			EvaluatedStatement c;
-			if(analysis.isForwardAnalysis()){
-				c = children.get(children.size() - 1);
-			} else {
-				c = children.get(0);
-			}
+			EvaluatedStatement c = getFirstChild(children);
 			toReturn = analysis.merge(e, c.getEvaluation());
 		} else {
 			toReturn = analysis.merge(e, es.getEvaluation());
@@ -202,7 +200,7 @@ public class RoundRobinWorklist implements Worklist {
 		return toReturn;
 	}
 
-	private Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
+	protected Evaluation findMergedEvaluation(List<EvaluatedStatement> list, int statementType) {
 		Evaluation toReturn = null;
 		if(statementType == StatementType.IF) {
 			for(int i = list.size()/2; i < list.size(); i++) {
@@ -219,7 +217,7 @@ public class RoundRobinWorklist implements Worklist {
 		return toReturn;
 	}
 
-	private EvaluatedStatement getFirstChild(List<EvaluatedStatement> list) {
+	protected EvaluatedStatement getFirstChild(List<EvaluatedStatement> list) {
 		ListIterator<EvaluatedStatement> iterator = getReversedListIterator(list);
 		while(iterator.hasNext()) {
 			EvaluatedStatement es = iterator.next();
@@ -229,4 +227,13 @@ public class RoundRobinWorklist implements Worklist {
 		}
 		throw new AssertionError();
 	}
+
+	protected boolean evaluate(EvaluatedStatement s, Evaluation prev){
+		return analysis.evaluate(s, prev);
+	}
+
+	protected boolean evaluateCondition(EvaluatedStatement g, EvaluatedStatement s, Evaluation prev){
+		return analysis.evaluateCondition(g, s, prev);
+	}
+
 }

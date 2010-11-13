@@ -9,6 +9,7 @@ import org.antlr.runtime.RecognitionException;
 
 import com.github.mithunder.analysis.Analysis;
 import com.github.mithunder.analysis.ConstantPropagationAnalysis;
+import com.github.mithunder.analysis.ConstantPropagationBranchKiller;
 import com.github.mithunder.analysis.LiveVariableAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
@@ -18,12 +19,13 @@ import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.visitor.CodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
+import com.github.mithunder.worklist.KRARoundRobinWorklist;
 import com.github.mithunder.worklist.RoundRobinWorklist;
 import com.github.mithunder.worklist.Worklist;
 
 public class PrintRunner {
 
-	private enum Options {PRINT, RD, LV, CP };
+	private enum Options {PRINT, RD, LV, CP, CPBK };
 
 	public static void main(String[] args) throws Exception {
 
@@ -73,13 +75,15 @@ public class PrintRunner {
 			}
 			default : {
 				Analysis ana;
+				Worklist wl = new RoundRobinWorklist();
 				switch(chosenOption){
 				case RD: ana = new ReachingDefinitionAnalysis(); break;
-				case LV: ana = new LiveVariableAnalysis(); break;
+				case LV: ana = new LiveVariableAnalysis();  wl = new KRARoundRobinWorklist(); break;
 				case CP: ana = new ConstantPropagationAnalysis(); break;
+				case CPBK: ana = new ConstantPropagationBranchKiller(); wl = new KRARoundRobinWorklist(); break;
 				default: throw new AssertionError();
 				}
-				Worklist wl = new RoundRobinWorklist();
+
 				StatementIterator staIte = new StatementIterator(new CodeWriter());
 				System.out.println("Starting analysis");
 				long st = System.currentTimeMillis();
