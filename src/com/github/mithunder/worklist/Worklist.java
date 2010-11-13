@@ -6,7 +6,7 @@ import com.github.mithunder.statements.EvaluatedStatement;
 
 
 
-public abstract class Worklist {
+public abstract interface Worklist {
 
 	/**
 	 * The method to call for using the selected worklist on some list of statements, using a specific analysis to analyse them

@@ -1,5 +1,6 @@
 package com.github.mithunder.statements;
 
+/* Must remain IMMUTABLE */
 public class ConstantValue extends Value {
 
 	public static final ConstantValue TRUE = getConstantValue(ValueType.BOOLEAN_TYPE, 1);

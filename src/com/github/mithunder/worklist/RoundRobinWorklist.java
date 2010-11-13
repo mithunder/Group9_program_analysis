@@ -11,7 +11,7 @@ import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 
-public class RoundRobinWorklist extends Worklist {
+public class RoundRobinWorklist implements Worklist {
 
 	private Analysis analysis;
 

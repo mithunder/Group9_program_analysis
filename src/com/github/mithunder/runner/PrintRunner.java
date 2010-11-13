@@ -8,6 +8,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
 import com.github.mithunder.analysis.Analysis;
+import com.github.mithunder.analysis.ConstantPropagationAnalysis;
 import com.github.mithunder.analysis.LiveVariableAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
@@ -22,7 +23,7 @@ import com.github.mithunder.worklist.Worklist;
 
 public class PrintRunner {
 
-	private enum Options {PRINT, RD, LV};
+	private enum Options {PRINT, RD, LV, CP };
 
 	public static void main(String[] args) throws Exception {
 
@@ -40,17 +41,7 @@ public class PrintRunner {
 				System.out.println(o.ordinal() + ": " + o.toString());
 			}
 			String option = reader.readLine();
-			boolean recognized = false;
-			for (Options o : Options.values()) {
-				if (o.ordinal() == Integer.parseInt(option)) {
-					recognized = true;
-					chosenOption = o;
-				}
-			}
-			if (!recognized) {
-				System.out.println("Didn't recognized option: " + option);
-				System.exit(0);
-			}
+			chosenOption = Options.values()[Integer.parseInt(option)];
 
 		}
 		finally {
@@ -80,8 +71,14 @@ public class PrintRunner {
 				staIte.tour(unit);
 				break;
 			}
-			case RD : {
-				Analysis ana = new ReachingDefinitionAnalysis();
+			default : {
+				Analysis ana;
+				switch(chosenOption){
+				case RD: ana = new ReachingDefinitionAnalysis(); break;
+				case LV: ana = new LiveVariableAnalysis(); break;
+				case CP: ana = new ConstantPropagationAnalysis(); break;
+				default: throw new AssertionError();
+				}
 				Worklist wl = new RoundRobinWorklist();
 				StatementIterator staIte = new StatementIterator(new CodeWriter());
 				System.out.println("Starting analysis");
@@ -90,16 +87,6 @@ public class PrintRunner {
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
 				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
 				break;
-			}
-			case LV : {
-				Analysis ana = new LiveVariableAnalysis();
-				Worklist wl = new RoundRobinWorklist();
-				StatementIterator staIte = new StatementIterator(new CodeWriter());
-				System.out.println("Starting analysis");
-				long st = System.currentTimeMillis();
-				EvaluatedStatement nroot = wl.run(ana, unit);
-				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
 			}
 			}
 
