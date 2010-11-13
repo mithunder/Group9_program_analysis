@@ -14,7 +14,6 @@ import com.github.mithunder.statements.StatementType;
 public class RoundRobinWorklist extends Worklist {
 
 	private Analysis analysis;
-	private int bla = 4;
 
 	@Override
 	public EvaluatedStatement run(Analysis ana, CompilationUnit unit){
