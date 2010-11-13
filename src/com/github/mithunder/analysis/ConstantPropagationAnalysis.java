@@ -122,6 +122,11 @@ public class ConstantPropagationAnalysis extends Analysis {
 		return changed;
 	}
 
+	@Override
+	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
+		return evaluate(condition, e);
+	}
+
 	protected static ConstantValue getConstantValue(CPAEvaluation cpae, Value v){
 		CPAInfo i;
 		if(v.isConstant()) {
