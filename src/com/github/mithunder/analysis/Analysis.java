@@ -16,6 +16,16 @@ public abstract class Analysis {
 	public abstract boolean evaluate(EvaluatedStatement statement, Evaluation e);
 
 	/**
+	 * Some analysis requires a link between the condition and the statement, this evaluate provides that. If this
+	 * is not needed, the original evaluate can be called with evaluate(condition, e)
+	 * @param condition the condition which is evaluated
+	 * @param statement the statement which the condition-statement is the condition for
+	 * @param e the entry evaluation for the condition
+	 * @return true or false depending on if the evaluated value have been changed
+	 */
+	public abstract boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e);
+
+	/**
 	 * Merges two evaluations into one
 	 * @param e1 the first evaluation
 	 * @param e2 the second evaluation

@@ -44,6 +44,11 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		return changed;
 	}
 
+	@Override
+	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
+		return evaluate(condition, e);
+	}
+
 
 	@Override
 	public Evaluation merge(Evaluation e1, Evaluation e2) {

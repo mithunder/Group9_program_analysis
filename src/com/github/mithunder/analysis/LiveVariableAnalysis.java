@@ -1,5 +1,7 @@
 package com.github.mithunder.analysis;
 
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -56,6 +58,61 @@ public class LiveVariableAnalysis extends Analysis {
 			}
 		}
 		return changed;
+	}
+
+	@Override
+	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
+		if(condition.getStatementType() != StatementType.SCOPE) {
+			throw new AssertionError();
+		}
+		boolean changed = false;
+		if(containsAssign(statement, (LiveVariableEvaluation) e)) {
+			List<EvaluatedStatement> list = condition.getChildren();
+			LiveVariableEvaluation lve = (LiveVariableEvaluation) condition.getEvaluation();
+			for(int i = 0; i < list.size(); i++) {
+				EvaluatedStatement es = list.get(i);
+				Value[] values = es.getValues();
+				if(es.getAssign() != null) {
+					lve.add(es.getAssign());
+					for(int j = 0; j < values.length; j++) {
+						if(!values[i].isConstant()) {
+							Variable v = (Variable) values[i];
+							if(table.isTemporaryVariable(v)) {
+								lve.remove(v);
+							} else {
+								changed = lve.add(v) || changed;
+							}
+						}
+					}
+				} else {
+					for(int j = 0; j < values.length; j++) {
+						if(!values[i].isConstant()) {
+							Variable v = (Variable) values[i];
+							changed = lve.add(v) || changed;
+						}
+					}
+				}
+			}
+		}
+		return changed;
+	}
+
+	private boolean containsAssign(EvaluatedStatement root, LiveVariableEvaluation e) {
+		boolean contains = false;
+		if(root.getChildCount() > 0) {
+			ListIterator<EvaluatedStatement> iterator = root.getChildren().listIterator();
+			while(iterator.hasNext()) {
+				EvaluatedStatement es = iterator.next();
+				contains = containsAssign(es, e);
+				if(contains) {
+					break;
+				}
+			}
+		}
+		if(root.getAssign() != null && e.contains(root.getAssign())) {
+			contains = true;
+		}
+		return contains;
 	}
 
 	@Override

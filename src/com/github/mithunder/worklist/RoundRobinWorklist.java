@@ -57,6 +57,19 @@ public class RoundRobinWorklist implements Worklist {
 					if(es.isKilled()) {
 						continue;
 					}
+					if(statementType == StatementType.DO) {
+						int currentIndex = iterator.nextIndex();
+						if(analysis.isForwardAnalysis()) {
+							currentIndex--;
+						} else {
+							currentIndex++;
+						}
+						if(currentIndex < (list.size()/2)) {
+							changes = analysis.evaluateCondition(es, list.get(currentIndex + list.size()/2), e) || changes;
+						} else {
+							changes = analysis.evaluate(es, e) || changes;
+						}
+					}
 					if(es.getChildCount() > 0) {
 						changes = iterate(es, e, es.getStatementType()) || changes;
 					} else {
@@ -89,17 +102,18 @@ public class RoundRobinWorklist implements Worklist {
 
 	private boolean handleIf(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
 		if(analysis.isForwardAnalysis()) {
-			return handleIfForward(iterator, e, size);
+			return handleIfForward(list, e, size);
 		} else {
 			return handleIfBackward(list, iterator, e, size);
 		}
 	}
 
-	private boolean handleIfForward(ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
+	private boolean handleIfForward(List<EvaluatedStatement> list, Evaluation e, int size) {
 		int index = 0;
 		boolean changes = false;
-		for(index = 0; index < size/2; index++) {
-			EvaluatedStatement es = iterator.next();
+		final int noConds = size/2;
+		for(index = 0; index < noConds; index++) {
+			EvaluatedStatement es = list.get(index);
 			if(es.isKilled()) {
 				continue;
 			}
@@ -111,14 +125,14 @@ public class RoundRobinWorklist implements Worklist {
 			e = es.getEvaluation();
 		}
 		for(; index < size; index++) {
-			EvaluatedStatement es = iterator.next();
+			EvaluatedStatement es = list.get(index);
 			if(es.isKilled()) {
 				continue;
 			}
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluate(es, e) || changes;
+				changes = analysis.evaluateCondition(list.get(index - noConds), es, e) || changes;
 			}
 		}
 		return changes;
@@ -127,7 +141,8 @@ public class RoundRobinWorklist implements Worklist {
 	private boolean handleIfBackward(List<EvaluatedStatement> list, ListIterator<EvaluatedStatement> iterator, Evaluation e, int size) {
 		int index = 0;
 		boolean changes = false;
-		for(index = 0; index < size/2; index++) {
+		final int noConds = size/2;
+		for(index = 0; index < noConds; index++) {
 			EvaluatedStatement es = iterator.next();
 			if(es.isKilled()) {
 				continue;
@@ -135,7 +150,7 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = analysis.evaluate(es, e) || changes;
+				changes = analysis.evaluateCondition(list.get(index - noConds), es, e) || changes;
 			}
 		}
 		e = findMergedEvaluation(list, StatementType.IF);
