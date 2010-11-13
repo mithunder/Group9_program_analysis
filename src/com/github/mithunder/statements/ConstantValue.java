@@ -3,8 +3,8 @@ package com.github.mithunder.statements;
 /* Must remain IMMUTABLE */
 public class ConstantValue extends Value {
 
-	public static final ConstantValue TRUE = getConstantValue(ValueType.BOOLEAN_TYPE, 1);
-	public static final ConstantValue FALSE = getConstantValue(ValueType.BOOLEAN_TYPE, 0);
+	public static final ConstantValue TRUE = new ConstantValue(ValueType.BOOLEAN_TYPE, 1);
+	public static final ConstantValue FALSE = new ConstantValue(ValueType.BOOLEAN_TYPE, 0);
 
 	protected final int value;
 

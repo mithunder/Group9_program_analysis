@@ -46,9 +46,12 @@ public abstract class AbstractStatement extends Statement {
 
 	@Override
 	public void killStatement() {
+		List<? extends Statement> children = getChildren();
 		killed = true;
-		for(Statement child : getChildren()) {
-			child.killStatement();
+		if(children != null) {
+			for(Statement child : children) {
+				child.killStatement();
+			}
 		}
 	}
 }
