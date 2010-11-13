@@ -31,22 +31,26 @@ public class LiveVariableAnalysis extends Analysis {
 				|| lve.remove(statement.getAssign())
 				|| StatementType.isComparison(statement.getStatementType())) {
 			Value[] values = statement.getValues();
-			boolean doReturn = true;
+			boolean returnNow = true;
 			if(StatementType.isComparison(statement.getStatementType())) {
 				for(int i = 0; i < values.length; i++) {
-					if(!values[i].isConstant() || lve.contains((Variable) values[i])) {
-						doReturn = false;
+					if(!values[i].isConstant() && lve.contains((Variable) values[i])) {
+						returnNow = false;
 						break;
 					}
 				}
 			} else {
-				doReturn = false;
+				returnNow = false;
 			}
-			if(!doReturn) {
+			if(!returnNow) {
 				for(int i = 0; i < values.length; i++) {
 					if(!values[i].isConstant()) {
 						Variable v = (Variable) values[i];
-						changed = lve.add(v);
+						if(statement.getAssign() != null && statement.getAssign().equals(v)) {
+							lve.add(v);
+						} else {
+							changed = lve.add(v) || changed;
+						}
 					}
 				}
 			}

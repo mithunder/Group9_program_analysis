@@ -1,0 +1,22 @@
+module group9_2_dead_code_elimination :
+	read x;
+	read y;
+	read z;
+	read l;
+	read o;
+	read m;
+	read n;
+	l := l + 1;
+	if x > y -> x := x + l; y := z - 1
+	[] x = y -> m := 0; n := l * 2; o := x * n
+	[] x < y -> abort
+	fi;
+	n := 1 * m * l + o + n * 10;
+	y := l * l + y + x;
+	y := l * z;
+	do m < 0 -> m := m - 1
+	[] l > 10 -> l := l + 2
+	[] m > o -> o := o + 1
+	od;
+	write l
+end
