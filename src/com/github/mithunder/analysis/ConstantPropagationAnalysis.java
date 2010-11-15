@@ -27,18 +27,23 @@ public class ConstantPropagationAnalysis extends Analysis {
 		CPAEvaluation ocpae = (CPAEvaluation)e;
 		CPAEvaluation cpae = (CPAEvaluation)statement.getEvaluation();
 		boolean changed = false;
+		CPAInfo old = null;
 		if(cpae == null){
 			cpae = new CPAEvaluation(table);
 			statement.setEvaluation(cpae);
-			cpae.merge(ocpae);
+			cpae.merge(ocpae, true);
 			changed = true;
 		} else {
-			changed = cpae.merge(ocpae);
+			Variable assign = statement.getAssign();
+			if(assign != null) {
+				old = cpae.cpadata.get(assign);
+			}
+			cpae.merge(ocpae, true);
 		}
-		return constantProgate(cpae, statement) || changed;
+		return constantProgate(cpae, statement, old) || changed;
 	}
 
-	protected boolean constantProgate(CPAEvaluation cpae, Statement s){
+	protected boolean constantProgate(CPAEvaluation cpae, Statement s, CPAInfo old){
 		int stype = s.getStatementType();
 		Variable assign = s.getAssign();
 		boolean changed = false;
@@ -47,7 +52,7 @@ public class ConstantPropagationAnalysis extends Analysis {
 			return changed;
 		}
 		if(stype == StatementType.READ){
-			cpae.add(assign, UNKNOWN);
+			cpae.set(assign, UNKNOWN, old);
 		} else {
 			Value[] v = s.getValues();
 			ConstantValue result = null;
@@ -67,7 +72,7 @@ public class ConstantPropagationAnalysis extends Analysis {
 				if((lhs == null || rhs == null) && stype != StatementType.MINUS){
 					// The result is unknown unless we are doing x * 0.
 					if( stype != StatementType.MULTIPLY || rhs == lhs ){
-						return cpae.add(assign, UNKNOWN) || changed;
+						return cpae.set(assign, UNKNOWN, old) || changed;
 					}
 				}
 				switch(stype){
@@ -114,9 +119,9 @@ public class ConstantPropagationAnalysis extends Analysis {
 			}
 
 			if(result != null){
-				return cpae.add(assign, result) || changed;
+				return cpae.set(assign, result, old) || changed;
 			} else {
-				return cpae.add(assign, UNKNOWN) || changed;
+				return cpae.set(assign, UNKNOWN, old) || changed;
 			}
 		}
 		return changed;
@@ -160,10 +165,10 @@ public class ConstantPropagationAnalysis extends Analysis {
 		CPAEvaluation re2 = (CPAEvaluation)e2;
 		CPAEvaluation result = new CPAEvaluation(table);
 		if(e1 != null) {
-			result.merge(re1);
+			result.merge(re1, false);
 		}
 		if(e2 != null) {
-			result.merge(re2);
+			result.merge(re2, false);
 		}
 		return result;
 	}
@@ -238,28 +243,12 @@ public class ConstantPropagationAnalysis extends Analysis {
 			this.table = table;
 		}
 
-		public boolean add(Variable v, ConstantValue c){
-			CPAInfo info = cpadata.get(v);
-			if(info != null) {
-				if(info.def == CONSTANT) {
-					if(c.equals(info.value)){
-						return false;
-					}
-					cpadata.put(v, CPAInfo.UNK);
-				} else {
-					if(info.def == UNKNOWN) {
-						return false;
-					}
-					cpadata.put(v, CPAInfo.UNK);
-				}
-			} else {
-				cpadata.put(v, new CPAInfo(c));
-			}
-			return true;
+		public boolean set(Variable v, ConstantValue c, CPAInfo i){
+			cpadata.put(v, new CPAInfo(c));
+			return i == null || i.def != CONSTANT || c.getValue() != i.value.getValue();
 		}
 
-		public boolean add(Variable v, int def){
-			CPAInfo info = cpadata.get(v);
+		public boolean set(Variable v, int def, CPAInfo info){
 			if(info == null) {
 				cpadata.put(v, def == UNKNOWN? CPAInfo.UNK : CPAInfo.UNDEF);
 				return true;
@@ -279,19 +268,17 @@ public class ConstantPropagationAnalysis extends Analysis {
 			return null;
 		}
 
-		public boolean merge(CPAEvaluation e){
+		public boolean merge(CPAEvaluation e, boolean overwrite){
 			boolean changed = false;
 			for(Map.Entry<Variable, CPAInfo> entry : e.cpadata.entrySet() ) {
 				Variable v = entry.getKey();
 				CPAInfo ei = entry.getValue();
 				CPAInfo ci = cpadata.get(v);
-				if(ci != null){
-					if(!ci.equals(ei)) {
-						cpadata.put(v, CPAInfo.UNK);
-						changed = true;
-					}
-				} else {
+				if(overwrite || ci == null){
 					cpadata.put(v, ei);
+					changed = true;
+				} else if(!ci.equals(ei) && ci.def != UNKNOWN) {
+					cpadata.put(v, CPAInfo.UNK);
 					changed = true;
 				}
 			}
