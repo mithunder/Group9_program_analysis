@@ -22,7 +22,6 @@ module group9_3_constant_propagation :
        [] (one = 1 & unknown > 0) -> {eight := unknown + eight; seven := unknown + three + four}
        fi;
 
-       #do seven - three != one + three -> seven := seven * two; if seven > seven
        write one;
        write two;
        write three;
