@@ -80,7 +80,7 @@ public class RoundRobinWorklist implements Worklist {
 					e = es.getEvaluation();
 				}
 				if(statementType == StatementType.DO) {
-					e = findMergedEvaluation(list, StatementType.DO);
+					e = analysis.merge(org, findMergedEvaluation(list, StatementType.DO));
 				} else {
 					break;
 				}

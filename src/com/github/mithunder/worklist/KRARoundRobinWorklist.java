@@ -16,7 +16,7 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 
 	protected KillRepairAnalysis kanalysis;
 
-	protected int loopNext = 0;
+	protected int loopNest = 0;
 	protected boolean firstVisit = false;
 	protected boolean inGuard = false;
 	protected EvaluatedStatement curST;
@@ -89,7 +89,7 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 		List<EvaluatedStatement> list = parent.getChildren();
 		int statementType = parent.getStatementType();
 		if(statementType == StatementType.DO) {
-			loopNext++;
+			loopNest++;
 		}
 		while(changes) {
 			changes = false;
@@ -111,9 +111,10 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 					e = prev;
 				}
 				while(iterator.hasNext()) {
+					//FIXME: i is inverted for backwards.
 					EvaluatedStatement es = iterator.next();
-					i++;
 					if(es.isKilled()) {
+						i++;
 						continue;
 					}
 					if(statementType == StatementType.DO) {
@@ -123,7 +124,7 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 							curBrC = list.get(i + cch - 1);
 						} else {
 							curBrC = null;
-							changes = evaluateCondition(list.get(i - cch - 1), es, prev);
+							changes = evaluateCondition(list.get(i - cch), es, prev);
 						}
 					}
 					if(es.getChildCount() > 0) {
@@ -133,20 +134,21 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 					}
 					e = es.getEvaluation();
 					if(statementType == StatementType.DO) {
+						i++;
 						if(kanalysis != null && i < cch) {
 							kanalysis.leavingGuard(es, this);
 						}
 					}
 				}
 				if(statementType == StatementType.DO) {
-					e = findMergedEvaluation(list, StatementType.DO);
+					e = analysis.merge(prev, findMergedEvaluation(list, StatementType.DO));
 				} else {
 					break;
 				}
 			}
 		}
 		if(statementType == StatementType.DO) {
-			loopNext--;
+			loopNest--;
 		}
 		parent.setEvaluation(e);
 		return changes;
@@ -245,7 +247,7 @@ public class KRARoundRobinWorklist extends RoundRobinWorklist implements KillRep
 
 	@Override
 	public boolean isInsideLoop() {
-		return loopNext > 0;
+		return loopNest > 0;
 	}
 
 	@Override
