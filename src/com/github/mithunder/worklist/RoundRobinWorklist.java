@@ -44,7 +44,7 @@ public class RoundRobinWorklist implements Worklist {
 				e = org;
 				changes = handleIf(list, iterator, e, list.size());
 				if(analysis.isForwardAnalysis()) {
-					e = findMergedEvaluation(list, StatementType.IF);
+					e = findMergedEvaluation(list, statementType);
 				} else {
 					EvaluatedStatement child = getFirstChild(list);
 					e = child.getEvaluation();
@@ -67,20 +67,24 @@ public class RoundRobinWorklist implements Worklist {
 							currentIndex++;
 						}
 						if(currentIndex < (list.size()/2)) {
+							if(es.getChildCount() > 0) {
+								changes = iterate(es, e, es.getStatementType());
+							}
 							changes = analysis.evaluateCondition(es, list.get(currentIndex + list.size()/2), e) || changes;
 						} else {
 							changes = analysis.evaluate(es, e) || changes;
 						}
-					}
-					if(es.getChildCount() > 0) {
-						changes = iterate(es, e, es.getStatementType()) || changes;
 					} else {
-						changes = analysis.evaluate(es, e) || changes;
+						if(es.getChildCount() > 0) {
+							changes = iterate(es, e, es.getStatementType()) || changes;
+						} else {
+							changes = analysis.evaluate(es, e) || changes;
+						}
 					}
 					e = es.getEvaluation();
 				}
 				if(statementType == StatementType.DO) {
-					e = findMergedEvaluation(list, StatementType.DO);
+					e = analysis.merge(org, findMergedEvaluation(list, StatementType.DO));
 				} else {
 					break;
 				}
@@ -153,7 +157,7 @@ public class RoundRobinWorklist implements Worklist {
 			if(es.getChildCount() > 0) {
 				changes = iterate(es, e, es.getStatementType()) || changes;
 			} else {
-				changes = evaluateCondition(list.get(index - noConds), es, e) || changes;
+				changes = evaluateCondition(list.get(noConds - index), es, e) || changes;
 			}
 		}
 		e = findMergedEvaluation(list, StatementType.IF);

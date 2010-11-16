@@ -62,38 +62,66 @@ public class LiveVariableAnalysis extends Analysis {
 
 	@Override
 	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
+		System.out.println("evaluateCondition start");
 		if(condition.getStatementType() != StatementType.SCOPE) {
 			throw new AssertionError();
 		}
 		boolean changed = false;
-		if(containsAssign(statement, (LiveVariableEvaluation) e)) {
-			List<EvaluatedStatement> list = condition.getChildren();
+		boolean condInE = false;
+		LiveVariableEvaluation olve = (LiveVariableEvaluation) e;
+		System.out.println("evaluation: " + olve);
+		List<EvaluatedStatement> list = condition.getChildren();
+		for(int i = 0; i < list.size(); i++) {
+			EvaluatedStatement es = list.get(i);
+			Value[] values = es.getValues();
+			if(StatementType.isComparison(es.getStatementType())) {
+				for(int j = 0; j < values.length; j++) {
+					if(!values[j].isConstant()) {
+						System.out.println("checking: " + table.getVariableName((Variable) values[j]));
+					}
+					if(!values[j].isConstant() && olve.contains((Variable) values[j])) {
+						condInE = true;
+						System.out.println("contains variable " + table.getVariableName((Variable) values[j]));
+						break;
+					}
+				}
+				if(condInE) {
+					break;
+				}
+			}
+		}
+		if(condInE || containsAssign(statement, olve)) {
+			if(!condInE) {
+				System.out.println("statement contains assign");
+			}
 			LiveVariableEvaluation lve = (LiveVariableEvaluation) condition.getEvaluation();
+			changed = lve.merge(olve) || changed;
 			for(int i = 0; i < list.size(); i++) {
 				EvaluatedStatement es = list.get(i);
 				Value[] values = es.getValues();
-				if(es.getAssign() != null) {
-					lve.add(es.getAssign());
-					for(int j = 0; j < values.length; j++) {
-						if(!values[i].isConstant()) {
-							Variable v = (Variable) values[i];
-							if(table.isTemporaryVariable(v)) {
-								lve.remove(v);
-							} else {
-								changed = lve.add(v) || changed;
-							}
-						}
-					}
-				} else {
-					for(int j = 0; j < values.length; j++) {
-						if(!values[i].isConstant()) {
-							Variable v = (Variable) values[i];
+				System.out.println("adding assign: " + table.getVariableName(es.getAssign()));
+				System.out.print(lve + " -> ");
+				lve.add(es.getAssign());
+				System.out.println(lve);
+				for(int j = 0; j < values.length; j++) {
+					if(!values[j].isConstant()) {
+						Variable v = (Variable) values[j];
+						if(table.isTemporaryVariable(v)) {
+							System.out.println("removing: " + table.getVariableName(v));
+							System.out.print(lve + " -> ");
+							lve.remove(v);
+							System.out.println(lve);
+						} else {
+							System.out.println("adding: " + table.getVariableName(v));
+							System.out.print(lve + " -> ");
 							changed = lve.add(v) || changed;
+							System.out.println(lve);
 						}
 					}
 				}
 			}
 		}
+		System.out.println("evaluateCondition end");
 		return changed;
 	}
 

@@ -4,10 +4,11 @@ module group9_2_dead_code_elimination :
 	read a;
 	read i;
 	a := a + 1;
-	if i > d -> i := i + a; d := e - 1
+	if i > d -> i := i + a;f := 2 * 6; d := e - 1
 	[] i = d -> e := 0; i := a * 2; d := i * i
 	[] i < d -> abort
 	fi;
+	f := 2 + f;
 	i := d * e * a + d + 1 * 10;
 	d := a * a + d + i;
 	i := d + i * e;
@@ -17,5 +18,10 @@ module group9_2_dead_code_elimination :
 //	[] e > 10 -> a := a + 2
 	[] e > d -> d := d + 1
 	od;
+	f := 5;
 	write a
 end
+
+
+
+The only variable which can be removed, is f.
