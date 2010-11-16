@@ -27,7 +27,7 @@ label of if and do can be seen as being the label of a skip elementary block.
 \subsection{Init}
 
 init(C) denotes the entry point for the flow of a command.
-For instance, the entry point of init(C$_1$ ; C$_2$) is equal to init(C$_1$),
+For instance, the entry point of C$_1$ ; C$_2$ is equal to init(C$_1$),
 since C$_1$ contains the entry point. The domain is:
 \[init \colon Command \to Label\]
 It should be noted that the domain is different from that of the book.
@@ -55,7 +55,7 @@ the if and do.
 \subsection{Final}
 
 final(C) denotes the exit points for the flow of a command.
-For instance, the exit point of final([read x]\_l) is l. The domain is:
+For instance, the exit point of [read x]$_l$ is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Label)\]
 
 final(C):\newline
@@ -65,13 +65,13 @@ final([abort]$_l$)       = \{l\}\newline
 final([read x]$_l$)      = \{l\}\newline
 final([write x]$_l$)   	 = \{l\}\newline
 final(C$_1$; C$_2$)		 = \begin{cases}
-($el in C$_1$ $\wedge$ el = abort) $\cup$ final(C$_2$) if (el in final(C$_1$ $\wedge$ el $\not$ = abort) $\not = \emptyset$ \\
-($el in C$_1$ $\wedge$ el = abort) else
+($el in final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) if (el in final(C$_1$) $\wedge$ el $\not$ = abort) $\not = \emptyset$ \\
+($el in final(C$_1$) $\wedge$ el = abort) else
 \end{cases}\newline
 final(\{C\})             = final(C)\newline
 final(if gC fi)        = final(gC)\newline
-final([do]$_l$ gC od)        = {l} $\cup$ (el in final(gC) $\wedge$ el = abort)\newline
-final([e]$_l$ $\to C$)      = final(gC1)\newline
+final([do]$_l$ gC od)        = \{l\} $\cup$ (el in final(gC) $\wedge$ el = abort)\newline
+final([e]$_l$ $\to C$)      = final(C)\newline
 final(gC1 [] gC2)      = final(gC1) $\cup$ final(gC2)\newline
 
 \begin{itemize}
@@ -91,25 +91,49 @@ simply flow back to the tests.
 
 \subsection{Blocks}
 
+blocks(C) denotes the elementary blocks of a command.
+For instance, the elementary blocks of blocks([read x]$_l$) is l. The domain is:
+\[final \colon Command \to \mathcal{P}(Elementary Command)\]
+
 blocks(C):\newline
-blocks([x := a]_l)      = {[x := a]_l}\newline
-blocks([skip]_l)        = {[skip]_l}\newline
-blocks([abort]_l)       = {[abort]_l}\newline
-blocks([read x]_l)      = {[read x]_l}\newline
-blocks([write x]_l)     = {[write x]_l}\newline
-blocks(C_1; C_2)        = blocks(C_1) join blocks(C_2)\newline
-blocks({C})             = blocks(C)\newline
-blocks(if gC fi)        = blocks(gC)
-blocks(do gC od)        = join blocks(gC)
-blocks([e]_l -> C)      = {[e]_l} join blocks(C)
-blocks(gC_1 [] gC_2)= blocks(gC_1) join blocks(gC_2)
-flow(C):
-flow([x := a]_l)        =Ø
-flow([skip]_l)          =Ø
-flow([abort]_l)         =Ø
-flow([read x]_l)        =Ø
-flow([write x]_l)       =Ø
-                        = flow(C_1) union flow(C_2) union { (l, init(C_2)) | l ∈ final(C_1) }
+blocks([x := a]$_l$)      = {[x := a]$_l$}\newline
+blocks([skip]$_l$)        = {[skip]$_l$}\newline
+blocks([abort]$_l$)       = {[abort]$_l$}\newline
+blocks([read x]$_l$)      = {[read x]$_l$}\newline
+blocks([write x]$_l$)     = {[write x]$_l$}\newline
+blocks(C$_1$; C$_2$)		 = \begin{cases}
+$blocks(C$_1$) $\cup$ blocks(C$_2$) if flow(C$_1$; C$_2$) $\not = \emptyset$\\
+$blocks(C$_1$) else
+\end{cases}\newline
+blocks(\{C\})             = blocks(C)\newline
+blocks(if gC fi)        = blocks(gC)\newline
+blocks(do gC od)        = blocks(gC)\newline
+blocks([e]$_l$ $\to$ C)      = \{[e]$_l$\} join blocks(C)\newline
+blocks(gC$_1$ [] gC$_2$)= blocks(gC$_1$) join blocks(gC$_2$)\newline
+
+The reasoning behing the definition of the semicolon command is that the
+blocks function only includes those commands that may be reached. If there is
+no flow from C$_1$ to C$_2$, the blocks in C$_2$ will never be reached, and is
+therefore never included.
+
+
+
+\subsection{Flow}
+
+flow(C):\newline
+flow([x := a]$_l$)        =$\emptyset$\newline
+flow([skip]$_l$)          =$\emptyset$\newline
+flow([abort]$_l$)         =$\emptyset$\newline
+flow([read x]$_l$)        =$\emptyset$\newline
+flow([write x]$_l$)       =$\emptyset$\newline
+
+
+flow(C$_1$; C$_2$)		 = \begin{cases}
+($el in final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) if (el in final(C$_1$) $\wedge$ el $\not$ = abort) $\not = \emptyset$ \\
+($el in final(C$_1$) $\wedge$ el = abort) else
+\end{cases}\newline
+
+                        = flow(C$_1$) union flow(C$_2$) union { (l, init(C_2)) | l ∈ final(C_1) }
 flow(C_1; C_2)
 flow({C})               = flow(C)
                         = flow(gC) union { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') }
