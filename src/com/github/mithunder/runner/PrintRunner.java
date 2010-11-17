@@ -92,17 +92,6 @@ public class PrintRunner {
 				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
 				break;
 			}
-			case LV : {
-				Analysis ana = new LiveVariableAnalysis();
-				Worklist wl = new RoundRobinWorklist();
-				StatementIterator staIte = new StatementIterator(new CodeWriter());
-				System.out.println("Starting analysis");
-				long st = System.currentTimeMillis();
-				EvaluatedStatement nroot = wl.run(ana, unit);
-				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
-				break;
-			}
 			}
 
 		} catch (RecognitionException e)  {
