@@ -23,19 +23,27 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		ReachingDefinitionEvaluation rde = (ReachingDefinitionEvaluation)statement.getEvaluation();
 		boolean changed = false;
 		int stype = statement.getStatementType();
+		Variable assign = statement.getAssign();
+		Set<Statement> old = null;
 		if(rde == null){
-			rde = new ReachingDefinitionEvaluation(orde.map, table);
+			rde = new ReachingDefinitionEvaluation(table);
 			statement.setEvaluation(rde);
 			changed = true;
 		} else {
-			changed = rde.merge(orde);
+			if(assign != null && !table.isTemporaryVariable(assign)) {
+				old = rde.map.get(assign);
+			}
+		}
+		rde.merge(orde);
+		if(old != null){
+			Set<Statement> cur = rde.map.get(assign);
+			changed = !old.equals(cur);
 		}
 		if(stype == StatementType.WRITE) {
 			return changed;
 		}
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
-			Variable assign = statement.getAssign();
 			if(!table.isTemporaryVariable(assign)){
 				rde.remove(assign);
 				rde.add(assign, statement);
@@ -54,18 +62,14 @@ public class ReachingDefinitionAnalysis extends Analysis {
 	public Evaluation merge(Evaluation e1, Evaluation e2) {
 		ReachingDefinitionEvaluation re1 = (ReachingDefinitionEvaluation)e1;
 		ReachingDefinitionEvaluation re2 = (ReachingDefinitionEvaluation)e2;
-		ReachingDefinitionEvaluation rde;
-		if(e1 == null && e2 == null) {
-			return new ReachingDefinitionEvaluation(table);
-		} else if(e1 == null) {
-			return new ReachingDefinitionEvaluation(re2.map, table);
-		} else {
-			rde = new ReachingDefinitionEvaluation(re1.map, table);
-			if(e2 != null) {
-				rde.merge(re2);
-			}
-			return rde;
+		ReachingDefinitionEvaluation rde = new ReachingDefinitionEvaluation(table);
+		if(e1 != null) {
+			rde.merge(re1);
 		}
+		if(e2 != null) {
+			rde.merge(re2);
+		}
+		return rde;
 	}
 
 	@Override
@@ -92,17 +96,6 @@ public class ReachingDefinitionAnalysis extends Analysis {
 
 		Map<Variable,Set<Statement>> map;
 		VariableTable te;
-
-		ReachingDefinitionEvaluation(Map<Variable, Set<Statement>> m, VariableTable table) {
-			this.map = new HashMap<Variable, Set<Statement>>();
-			this.te = table;
-			for(Map.Entry<Variable, Set<Statement>> e : m.entrySet()){
-				this.map.put(e.getKey(), makeSet(e.getValue()));
-			}
-			if(te == null) {
-				throw new IllegalArgumentException();
-			}
-		}
 
 		ReachingDefinitionEvaluation(VariableTable table) {
 			map = new HashMap<Variable, Set<Statement>>(1);
