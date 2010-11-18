@@ -1,4 +1,4 @@
-module test_program :
+module test_program_simple2 :
 	read x;
 	y := 12;
 	if x > y -> a := 5

@@ -6,12 +6,12 @@ A multiline comment in the start.
 
 */
 
-#@ b2 = "SomeVar  "
+@b2="SomeVar"
 
 //Line comment.
 			//Another line comment.
 
-#@ annotation_variable = "value1"
+@annotation_variable="value1"
 module test_program :
 	y := 3;
 	x := b;
@@ -30,7 +30,7 @@ module test_program :
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
         ##@IDLE_CODE@;
-#@ point = "first_loop"
+@point="first_loop"
 	do
 		(a > 3 > x*30 + asdf / 30) -> x := 1
 	[]	a <= x -> x := 0
@@ -39,7 +39,7 @@ module test_program :
 	[]	a <= x -> x := 0
 	od
 	;
-#@ point = "first_if"
+@point="first_if"
 	if 
 		(a > x) -> x := 1
 	[]	a <= x -> x := 0
@@ -49,6 +49,7 @@ module test_program :
                         ##@IDLE_CODE@;
 			do
 				(a > x) -> x := 1
+				@Name="yeah"
 			[]	a <= x -> x := 0
 			[]	a <= x -> x := 0
 			[]	a <= x -> x := 0; {skip; {skip; a := 3*3*3}}; skip; skip; skip
@@ -67,7 +68,7 @@ module test_program :
 end			//LineComment.
 
 
-#@ a1 = "something"
+@a1="something"
 
 /*
 

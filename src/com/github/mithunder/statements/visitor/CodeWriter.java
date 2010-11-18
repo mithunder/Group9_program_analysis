@@ -57,7 +57,6 @@ public class CodeWriter implements StatementVisitor {
 	public void enter(int vitype, Statement compound, Statement parent, int cno) {
 		if(StatementVisitor.VITYPE_GUARD == vitype) {
 			out.print(indent + "[] ");
-
 		} else if(StatementVisitor.VITYPE_COMMAND == vitype) {
 			out.print(indent + "->");
 		} else {
