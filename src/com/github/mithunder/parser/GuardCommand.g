@@ -75,7 +75,7 @@ import java.util.Iterator;
 	private VariableTable variableTable = VariableTable.newInstance();
     private List<Annotation> annotations = new ArrayList<Annotation>();
     private final List<Statement> endCommands = new ArrayList<Statement>();
-    private List<AnnoInt> annotationInts = new ArrayList<AnnoInt>();
+    private List<Annotation> annotationInts = new ArrayList<Annotation>();
 
     public static void main(String[] args) throws Exception {
     
@@ -166,29 +166,29 @@ import java.util.Iterator;
 		}
     }
     
-    public void setAnnotations(List<AnnoInt> annotationInts) {
+    public void setAnnotations(List<Annotation> annotationInts) {
     	this.annotationInts = annotationInts;
     }
     
     private void updateAnnotations(int lineNumber) {
-    
-    	final Iterator<AnnoInt> ite = annotationInts.iterator();
+        /*
+    	final Iterator<Annotation> ite = annotationInts.iterator();
     	while (ite.hasNext()) {
-    		final AnnoInt annoInt = ite.next();
+    		final Annotation annoInt = ite.next();
     		if (annoInt.getLineNumber() <= lineNumber) {
     			annotations.add(annoInt.getAnno());
     			ite.remove();
     		}
-    	}
+    	}*/
     }
 }
 
 @lexer::members {
 
-	private List<AnnoInt> annotations = new ArrayList<AnnoInt>();
+	private List<Annotation> annotations = new ArrayList<Annotation>();
 	private int currentLine = 1;
 	
-	public List<AnnoInt> getAnnotations() {
+	public List<Annotation> getAnnotations() {
 		return annotations;
 	}
 }
@@ -688,7 +688,7 @@ NEWLINE : ('\r\n' | '\r' | '\n')
 ANNOTA : a=ANNO id=IDENTIFIER '=' '"' te=IDENTIFIER '"'
    		{
    			$channel=HIDDEN;
-    		annotations.add(new AnnoInt(new Annotation(id.getText(), te.getText()), currentLine));
+    		annotations.add(new Annotation(id.getText(), te.getText()));
    		}
    	;
 
