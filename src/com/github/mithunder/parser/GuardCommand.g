@@ -649,7 +649,7 @@ program returns [CompilationUnit compilationUnit]
 				endCommands.add(lastCommand);
 			}
 			$compilationUnit = new CompilationUnit(
-				id.getText(), command, variableTable, endCommands
+				id.getText(), command, variableTable, endCommands, statementFactory
 			);
 		}
 	;

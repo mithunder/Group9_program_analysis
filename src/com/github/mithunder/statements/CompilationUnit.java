@@ -8,13 +8,15 @@ public class CompilationUnit {
 	protected String unitName;
 	protected VariableTable varTable;
 	protected List<Statement> endStatements;
+	protected StatementFactory factory;
 
 	public CompilationUnit(String unitName, Statement root, VariableTable varTable,
-			List<Statement> endStatements){
+			List<Statement> endStatements, StatementFactory factory){
 		this.unitName = unitName;
 		this.root = root;
 		this.varTable = varTable;
 		this.endStatements = endStatements;
+		this.factory = factory;
 	}
 
 	public String getUnitName(){
@@ -32,4 +34,10 @@ public class CompilationUnit {
 	public List<Statement> getFinalStatements(){
 		return endStatements;
 	}
+
+	public StatementFactory getFactory() {
+		return factory;
+	}
+
+
 }
