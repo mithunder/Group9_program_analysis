@@ -61,7 +61,7 @@ public class PrintRunner {
 		CommonTokenStream tokens = new CommonTokenStream(lex);
 
 		GuardCommandParser parser = new GuardCommandParser(tokens);
-		parser.setAnnotations(lex.getAnnotations());
+		//parser.setAnnotations(lex.getAnnotations());
 
 		CompilationUnit unit;
 

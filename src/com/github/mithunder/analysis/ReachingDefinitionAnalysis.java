@@ -98,13 +98,12 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
 	}
 
-
 	@Override
 	public Evaluation repairAnalysis(EvaluatedStatement killed, Evaluation e) {
 		throw new UnsupportedOperationException("Cannot repair analysis");
 	}
 
-	static class ReachingDefinitionEvaluation extends Evaluation {
+	public static class ReachingDefinitionEvaluation extends Evaluation {
 
 		Map<Variable,Set<Statement>> map;
 		VariableTable te;
@@ -158,6 +157,10 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 					cset.addAll(oset);
 				}
 			}
+		}
+
+		public Map<Variable,Set<Statement>> getMap() {
+			return map;
 		}
 
 		@Override
