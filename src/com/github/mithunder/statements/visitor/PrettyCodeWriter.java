@@ -27,7 +27,6 @@ import com.github.mithunder.statements.ValueType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 
-//TODO: Implement.
 public class PrettyCodeWriter implements StatementVisitor {
 
 	protected PrintStream out;
@@ -36,6 +35,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 	private Map<Variable, Statement> tempVarToStatement;
 	private final String indent = "   ";
 	private Map<Integer, String> indentCache = new HashMap<Integer, String>();
+	private boolean entry = false;
 
 	public PrettyCodeWriter(){
 		this(null);
@@ -45,17 +45,21 @@ public class PrettyCodeWriter implements StatementVisitor {
 		this.outfile = outfile;
 	}
 
+	public void setPrintEntryEvaluation(boolean entry){
+		this.entry = entry;
+	}
+
 	public void endTour(CompilationUnit unit) throws Exception {}
 	public void enter(int vitype, Statement compound, Statement parent, int cno)
-			throws Exception {}
+	throws Exception {}
 	public void enterCompound(Statement compound, Statement parent, int cno)
-			throws Exception {}
+	throws Exception {}
 	public void leave(int vitype, Statement compound, Statement parent, int cno)
-			throws Exception {}
+	throws Exception {}
 	public void leaveCompound(Statement compound, Statement parent, int cno)
-			throws Exception {}
+	throws Exception {}
 	public void visitStatement(Statement s, Statement parent, int cno)
-			throws Exception {
+	throws Exception {
 	}
 
 	@Override
@@ -83,18 +87,12 @@ public class PrettyCodeWriter implements StatementVisitor {
 			}
 		});
 
-//		walkStatements(rootStatement, new Visitor() {
-//			public void visitStatement(Statement s) {
-//				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
-//					System.out.println("YIPPIE!!!");
-//				}
-//			}
-//		});
-
-
-
 		//* Print.
-
+		if(entry) {
+			out.println("// Printing entry evaluation");
+		} else {
+			out.println("// Printing exit evaluation");
+		}
 		out.println("module " + unit.getUnitName() + ":");
 
 		printStatements(unit.getRootStatement(), -1, GuardedType.NONE, "");
@@ -145,10 +143,10 @@ public class PrettyCodeWriter implements StatementVisitor {
 			if (guardedType == GuardedType.GUARD) {
 				//We must combine these children into something sensible.
 				out.print(
-					repeat(level+1) +
-					getExpressionPart(
-						s.getChildren().get(s.getChildren().size()-1), tempVarToStatement
-					)
+						repeat(level+1) +
+						getExpressionPart(
+								s.getChildren().get(s.getChildren().size()-1), tempVarToStatement
+						)
 				);
 				break;
 			}
@@ -241,11 +239,11 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Statement refS = tempVarToStatement.get(val);
 			if (refS == null) {
 				return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
-					"(" + v2s(val) + ")"
+				"(" + v2s(val) + ")"
 				;
 			}
 			return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
-				"(" + getExpressionPart(refS, tempVarToStatement) + ")"
+			"(" + getExpressionPart(refS, tempVarToStatement) + ")"
 			;
 		}
 
@@ -257,15 +255,15 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Statement refS2 = tempVarToStatement.get(val2);
 			final String str1 =
 				refS1 == null ?
-				v2s(val1) :
-				getExpressionPart(refS1, tempVarToStatement)
-			;
-			final String str2 =
-				refS2 == null ?
-				v2s(val2) :
-				getExpressionPart(refS2, tempVarToStatement)
-			;
-			return "(" + str1 + SIMPLE_STATEMENT_SYMBOLS[sType] + str2 + ")";
+						v2s(val1) :
+							getExpressionPart(refS1, tempVarToStatement)
+							;
+						final String str2 =
+							refS2 == null ?
+									v2s(val2) :
+										getExpressionPart(refS2, tempVarToStatement)
+										;
+									return "(" + str1 + SIMPLE_STATEMENT_SYMBOLS[sType] + str2 + ")";
 		}
 
 		//Handle single val.
@@ -322,6 +320,11 @@ public class PrettyCodeWriter implements StatementVisitor {
 		if(name != null) {
 			out.print("Name: " + name + ", ");
 		}
-		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getExitEvaluation());
+		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: ");
+		if(entry) {
+			out.print(e.getEntryEvaluation());
+		} else {
+			out.print(e.getExitEvaluation());
+		}
 	}
 }
