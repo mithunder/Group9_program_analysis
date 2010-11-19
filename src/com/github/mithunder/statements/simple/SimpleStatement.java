@@ -8,7 +8,7 @@ import com.github.mithunder.statements.CodeLocation;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 
-public class SimpleStatement extends AbstractStatement{
+public class SimpleStatement extends AbstractStatement implements Comparable<SimpleStatement>{
 
 	/* Either children or values are null */
 	protected List<SimpleStatement> children;
@@ -41,6 +41,11 @@ public class SimpleStatement extends AbstractStatement{
 	@Override
 	public int getChildCount() {
 		return children != null ? children.size() : 0;
+	}
+
+	@Override
+	public int compareTo(SimpleStatement arg0) {
+		return System.identityHashCode(this) - System.identityHashCode(arg0);
 	}
 
 
