@@ -35,9 +35,7 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 				old = rde.map.get(assign);
 			}
 		}
-		System.err.println("Pre merge: " + rde + " - " + orde);
 		rde.merge(orde);
-		System.err.println("Post merge: " + rde  + " - " + orde);
 		if(old != null){
 			Set<Statement> cur = rde.map.get(assign);
 			changed = !old.equals(cur);
@@ -48,10 +46,8 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
 			if(!table.isTemporaryVariable(assign)){
-				System.err.println("Removing: " + table.getVariableName(assign) + " from: " + rde);
 				rde.remove(assign);
 				rde.add(assign, statement);
-				System.err.println("Post removal: " + rde);
 			}
 		}
 		return changed;

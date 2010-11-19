@@ -111,7 +111,6 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		if(toEval.isKilled()) {
 			return false;
 		}
-		System.err.println("WL: Visiting " + stype);
 		switch(stype){
 		case IF:
 			if(isFwd){
