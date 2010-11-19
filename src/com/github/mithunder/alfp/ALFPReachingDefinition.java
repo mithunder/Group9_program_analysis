@@ -14,20 +14,20 @@ import com.github.mithunder.statements.simple.SimpleVariable;
 
 public class ALFPReachingDefinition extends ALFP {
 
-	private Stack<Integer> labelStack;
+	private Stack<String> labelStack;
 	private VariableTable table;
 	private Set<Variable> variableList;
-	private Set<Integer> labelList;
+	private Set<String> labelList;
 	private Set<GenKillElement> genList;
 	private Set<GenKillElement> killList;
 	private Set<FlowElement> flowList;
 
 	@Override
 	public void convertToALFP(List<EvaluatedStatement> statements, CompilationUnit unit) {
-		labelStack = new Stack<Integer>();
-		labelStack.push(0);
+		labelStack = new Stack<String>();
+		labelStack.push("0");
 		variableList = new TreeSet<Variable>();
-		labelList = new TreeSet<Integer>();
+		labelList = new TreeSet<String>();
 		genList = new TreeSet<GenKillElement>();
 		killList = new TreeSet<GenKillElement>();
 		flowList = new TreeSet<FlowElement>();
@@ -45,8 +45,8 @@ public class ALFPReachingDefinition extends ALFP {
 			case StatementType.DO:
 				break;
 			default:
-				int oldLabel = labelStack.pop();
-				int newLabel = System.identityHashCode(statement);
+				String oldLabel = labelStack.pop();
+				String newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
 				labelStack.push(newLabel);
 				if(statement.getChildCount() > 0) {
 					iterate(statement.getChildren());
@@ -73,7 +73,7 @@ public class ALFPReachingDefinition extends ALFP {
 			System.out.print("var(" + table.getVariableName(v) + ") & ");
 		}
 		System.out.println();
-		for(int l : labelList) {
+		for(String l : labelList) {
 			System.out.print("label(" + l + ") & ");
 		}
 		System.out.println();
@@ -97,9 +97,9 @@ public class ALFPReachingDefinition extends ALFP {
 	private static class GenKillElement implements Comparable<GenKillElement> {
 
 		final Variable v;
-		final int label;
+		final String label;
 
-		public GenKillElement(Variable v, int label) {
+		public GenKillElement(Variable v, String label) {
 			this.v = v;
 			this.label = label;
 		}
@@ -108,37 +108,37 @@ public class ALFPReachingDefinition extends ALFP {
 			return v;
 		}
 
-		public int getLabel() {
+		public String getLabel() {
 			return label;
 		}
 
 		@Override
 		public int compareTo(GenKillElement o) {
-			return (o.getLabel() - label) | (((SimpleVariable) o.getVariable()).compareTo((SimpleVariable)v));
+			return (o.getLabel().compareTo(label)) | (((SimpleVariable) o.getVariable()).compareTo((SimpleVariable)v));
 		}
 	}
 
 	private static class FlowElement implements Comparable<FlowElement> {
 
-		final int labelFrom;
-		final int labelTo;
+		final String labelFrom;
+		final String labelTo;
 
-		public FlowElement(int from, int to) {
+		public FlowElement(String from, String to) {
 			labelFrom = from;
 			labelTo = to;
 		}
 
-		public int getLabelFrom() {
+		public String getLabelFrom() {
 			return labelFrom;
 		}
 
-		public int getLabelTo() {
+		public String getLabelTo() {
 			return labelTo;
 		}
 
 		@Override
 		public int compareTo(FlowElement arg0) {
-			return (arg0.getLabelFrom() - labelFrom) + (arg0.getLabelTo() - labelTo);
+			return (arg0.getLabelFrom().compareTo(labelFrom)) | (arg0.getLabelTo().compareTo(labelTo));
 		}
 	}
 }
