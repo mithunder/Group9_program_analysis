@@ -196,6 +196,10 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 				}
 				/* Update entry value */
 				guard.setEntryEvaluation(e);
+
+				/* notify the analysis we are done with the guard */
+				kanalysis.leavingGuard(guard, this);
+
 				/* Use the exit value*/
 				e = guard.getExitEvaluation();
 			}

@@ -2,9 +2,22 @@ package com.github.mithunder.analysis;
 
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
+import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
 
+/**
+ * <ul>
+ * 	<li>{@link StatementType#SKIP} and semantical equivalent statements are not guaranteed to be
+ *		be handed to {@link #evaluate(EvaluatedStatement, Evaluation, KillRepairAnalysisWorklist)}.
+ *		If they are not passed to the analysis, then their exit value will be equal to their exit value.
+ *		</li>
+ *	<li>{@link StatementType#ABORT} will always have exit value equal to an empty value
+ *		{@link #initEvaluation()}. This <i>may</i> also hold for statements semantically equivalent to
+ *		{@link StatementType#ABORT}; this depends on the worklist used.
+ *		</li>
+ * </ul>
+ */
 public abstract class KillRepairAnalysis {
 
 
@@ -64,6 +77,12 @@ public abstract class KillRepairAnalysis {
 	 */
 	public abstract boolean canRepair();
 
+	/**
+	 * Called when the worklist is leaving a guard.
+	 * 
+	 * @param guard
+	 * @param w
+	 */
 	public abstract void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w);
 
 	/**
