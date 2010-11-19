@@ -322,6 +322,6 @@ public class PrettyCodeWriter implements StatementVisitor {
 		if(name != null) {
 			out.print("Name: " + name + ", ");
 		}
-		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getEvaluation());
+		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getExitEvaluation());
 	}
 }

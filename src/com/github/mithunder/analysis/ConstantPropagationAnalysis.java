@@ -13,8 +13,9 @@ import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.ValueType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
+import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
-public class ConstantPropagationAnalysis extends Analysis {
+public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 
 	public static final int UNDEFINED = 0;
 	public static final int UNKNOWN = 1;
@@ -23,14 +24,14 @@ public class ConstantPropagationAnalysis extends Analysis {
 	protected VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
 		CPAEvaluation ocpae = (CPAEvaluation)e;
-		CPAEvaluation cpae = (CPAEvaluation)statement.getEvaluation();
+		CPAEvaluation cpae = (CPAEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
 		CPAInfo old = null;
 		if(cpae == null){
 			cpae = new CPAEvaluation(table);
-			statement.setEvaluation(cpae);
+			statement.setExitEvaluation(cpae);
 			cpae.merge(ocpae, true);
 			changed = true;
 		} else {
@@ -127,11 +128,6 @@ public class ConstantPropagationAnalysis extends Analysis {
 		return changed;
 	}
 
-	@Override
-	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
-		return evaluate(condition, e);
-	}
-
 	protected static ConstantValue getConstantValue(CPAEvaluation cpae, Value v){
 		CPAInfo i;
 		if(v.isConstant()) {
@@ -150,7 +146,7 @@ public class ConstantPropagationAnalysis extends Analysis {
 	}
 
 	@Override
-	public Evaluation initEvaluation(Statement s) {
+	public Evaluation initEvaluation() {
 		return new CPAEvaluation(table);
 	}
 
@@ -322,5 +318,19 @@ public class ConstantPropagationAnalysis extends Analysis {
 			}
 			return "[" + s + "]";
 		}
+	}
+
+	@Override
+	public boolean canRepair() {
+		return false;
+	}
+
+	@Override
+	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
+	}
+
+	@Override
+	public Evaluation repairAnalysis(EvaluatedStatement killed, Evaluation e) {
+		throw new UnsupportedOperationException("Cannot repair the analysis.");
 	}
 }

@@ -5,7 +5,6 @@ import java.util.ListIterator;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.ConstantValue;
 import com.github.mithunder.statements.EvaluatedStatement;
-import com.github.mithunder.statements.Statement;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 import com.github.mithunder.worklist.ReverseListIterator;
 
@@ -13,21 +12,6 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 
 	protected ConstantPropagationAnalysis cp = new ConstantPropagationAnalysis();
 
-	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e) {
-		return cp.evaluate(statement, e);
-	}
-
-	@Override
-	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
-		return cp.evaluateCondition(condition, statement, e);
-	}
-
-
-	@Override
-	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
-		return this.evaluateCondition(condition, statement, e);
-	}
 
 	@Override
 	public void finishAnalysis(CompilationUnit unit) {
@@ -35,8 +19,8 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 	}
 
 	@Override
-	public Evaluation initEvaluation(Statement s) {
-		return cp.initEvaluation(s);
+	public Evaluation initEvaluation() {
+		return cp.initEvaluation();
 	}
 
 	@Override
@@ -61,7 +45,7 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 
 	@Override
 	public boolean evaluate(EvaluatedStatement s, Evaluation e, KillRepairAnalysisWorklist w) {
-		return this.evaluate(s, e);
+		return cp.evaluate(s, e, w);
 	}
 
 	@Override
@@ -83,7 +67,7 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 			return;
 		}
 		last = it.next();
-		eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getEvaluation();
+		eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getExitEvaluation();
 		con = eval.getConstant(last.getAssign());
 		if(con != null) {
 			System.err.println("Leaving guard with const value: " + con.getValue());

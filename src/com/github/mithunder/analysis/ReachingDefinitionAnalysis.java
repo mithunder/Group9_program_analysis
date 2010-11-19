@@ -12,29 +12,32 @@ import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
+import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
-public class ReachingDefinitionAnalysis extends Analysis {
+public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 
 	protected VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
 		ReachingDefinitionEvaluation orde = (ReachingDefinitionEvaluation)e;
-		ReachingDefinitionEvaluation rde = (ReachingDefinitionEvaluation)statement.getEvaluation();
+		ReachingDefinitionEvaluation rde = (ReachingDefinitionEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
 		int stype = statement.getStatementType();
 		Variable assign = statement.getAssign();
 		Set<Statement> old = null;
 		if(rde == null){
 			rde = new ReachingDefinitionEvaluation(table);
-			statement.setEvaluation(rde);
+			statement.setExitEvaluation(rde);
 			changed = true;
 		} else {
 			if(assign != null && !table.isTemporaryVariable(assign)) {
 				old = rde.map.get(assign);
 			}
 		}
+		System.err.println("Pre merge: " + rde + " - " + orde);
 		rde.merge(orde);
+		System.err.println("Post merge: " + rde  + " - " + orde);
 		if(old != null){
 			Set<Statement> cur = rde.map.get(assign);
 			changed = !old.equals(cur);
@@ -45,16 +48,13 @@ public class ReachingDefinitionAnalysis extends Analysis {
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
 			if(!table.isTemporaryVariable(assign)){
+				System.err.println("Removing: " + table.getVariableName(assign) + " from: " + rde);
 				rde.remove(assign);
 				rde.add(assign, statement);
+				System.err.println("Post removal: " + rde);
 			}
 		}
 		return changed;
-	}
-
-	@Override
-	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
-		return evaluate(condition, e);
 	}
 
 
@@ -73,7 +73,7 @@ public class ReachingDefinitionAnalysis extends Analysis {
 	}
 
 	@Override
-	public Evaluation initEvaluation(Statement s) {
+	public Evaluation initEvaluation() {
 		return new ReachingDefinitionEvaluation(table);
 	}
 
@@ -90,6 +90,22 @@ public class ReachingDefinitionAnalysis extends Analysis {
 	@Override
 	public void finishAnalysis(CompilationUnit unit) {
 		table = null;
+	}
+
+	@Override
+	public boolean canRepair() {
+		return false;
+	}
+
+
+	@Override
+	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
+	}
+
+
+	@Override
+	public Evaluation repairAnalysis(EvaluatedStatement killed, Evaluation e) {
+		throw new UnsupportedOperationException("Cannot repair analysis");
 	}
 
 	static class ReachingDefinitionEvaluation extends Evaluation {
@@ -118,7 +134,7 @@ public class ReachingDefinitionAnalysis extends Analysis {
 			return t;
 		}
 
-		boolean add(Variable var, Statement s){
+		void add(Variable var, Statement s){
 			Set<Statement> set = map.get(var);
 			if(s instanceof EvaluatedStatement){
 				s = ((EvaluatedStatement)s).getStatement();
@@ -127,16 +143,14 @@ public class ReachingDefinitionAnalysis extends Analysis {
 				set = makeSet(null);
 				map.put(var, set);
 			}
-			return set.add(s);
+			set.add(s);
 		}
 
-		boolean remove(Variable var){
-			Set<?> o = map.remove(var);
-			return o != null && o.size() > 0;
+		void remove(Variable var){
+			map.remove(var);
 		}
 
-		boolean merge(ReachingDefinitionEvaluation other){
-			boolean changes = false;
+		void merge(ReachingDefinitionEvaluation other){
 			for(Map.Entry<Variable, Set<Statement> > el : other.map.entrySet()){
 				Variable v = el.getKey();
 				Set<Statement> oset = el.getValue();
@@ -144,12 +158,10 @@ public class ReachingDefinitionAnalysis extends Analysis {
 				if(cset == null){
 					cset = makeSet(oset);
 					map.put(v, cset);
-					changes = true;
 				} else {
-					changes = cset.addAll(oset) || changes;
+					cset.addAll(oset);
 				}
 			}
-			return changes;
 		}
 
 		@Override
@@ -183,4 +195,5 @@ public class ReachingDefinitionAnalysis extends Analysis {
 			return "[" + s + "]";
 		}
 	}
+
 }
