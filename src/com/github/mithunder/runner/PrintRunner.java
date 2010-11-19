@@ -1,15 +1,18 @@
 package com.github.mithunder.runner;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
-import com.github.mithunder.analysis.Analysis;
 import com.github.mithunder.analysis.ConstantPropagationAnalysis;
 import com.github.mithunder.analysis.ConstantPropagationBranchKiller;
+import com.github.mithunder.analysis.KillRepairAnalysis;
 import com.github.mithunder.analysis.LiveVariableAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
@@ -19,8 +22,8 @@ import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
-import com.github.mithunder.worklist.KRARoundRobinWorklist;
-import com.github.mithunder.worklist.Worklist;
+import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
+import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
 public class PrintRunner {
 
@@ -35,7 +38,7 @@ public class PrintRunner {
 			System.out.println("Please input the name of the program (enter for default):");
 
 			reader = new BufferedReader(new InputStreamReader(System.in));
-			fileName = reader.readLine();
+			fileName = findFile(reader.readLine());
 
 			System.out.println("Please choose an option:");
 			for (Options o : Options.values()) {
@@ -74,14 +77,13 @@ public class PrintRunner {
 				break;
 			}
 			default : {
-				Analysis ana;
-//				Worklist wl = new RoundRobinWorklist();
-				Worklist wl = new KRARoundRobinWorklist();
+				KillRepairAnalysis ana;
+				KillRepairAnalysisWorklist wl = new SimpleRRKRWorklist();
 				switch(chosenOption){
 				case RD: ana = new ReachingDefinitionAnalysis(); break;
-				case LV: ana = new LiveVariableAnalysis();  wl = new KRARoundRobinWorklist(); break;
+				case LV: ana = new LiveVariableAnalysis(); break;
 				case CP: ana = new ConstantPropagationAnalysis(); break;
-				case CPBK: ana = new ConstantPropagationBranchKiller(); wl = new KRARoundRobinWorklist(); break;
+				case CPBK: ana = new ConstantPropagationBranchKiller(); break;
 				default: throw new AssertionError();
 				}
 
@@ -98,5 +100,33 @@ public class PrintRunner {
 		} catch (RecognitionException e)  {
 			e.printStackTrace();
 		}
+	}
+
+	private static String findFile(final String name) throws FileNotFoundException {
+		File f = new File(name);
+		File dir;
+		String names[];
+		if(f.canRead()) {
+			return name;
+		}
+		dir = f.getAbsoluteFile().getParentFile();
+		names = dir.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File arg0, String arg1) {
+				return arg1.contains(name);
+			}
+		});
+		for(String n : names){
+			if(n.startsWith(name +".") && !n.endsWith("~")) {
+				return n;
+			}
+		}
+		System.err.println("Could not find " + name + ", possible matches: ");
+		for(String n : names){
+			if(!n.endsWith("~")) {
+				System.err.println(n);
+			}
+		}
+		throw new FileNotFoundException("Could not find a file called: " + name);
 	}
 }

@@ -4,16 +4,16 @@ import java.util.List;
 
 import com.github.mithunder.analysis.Evaluation;
 
-public class EvaluatedStatement extends Statement {
+public final class EvaluatedStatement extends Statement {
 
 	private final Statement statement;
-	private Evaluation evaluation;
+	private Evaluation exitEval;
+	private Evaluation entryEval;
 	private List<EvaluatedStatement> children;
 
-	public EvaluatedStatement(Statement statement, Evaluation evaluation, List<EvaluatedStatement> children) {
+	public EvaluatedStatement(Statement statement, List<EvaluatedStatement> children) {
 		super(statement.getStatementType());
 		this.statement = statement;
-		this.evaluation = evaluation;
 		this.children = children;
 	}
 
@@ -51,12 +51,20 @@ public class EvaluatedStatement extends Statement {
 		return statement;
 	}
 
-	public Evaluation getEvaluation() {
-		return evaluation;
+	public Evaluation getEntryEvaluation() {
+		return entryEval;
 	}
 
-	public void setEvaluation(Evaluation e) {
-		evaluation = e;
+	public void setEntryEvaluation(Evaluation e) {
+		entryEval = e;
+	}
+
+	public Evaluation getExitEvaluation() {
+		return exitEval;
+	}
+
+	public void setExitEvaluation(Evaluation e) {
+		exitEval = e;
 	}
 
 	public void setChildren(List<EvaluatedStatement> c) {
@@ -74,6 +82,6 @@ public class EvaluatedStatement extends Statement {
 		for(EvaluatedStatement e : children) {
 			e.killStatement();
 		}
-		evaluation = null;
+		exitEval = null;
 	}
 }

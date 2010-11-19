@@ -7,24 +7,24 @@ import java.util.TreeSet;
 
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
-import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
+import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
-public class LiveVariableAnalysis extends Analysis {
+public class LiveVariableAnalysis extends KillRepairAnalysis {
 
 	private VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
 		LiveVariableEvaluation olve = (LiveVariableEvaluation) e;
-		LiveVariableEvaluation lve = (LiveVariableEvaluation)statement.getEvaluation();
+		LiveVariableEvaluation lve = (LiveVariableEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
 		if(lve == null) {
 			lve = new LiveVariableEvaluation(olve.set, table);
-			statement.setEvaluation(lve);
+			statement.setExitEvaluation(lve);
 			changed = true;
 		} else {
 			changed = lve.merge(olve);
@@ -61,6 +61,20 @@ public class LiveVariableAnalysis extends Analysis {
 	}
 
 	@Override
+	public boolean canRepair() {
+		return false;
+	}
+
+	@Override
+	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
+	}
+
+	@Override
+	public Evaluation repairAnalysis(EvaluatedStatement killed, Evaluation e) {
+		throw new UnsupportedOperationException("Cannot repair analysis");
+	}
+
+	//@Override - FIXME
 	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
 		System.out.println("evaluateCondition start");
 		if(condition.getStatementType() != StatementType.SCOPE) {
@@ -94,7 +108,7 @@ public class LiveVariableAnalysis extends Analysis {
 			if(!condInE) {
 				System.out.println("statement contains assign");
 			}
-			LiveVariableEvaluation lve = (LiveVariableEvaluation) condition.getEvaluation();
+			LiveVariableEvaluation lve = (LiveVariableEvaluation) condition.getExitEvaluation();
 			changed = lve.merge(olve) || changed;
 			for(int i = 0; i < list.size(); i++) {
 				EvaluatedStatement es = list.get(i);
@@ -147,22 +161,18 @@ public class LiveVariableAnalysis extends Analysis {
 	public Evaluation merge(Evaluation e1, Evaluation e2) {
 		LiveVariableEvaluation lv1 = (LiveVariableEvaluation) e1;
 		LiveVariableEvaluation lv2 = (LiveVariableEvaluation) e2;
-		if(lv1 == null && lv2 == null) {
-			return new LiveVariableEvaluation(table);
-		} else if(lv1 == null) {
-			return lv2;
-		} else if(lv2 == null) {
-			return lv1;
-		} else {
-			LiveVariableEvaluation e = new LiveVariableEvaluation(table);
+		LiveVariableEvaluation e = new LiveVariableEvaluation(table);
+		if(e1 != null) {
 			e.merge(lv1);
-			e.merge(lv2);
-			return e;
 		}
+		if(e2 != null) {
+			e.merge(lv2);
+		}
+		return e;
 	}
 
 	@Override
-	public Evaluation initEvaluation(Statement s) {
+	public Evaluation initEvaluation() {
 		return new LiveVariableEvaluation(table);
 	}
 
@@ -240,4 +250,5 @@ public class LiveVariableAnalysis extends Analysis {
 			return "[" + s + "]";
 		}
 	}
+
 }
