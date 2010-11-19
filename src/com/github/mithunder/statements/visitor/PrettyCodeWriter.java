@@ -240,11 +240,11 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Value val = s.getValues()[0];
 			final Statement refS = tempVarToStatement.get(val);
 			if (refS == null) {
-				return SIMPLE_STATEMENT_SYMBOLS[sType] +
+				return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
 					"(" + v2s(val) + ")"
 				;
 			}
-			return SIMPLE_STATEMENT_SYMBOLS[sType] +
+			return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
 				"(" + getExpressionPart(refS, tempVarToStatement) + ")"
 			;
 		}
