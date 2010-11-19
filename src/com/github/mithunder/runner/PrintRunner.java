@@ -69,6 +69,7 @@ public class PrintRunner {
 		try {
 
 			program_return program_r = parser.program();
+			PrettyCodeWriter cw = new PrettyCodeWriter();
 			unit = program_r.compilationUnit;
 
 			switch (chosenOption) {
@@ -100,8 +101,10 @@ public class PrintRunner {
 				case CPBK: ana = new ConstantPropagationBranchKiller(); break;
 				default: throw new AssertionError();
 				}
-
-				StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
+				if(!ana.isForwardAnalysis()) {
+					cw.setPrintEntryEvaluation(true);
+				}
+				StatementIterator staIte = new StatementIterator(cw);
 				System.out.println("Starting analysis");
 				long st = System.currentTimeMillis();
 				EvaluatedStatement nroot = wl.run(ana, unit);

@@ -5,6 +5,7 @@ read x;
 @Name="ydefinefirst"
 @Skull="verymuchaskull"
 read y;
+@Name="Skull"
 do
 	x < y
 	-> y := y - x

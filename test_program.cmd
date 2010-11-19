@@ -30,7 +30,7 @@ module test_program :
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
         ##@IDLE_CODE@;
-@point="first_loop"
+@point="firstloop"
 	do
 		(a > 3 > x*30 + asdf / 30) -> x := 1
 	[]	a <= x -> x := 0
@@ -39,7 +39,7 @@ module test_program :
 	[]	a <= x -> x := 0
 	od
 	;
-@point="first_if"
+@point="firstif"
 	if 
 		(a > x) -> x := 1
 	[]	a <= x -> x := 0
