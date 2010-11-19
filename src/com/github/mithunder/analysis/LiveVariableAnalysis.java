@@ -1,7 +1,5 @@
 package com.github.mithunder.analysis;
 
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,37 +20,30 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 		LiveVariableEvaluation olve = (LiveVariableEvaluation) e;
 		LiveVariableEvaluation lve = (LiveVariableEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
+		boolean[] pre = null;
+		Value[] values = statement.getValues();
 		if(lve == null) {
-			lve = new LiveVariableEvaluation(olve.set, table);
+			lve = new LiveVariableEvaluation(table);
 			statement.setExitEvaluation(lve);
 			changed = true;
 		} else {
-			changed = lve.merge(olve);
-		}
-		if((statement.getStatementType() == StatementType.WRITE)
-				|| lve.remove(statement.getAssign())
-				|| StatementType.isComparison(statement.getStatementType())) {
-			Value[] values = statement.getValues();
-			boolean returnNow = true;
-			if(StatementType.isComparison(statement.getStatementType())) {
-				for(int i = 0; i < values.length; i++) {
-					if(!values[i].isConstant() && lve.contains((Variable) values[i])) {
-						returnNow = false;
-						break;
-					}
+			pre = new boolean[values.length];
+			for(int i = 0 ; i < values.length ; i++) {
+				if(!values[i].isConstant()) {
+					pre[i] = lve.contains((Variable)values[i]);
 				}
-			} else {
-				returnNow = false;
 			}
-			if(!returnNow) {
-				for(int i = 0; i < values.length; i++) {
-					if(!values[i].isConstant()) {
-						Variable v = (Variable) values[i];
-						if(statement.getAssign() != null && statement.getAssign().equals(v)) {
-							lve.add(v);
-						} else {
-							changed = lve.add(v) || changed;
-						}
+		}
+		lve.merge(olve);
+		if(w.isGuard() || statement.getStatementType() == StatementType.WRITE
+				|| lve.remove(statement.getAssign()) ){
+			for(int i = 0; i < values.length ; i++){
+				Value v = values[i];
+				if(!v.isConstant()){
+					Variable var = (Variable)v;
+					lve.add(var);
+					if(pre != null) {
+						changed = !pre[i];
 					}
 				}
 			}
@@ -72,89 +63,6 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 	@Override
 	public Evaluation repairAnalysis(EvaluatedStatement killed, Evaluation e) {
 		throw new UnsupportedOperationException("Cannot repair analysis");
-	}
-
-	//@Override - FIXME
-	public boolean evaluateCondition(EvaluatedStatement condition, EvaluatedStatement statement, Evaluation e) {
-		System.out.println("evaluateCondition start");
-		if(condition.getStatementType() != StatementType.SCOPE) {
-			throw new AssertionError();
-		}
-		boolean changed = false;
-		boolean condInE = false;
-		LiveVariableEvaluation olve = (LiveVariableEvaluation) e;
-		System.out.println("evaluation: " + olve);
-		List<EvaluatedStatement> list = condition.getChildren();
-		for(int i = 0; i < list.size(); i++) {
-			EvaluatedStatement es = list.get(i);
-			Value[] values = es.getValues();
-			if(StatementType.isComparison(es.getStatementType())) {
-				for(int j = 0; j < values.length; j++) {
-					if(!values[j].isConstant()) {
-						System.out.println("checking: " + table.getVariableName((Variable) values[j]));
-					}
-					if(!values[j].isConstant() && olve.contains((Variable) values[j])) {
-						condInE = true;
-						System.out.println("contains variable " + table.getVariableName((Variable) values[j]));
-						break;
-					}
-				}
-				if(condInE) {
-					break;
-				}
-			}
-		}
-		if(condInE || containsAssign(statement, olve)) {
-			if(!condInE) {
-				System.out.println("statement contains assign");
-			}
-			LiveVariableEvaluation lve = (LiveVariableEvaluation) condition.getExitEvaluation();
-			changed = lve.merge(olve) || changed;
-			for(int i = 0; i < list.size(); i++) {
-				EvaluatedStatement es = list.get(i);
-				Value[] values = es.getValues();
-				System.out.println("adding assign: " + table.getVariableName(es.getAssign()));
-				System.out.print(lve + " -> ");
-				lve.add(es.getAssign());
-				System.out.println(lve);
-				for(int j = 0; j < values.length; j++) {
-					if(!values[j].isConstant()) {
-						Variable v = (Variable) values[j];
-						if(table.isTemporaryVariable(v)) {
-							System.out.println("removing: " + table.getVariableName(v));
-							System.out.print(lve + " -> ");
-							lve.remove(v);
-							System.out.println(lve);
-						} else {
-							System.out.println("adding: " + table.getVariableName(v));
-							System.out.print(lve + " -> ");
-							changed = lve.add(v) || changed;
-							System.out.println(lve);
-						}
-					}
-				}
-			}
-		}
-		System.out.println("evaluateCondition end");
-		return changed;
-	}
-
-	private boolean containsAssign(EvaluatedStatement root, LiveVariableEvaluation e) {
-		boolean contains = false;
-		if(root.getChildCount() > 0) {
-			ListIterator<EvaluatedStatement> iterator = root.getChildren().listIterator();
-			while(iterator.hasNext()) {
-				EvaluatedStatement es = iterator.next();
-				contains = containsAssign(es, e);
-				if(contains) {
-					break;
-				}
-			}
-		}
-		if(root.getAssign() != null && e.contains(root.getAssign())) {
-			contains = true;
-		}
-		return contains;
 	}
 
 	@Override
@@ -191,20 +99,12 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 		table = null;
 	}
 
-	static class LiveVariableEvaluation extends Evaluation {
+	public static class LiveVariableEvaluation extends Evaluation {
 
 		Set<Variable> set;
 		VariableTable table;
 
-		private LiveVariableEvaluation(Set<Variable> set, VariableTable vt) {
-			this.set = new TreeSet<Variable>();
-			for(Variable v : set) {
-				this.set.add(v);
-			}
-			table = vt;
-		}
-
-		private LiveVariableEvaluation(VariableTable vt) {
+		LiveVariableEvaluation(VariableTable vt) {
 			set = new TreeSet<Variable>();
 			table = vt;
 		}
@@ -236,14 +136,12 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 			String s = "";
 			TreeSet<String> t = new TreeSet<String>();
 			for(Variable v : set) {
-				String sts = null;
 				final String varname = table.getVariableName(v);
-				sts = Integer.toHexString(System.identityHashCode(v));
-				t.add(varname + " = " + sts);
+				t.add(varname);
 			}
 			if(t.size() > 0) {
 				for(String str : t){
-					s += "; " + str;
+					s += ", " + str;
 				}
 				s = s.substring(2);
 			}

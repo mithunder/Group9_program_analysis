@@ -396,7 +396,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		final int size = children.size();
 		final int hsize = size / 2;
 		Evaluation e = entry;
-		Evaluation exitValue = null;
+		Evaluation exitValue = entry;
 		EvaluatedStatement fchild = findFirstNonDeadGuard(dost);
 		if(fchild == null) {
 			/* Short cut exit. */
@@ -405,7 +405,6 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		}
 		do {
 			hasChanged = false;
-			exitValue = entry;
 			for(int i = hsize ; i < size ; i++){
 				/* Fetch the command and the related guard */
 				EvaluatedStatement cmd = children.get(i);
@@ -413,12 +412,8 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 				if(cmd.isKilled() || guard.isKilled()) {
 					continue;
 				}
-				/*
-				 * Use the exit value of the guard - else the evaluation
-				 * will be tainted by the other commands.
-				 */
-				e = guard.getExitEvaluation();
-				if(evaluateStatement(cmd, e)) {
+
+				if(evaluateStatement(cmd, entry)) {
 					changed = true;
 					hasChanged = true;
 				}
@@ -442,8 +437,13 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			}
 
 			/* ASSUMPTION: all guards have the same exit evaluation */
-			e = kanalysis.merge(exitValue, fchild.getExitEvaluation());
-			/* Update the current evaluation */
+			exitValue = kanalysis.merge(exitValue, fchild.getExitEvaluation());
+			/*
+			 * Be sure to include the entry value - this is trivially satisfied
+			 * in the first iteration earlier, but not necessarily in following
+			 * iterations.
+			 */
+			exitValue = kanalysis.merge(exitValue, entry);
 			e = exitValue;
 		} while(hasChanged);
 		/* Update the entry value */
