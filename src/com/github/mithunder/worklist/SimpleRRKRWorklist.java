@@ -65,7 +65,6 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		if(kanalysis.canRepair()){
 			//FIXME: implement repair iteration.
 		}
-		System.err.println("Killing branch: " + Integer.toHexString(System.identityHashCode(curBrC.getStatement())));
 		curBrG.killStatement();
 		curBrC.killStatement();
 		return true;
