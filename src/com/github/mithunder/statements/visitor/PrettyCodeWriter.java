@@ -87,20 +87,6 @@ public class PrettyCodeWriter implements StatementVisitor {
 			}
 		});
 
-		/*walkStatements(rootStatement, new Visitor() {
-			public void visitStatement(Statement s) {
-				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
-					System.out.print("Annos at " + s.getCodeLocation().getLineNumber() + ", " + s.getStatementType() + ": ");
-					for (Annotation anno : s.getAnnotations()) {
-						System.out.print(anno + ", ");
-					}
-					System.out.println();
-				}
-			}
-		});*/
-
-
-
 		//* Print.
 		if(entry) {
 			out.println("// Printing entry evaluation");
@@ -161,10 +147,10 @@ public class PrettyCodeWriter implements StatementVisitor {
 				//We must combine these children into something sensible.
 				final Statement lastChild = s.getChildren().get(s.getChildren().size()-1);
 				out.print(
-					repeat(level+1) +
-					getExpressionPart(
-						lastChild, tempVarToStatement
-					)
+						repeat(level+1) +
+						getExpressionPart(
+								lastChild, tempVarToStatement
+						)
 				);
 
 				if(lastChild instanceof EvaluatedStatement){
@@ -176,7 +162,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 			//This is not a test scope.
 			//Since the statements will print plenty of newlines,
 			//do not print newlines here.
-//			doPrintNewline = false;
+			//			doPrintNewline = false;
 
 			//First, find the last non-temporary assign-value child.
 			Statement lastNonTempChild = null;
