@@ -119,11 +119,13 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			}
 			break;
 		case DO:
+			loopNest++;
 			if(isFwd){
 				changed = evaluateDoStatementForward(toEval, entry);
 			} else {
 				changed = evaluateDoStatementBackward(toEval, entry);
 			}
+			loopNest--;
 			break;
 		case SKIP:
 			/* Does not change the state of the program */
