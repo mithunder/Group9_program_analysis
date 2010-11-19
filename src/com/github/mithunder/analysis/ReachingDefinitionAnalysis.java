@@ -88,6 +88,7 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 		table = null;
 	}
 
+<<<<<<< Updated upstream
 	@Override
 	public boolean canRepair() {
 		return false;
@@ -105,6 +106,9 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 	}
 
 	static class ReachingDefinitionEvaluation extends Evaluation {
+=======
+	public static class ReachingDefinitionEvaluation extends Evaluation {
+>>>>>>> Stashed changes
 
 		Map<Variable,Set<Statement>> map;
 		VariableTable te;
@@ -158,6 +162,10 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 					cset.addAll(oset);
 				}
 			}
+		}
+
+		public Map<Variable,Set<Statement>> getMap() {
+			return map;
 		}
 
 		@Override
