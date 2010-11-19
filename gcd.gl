@@ -1,0 +1,16 @@
+@Name="yo"
+module gcd : 
+
+read x;
+@Name="ydefinefirst"
+@Skull="verymuchaskull"
+read y;
+do
+	x < y
+	-> y := y - x
+	[] y < x
+	-> x := x - y
+od;
+@Name="lastName"
+write x
+end

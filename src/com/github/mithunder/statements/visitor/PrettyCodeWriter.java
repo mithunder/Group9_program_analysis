@@ -47,15 +47,15 @@ public class PrettyCodeWriter implements StatementVisitor {
 
 	public void endTour(CompilationUnit unit) throws Exception {}
 	public void enter(int vitype, Statement compound, Statement parent, int cno)
-	throws Exception {}
+			throws Exception {}
 	public void enterCompound(Statement compound, Statement parent, int cno)
-	throws Exception {}
+			throws Exception {}
 	public void leave(int vitype, Statement compound, Statement parent, int cno)
-	throws Exception {}
+			throws Exception {}
 	public void leaveCompound(Statement compound, Statement parent, int cno)
-	throws Exception {}
+			throws Exception {}
 	public void visitStatement(Statement s, Statement parent, int cno)
-	throws Exception {
+			throws Exception {
 	}
 
 	@Override
@@ -83,13 +83,13 @@ public class PrettyCodeWriter implements StatementVisitor {
 			}
 		});
 
-		//		walkStatements(rootStatement, new Visitor() {
-		//			public void visitStatement(Statement s) {
-		//				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
-		//					System.out.println("YIPPIE!!!");
-		//				}
-		//			}
-		//		});
+//		walkStatements(rootStatement, new Visitor() {
+//			public void visitStatement(Statement s) {
+//				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
+//					System.out.println("YIPPIE!!!");
+//				}
+//			}
+//		});
 
 
 
@@ -145,10 +145,10 @@ public class PrettyCodeWriter implements StatementVisitor {
 			if (guardedType == GuardedType.GUARD) {
 				//We must combine these children into something sensible.
 				out.print(
-						repeat(level+1) +
-						getExpressionPart(
-								s.getChildren().get(s.getChildren().size()-1), tempVarToStatement
-						)
+					repeat(level+1) +
+					getExpressionPart(
+						s.getChildren().get(s.getChildren().size()-1), tempVarToStatement
+					)
 				);
 				break;
 			}
@@ -240,12 +240,12 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Value val = s.getValues()[0];
 			final Statement refS = tempVarToStatement.get(val);
 			if (refS == null) {
-				return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " ":"") +
-				"(" + v2s(val) + ")"
+				return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
+					"(" + v2s(val) + ")"
 				;
 			}
-			return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " ":"") +
-			"(" + getExpressionPart(refS, tempVarToStatement) + ")"
+			return SIMPLE_STATEMENT_SYMBOLS[sType] + (sType == WRITE ? " " : "") +
+				"(" + getExpressionPart(refS, tempVarToStatement) + ")"
 			;
 		}
 
@@ -257,15 +257,15 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Statement refS2 = tempVarToStatement.get(val2);
 			final String str1 =
 				refS1 == null ?
-						v2s(val1) :
-							getExpressionPart(refS1, tempVarToStatement)
-							;
-						final String str2 =
-							refS2 == null ?
-									v2s(val2) :
-										getExpressionPart(refS2, tempVarToStatement)
-										;
-									return "(" + str1 + SIMPLE_STATEMENT_SYMBOLS[sType] + str2 + ")";
+				v2s(val1) :
+				getExpressionPart(refS1, tempVarToStatement)
+			;
+			final String str2 =
+				refS2 == null ?
+				v2s(val2) :
+				getExpressionPart(refS2, tempVarToStatement)
+			;
+			return "(" + str1 + SIMPLE_STATEMENT_SYMBOLS[sType] + str2 + ")";
 		}
 
 		//Handle single val.
