@@ -88,7 +88,7 @@ public class PrintRunner {
 				EvaluatedStatement nroot = wl.run(ana, unit);
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
 				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
-				new ALFPReachingDefinition().convertToALFP(nroot.getChildren(), unit);
+				new ALFPReachingDefinition().convertToALFP(nroot, unit);
 				break;
 			}
 			default : {

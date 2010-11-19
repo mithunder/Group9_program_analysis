@@ -1,5 +1,6 @@
 package com.github.mithunder.alfp;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -23,7 +24,7 @@ public class ALFPReachingDefinition extends ALFP {
 	private Set<FlowElement> flowList;
 
 	@Override
-	public void convertToALFP(List<EvaluatedStatement> statements, CompilationUnit unit) {
+	public void convertToALFP(EvaluatedStatement statement, CompilationUnit unit) {
 		labelStack = new Stack<String>();
 		labelStack.push("0");
 		variableList = new TreeSet<Variable>();
@@ -32,28 +33,62 @@ public class ALFPReachingDefinition extends ALFP {
 		killList = new TreeSet<GenKillElement>();
 		flowList = new TreeSet<FlowElement>();
 		table = unit.getVariableTable();
-		iterate(statements);
+		iterate(statement.getChildren(), statement.getStatementType());
 		print();
 	}
 
-	private void iterate(List<EvaluatedStatement> statements) {
-		for(int i = 0; i < statements.size(); i++) {
+	private ArrayList<String> iterate(List<EvaluatedStatement> statements, int statementType) {
+		int limit;
+		if(statementType != StatementType.IF && statementType != StatementType.DO) {
+			limit = statements.size();
+		} else {
+			limit = statements.size()/2;
+		}
+		ArrayList<String> toReturn = new ArrayList<String>();
+		int iterateOnIndex = 0;
+		ArrayList<String> gotReturned = new ArrayList<String>();
+		for(int i = 0; i < limit; i++) {
 			EvaluatedStatement statement = statements.get(i);
-			switch(statement.getStatementType()) {
+			EvaluatedStatement s;
+			String newLabel;
+			switch(statementType) {
 			case StatementType.IF:
+				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
+				flowList.add(new FlowElement(labelStack.peek(), newLabel));
+				labelStack.add(newLabel);
+				iterate(statement.getChildren(), statement.getStatementType());
+				s = statements.get(i + limit);
+				//flowList.add(new FlowElement(newLabel, Integer.toHexString(System.identityHashCode(s.getStatement()))));
+				iterate(s.getChildren(), s.getStatementType());
+				toReturn.add(labelStack.pop());
 				break;
 			case StatementType.DO:
+				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
+				flowList.add(new FlowElement(labelStack.peek(), newLabel));
+				labelStack.add(newLabel);
+				iterate(statement.getChildren(), statement.getStatementType());
+				s = statements.get(i + limit);
+				//flowList.add(new FlowElement(newLabel, Integer.toHexString(System.identityHashCode(s.getStatement()))));
+				iterate(s.getChildren(), s.getStatementType());
+				String tmpLabel = labelStack.pop();
+				flowList.add(new FlowElement(tmpLabel, labelStack.peek()));
 				break;
 			default:
 				String oldLabel = labelStack.pop();
-				String newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
+				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
+				if(iterateOnIndex == i+1 && gotReturned != null) {
+					for(int j = 0; j < gotReturned.size(); j++) {
+						flowList.add(new FlowElement(gotReturned.get(j), newLabel));
+					}
+				}
 				labelStack.push(newLabel);
+				labelList.add(newLabel);
+				flowList.add(new FlowElement(oldLabel, newLabel));
 				if(statement.getChildCount() > 0) {
-					iterate(statement.getChildren());
+					gotReturned = iterate(statement.getChildren(), statement.getStatementType());
+					iterateOnIndex = i;
 				} else {
 					Variable assign = statement.getAssign();
-					labelList.add(newLabel);
-					flowList.add(new FlowElement(oldLabel, newLabel));
 					if(assign != null) {
 						variableList.add(assign);
 						GenKillElement gke = new GenKillElement(assign, newLabel);
@@ -66,6 +101,7 @@ public class ALFPReachingDefinition extends ALFP {
 				break;
 			}
 		}
+		return toReturn;
 	}
 
 	private void print() {
