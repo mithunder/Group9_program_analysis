@@ -83,13 +83,17 @@ public class PrettyCodeWriter implements StatementVisitor {
 			}
 		});
 
-//		walkStatements(rootStatement, new Visitor() {
-//			public void visitStatement(Statement s) {
-//				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
-//					System.out.println("YIPPIE!!!");
-//				}
-//			}
-//		});
+		walkStatements(rootStatement, new Visitor() {
+			public void visitStatement(Statement s) {
+				if (s.getAnnotations() != null && s.getAnnotations().size() != 0) {
+					System.out.print("Annos at " + s.getCodeLocation().getLineNumber() + ", " + s.getStatementType() + ": ");
+					for (Annotation anno : s.getAnnotations()) {
+						System.out.print(anno + ", ");
+					}
+					System.out.println();
+				}
+			}
+		});
 
 
 
@@ -123,6 +127,9 @@ public class PrettyCodeWriter implements StatementVisitor {
 			//Print start.
 			if (sType == DO) {out.println(repeat(level) + "do");}
 			else if  (sType == IF) {out.println(repeat(level) + "if");}
+			if(s instanceof EvaluatedStatement && sType != SCOPE){
+				printEvaluation((EvaluatedStatement)s);
+			}
 
 			//Print children.
 			final List<? extends Statement> children = s.getChildren();
@@ -144,19 +151,24 @@ public class PrettyCodeWriter implements StatementVisitor {
 			//First, detect if this is a test scope.
 			if (guardedType == GuardedType.GUARD) {
 				//We must combine these children into something sensible.
+				final Statement lastChild = s.getChildren().get(s.getChildren().size()-1);
 				out.print(
 					repeat(level+1) +
 					getExpressionPart(
-						s.getChildren().get(s.getChildren().size()-1), tempVarToStatement
+						lastChild, tempVarToStatement
 					)
 				);
+
+				if(lastChild instanceof EvaluatedStatement){
+					printEvaluation((EvaluatedStatement)lastChild);
+				}
 				break;
 			}
 
 			//This is not a test scope.
 			//Since the statements will print plenty of newlines,
 			//do not print newlines here.
-			doPrintNewline = false;
+//			doPrintNewline = false;
 
 			//First, find the last non-temporary assign-value child.
 			Statement lastNonTempChild = null;
@@ -219,10 +231,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 
 		out.print(postFix);
 
-		//TODO: Ensure that it is alright that scope's
-		//evaluation and annotations are not printed!!!
-		if(s instanceof EvaluatedStatement &&
-				(sType != SCOPE || guardedType == GuardedType.GUARD)){
+		if(s instanceof EvaluatedStatement){
 			printEvaluation((EvaluatedStatement)s);
 		}
 
@@ -322,6 +331,6 @@ public class PrettyCodeWriter implements StatementVisitor {
 		if(name != null) {
 			out.print("Name: " + name + ", ");
 		}
-		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getEvaluation());
+		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: " + e.getEvaluation() + ", " + e.getStatementType());
 	}
 }

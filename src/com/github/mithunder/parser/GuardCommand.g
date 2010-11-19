@@ -620,19 +620,18 @@ guarded_cmd returns [List<Statement> commands]
 				e.val
 			);
 			$commands.add(newestStat);
+			annotations = new ArrayList<Annotation>();
 		}
 		else {
 			updateAnnotations(e.tree.getLine());
 			$commands.add(statementFactory.createCompoundStatement(
 				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, e.statList
 			));
+			annotations = new ArrayList<Annotation>();
 		}
-		annotations = new ArrayList<Annotation>();
-		updateAnnotations(c.tree.getLine());
 		$commands.add(statementFactory.createCompoundStatement(
 			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), annotations, c.commands
 		));
-		annotations = new ArrayList<Annotation>();
 	}
 	(GUARD gc=guarded_cmd {$commands.addAll(gc.commands);} )*
 	;
@@ -667,7 +666,10 @@ program returns [CompilationUnit compilationUnit]
  *------------------------------------------------------------------*/
  
 ML_COMMENT
-    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
+    :   '/*' (options {greedy=false;} : (NEWLINE | .))* '*/'
+    	{
+    		$channel=HIDDEN;
+    	}
     ;
     
 ANNO : '@';
