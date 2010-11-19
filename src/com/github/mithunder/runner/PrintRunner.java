@@ -10,17 +10,11 @@ import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
-<<<<<<< Updated upstream
-=======
-import com.github.mithunder.alfp.ALFPReachingDefinition;
-import com.github.mithunder.analysis.Analysis;
->>>>>>> Stashed changes
 import com.github.mithunder.analysis.ConstantPropagationAnalysis;
 import com.github.mithunder.analysis.ConstantPropagationBranchKiller;
 import com.github.mithunder.analysis.KillRepairAnalysis;
 import com.github.mithunder.analysis.LiveVariableAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
-import com.github.mithunder.chains.DefineUseChain;
 import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
@@ -33,7 +27,7 @@ import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
 public class PrintRunner {
 
-	private enum Options {PRINT, RD, LV, CP, CPBK, DUchain, ALFPRD };
+	private enum Options {PRINT, RD, LV, CP, CPBK };
 
 	public static void main(String[] args) throws Exception {
 
@@ -82,20 +76,6 @@ public class PrintRunner {
 				staIte.tour(unit);
 				break;
 			}
-			case DUchain : {
-				new DefineUseChain().createChain(unit.getRootStatement(), unit.getVariableTable());
-				break;
-			}
-			case ALFPRD : {
-				StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
-				System.out.println("Starting analysis");
-				long st = System.currentTimeMillis();
-				EvaluatedStatement nroot = new KRARoundRobinWorklist().run(new ReachingDefinitionAnalysis(), unit);
-				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements()));
-				new ALFPReachingDefinition().convertToALFP(nroot.getChildren(), unit);
-				break;
-			}
 			default : {
 				KillRepairAnalysis ana;
 				KillRepairAnalysisWorklist wl = new SimpleRRKRWorklist();
@@ -103,12 +83,7 @@ public class PrintRunner {
 				case RD: ana = new ReachingDefinitionAnalysis(); break;
 				case LV: ana = new LiveVariableAnalysis(); break;
 				case CP: ana = new ConstantPropagationAnalysis(); break;
-<<<<<<< Updated upstream
 				case CPBK: ana = new ConstantPropagationBranchKiller(); break;
-=======
-				case CPBK: ana = new ConstantPropagationBranchKiller(); wl = new KRARoundRobinWorklist(); break;
-				//case ALFPRD: ana = new ALFPRDAnalysis(); break;
->>>>>>> Stashed changes
 				default: throw new AssertionError();
 				}
 
