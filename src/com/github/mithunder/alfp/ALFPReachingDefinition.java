@@ -45,7 +45,7 @@ public class ALFPReachingDefinition extends ALFP {
 			limit = statements.size()/2;
 		}
 		ArrayList<String> toReturn = new ArrayList<String>();
-		int iterateOnIndex = 0;
+		int ifOnIndex = -2;
 		ArrayList<String> gotReturned = new ArrayList<String>();
 		for(int i = 0; i < limit; i++) {
 			EvaluatedStatement statement = statements.get(i);
@@ -58,7 +58,6 @@ public class ALFPReachingDefinition extends ALFP {
 				labelStack.add(newLabel);
 				iterate(statement.getChildren(), statement.getStatementType());
 				s = statements.get(i + limit);
-				//flowList.add(new FlowElement(newLabel, Integer.toHexString(System.identityHashCode(s.getStatement()))));
 				iterate(s.getChildren(), s.getStatementType());
 				toReturn.add(labelStack.pop());
 				break;
@@ -68,25 +67,27 @@ public class ALFPReachingDefinition extends ALFP {
 				labelStack.add(newLabel);
 				iterate(statement.getChildren(), statement.getStatementType());
 				s = statements.get(i + limit);
-				//flowList.add(new FlowElement(newLabel, Integer.toHexString(System.identityHashCode(s.getStatement()))));
 				iterate(s.getChildren(), s.getStatementType());
 				String tmpLabel = labelStack.pop();
 				flowList.add(new FlowElement(tmpLabel, labelStack.peek()));
 				break;
 			default:
-				String oldLabel = labelStack.pop();
 				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
-				if(iterateOnIndex == i+1 && gotReturned != null) {
+				if(ifOnIndex+1 == i && gotReturned != null) {
 					for(int j = 0; j < gotReturned.size(); j++) {
 						flowList.add(new FlowElement(gotReturned.get(j), newLabel));
 					}
+				} else {
+					String oldLabel = labelStack.pop();
+					flowList.add(new FlowElement(oldLabel, newLabel));
 				}
 				labelStack.push(newLabel);
 				labelList.add(newLabel);
-				flowList.add(new FlowElement(oldLabel, newLabel));
 				if(statement.getChildCount() > 0) {
 					gotReturned = iterate(statement.getChildren(), statement.getStatementType());
-					iterateOnIndex = i;
+					if(statement.getStatementType() == StatementType.IF) {
+						ifOnIndex = i;
+					}
 				} else {
 					Variable assign = statement.getAssign();
 					if(assign != null) {
@@ -100,6 +101,9 @@ public class ALFPReachingDefinition extends ALFP {
 				}
 				break;
 			}
+		}
+		if(statementType == StatementType.IF) {
+			labelStack.pop();
 		}
 		return toReturn;
 	}
