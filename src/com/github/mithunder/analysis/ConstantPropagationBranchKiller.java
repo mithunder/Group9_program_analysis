@@ -69,10 +69,6 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 		last = it.next();
 		eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getExitEvaluation();
 		con = eval.getConstant(last.getAssign());
-		if(con != null) {
-			System.err.println("Leaving guard with const value: " + con.getValue());
-		}
-		System.err.println("Leaving statement: " + last.getStatementType());
 		if(con != null && con.getValue() == 0){
 			/* Not inside a loop; last statement evaluates to 0 or false - we will never enter the branch */
 			w.killBranch();
