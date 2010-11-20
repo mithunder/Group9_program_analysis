@@ -76,6 +76,26 @@ import java.util.Iterator;
     private List<Annotation> annotations = new ArrayList<Annotation>();
     private final List<Statement> endCommands = new ArrayList<Statement>();
     private List<AnnoInt> annotationInts = new ArrayList<AnnoInt>();
+    private final Map<Statement, AnnosInt> statementToAnnosInt = new HashMap<Statement, AnnosInt>();
+    
+    private class AnnosInt {
+		private final List<Annotation> annos;
+		private final int lineNumber;
+		public AnnosInt(List<Annotation> annos, int lineNumber) {
+			super();
+			this.annos = annos;
+			this.lineNumber = lineNumber;
+			if (lineNumber == 0) {
+				throw new IllegalArgumentException();
+			}
+		}
+		public List<Annotation> getAnnos() {
+			return annos;
+		}
+		public int getLineNumber() {
+			return lineNumber;
+		}
+	}
 
     public static void main(String[] args) throws Exception {
     
@@ -170,13 +190,36 @@ import java.util.Iterator;
     	this.annotationInts = annotationInts;
     }
     
-    private void updateAnnotations(int lineNumber) {
+    private void updateAnnotations(Statement s, int lineNumber) {
     
+    	statementToAnnosInt.put(s, new AnnosInt(annotations, lineNumber));
+    	annotations = new ArrayList<Annotation>();
+    
+    	
+    }
+    
+    private void fixAnnotations(Statement s) {
+    	fixAnnotation(s);
+		if (s.getChildCount() != 0) {
+			for (final Statement child : s.getChildren()) {
+				fixAnnotations(child);
+			}
+		}
+    }
+    
+    private void fixAnnotation(Statement s) {
+    	final AnnosInt res = statementToAnnosInt.get(s);
+    	if (res == null) {
+    		return;
+    	}
+    	final int lineNumber = res.getLineNumber();
+    	final List<Annotation> currentAnnotations = res.getAnnos();
+    	
     	final Iterator<AnnoInt> ite = annotationInts.iterator();
     	while (ite.hasNext()) {
     		final AnnoInt annoInt = ite.next();
     		if (annoInt.getLineNumber() <= lineNumber) {
-    			annotations.add(annoInt.getAnno());
+    			currentAnnotations.add(annoInt.getAnno());
     			ite.remove();
     		}
     	}
@@ -498,13 +541,12 @@ assignment_cmd returns [List<Statement> commands]
 			final List<Statement> eList = e.statList;
 			if (eList == null) {
 				//We have a literal!
-				updateAnnotations(as_tree.getLine());
 				final Statement assignStatement = statementFactory.createSimpleStatement(
 					StatementType.ASSIGN, new CodeLocation(as_tree.getLine()), annotations,
 					variableTable.getVariable(id.getText()),
 					e.val
 				);
-				annotations = new ArrayList<Annotation>();
+				updateAnnotations(assignStatement, as_tree.getLine());
 				$commands.add(assignStatement);
 			}
 			else {
@@ -513,13 +555,12 @@ assignment_cmd returns [List<Statement> commands]
 				
 				final Statement lastTempAssign = eList.get(eList.size()-1);
 				final int sType = lastTempAssign.getStatementType();
-				updateAnnotations(as_tree.getLine());
 				final Statement assignStatement = statementFactory.createSimpleStatement(
 					sType, new CodeLocation(as_tree.getLine()), annotations,
 					variableTable.getVariable(id.getText()),
 					lastTempAssign.getValues()
 				);
-				annotations = new ArrayList<Annotation>();
+				updateAnnotations(assignStatement, as_tree.getLine());
 				eList.remove(eList.size()-1);
 				$commands.addAll(eList);
 				$commands.add(assignStatement);
@@ -530,22 +571,20 @@ assignment_cmd returns [List<Statement> commands]
 skip_cmd returns [Statement command]
 	: s=SKIP
 		{
-			updateAnnotations(s_tree.getLine());
 			$command = statementFactory.createSimpleStatement(
 				StatementType.SKIP, new CodeLocation(s_tree.getLine()), annotations
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations($command, s_tree.getLine());
 		}
 	;
 
 abort_cmd returns [Statement command]
 	: a=ABORT
 		{
-			updateAnnotations(a_tree.getLine());
 			$command = statementFactory.createSimpleStatement(
 				StatementType.ABORT, new CodeLocation(a_tree.getLine()), annotations
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations($command, a_tree.getLine());
 			endCommands.add($command);
 		}
 	;
@@ -553,12 +592,11 @@ abort_cmd returns [Statement command]
 read_cmd returns [Statement command]
 	: rea=READ id=IDENTIFIER
 		{
-			updateAnnotations(rea_tree.getLine());
 			$command = statementFactory.createSimpleStatement(
 				StatementType.READ, new CodeLocation(rea_tree.getLine()), annotations,
 				variableTable.getVariable(id.getText())
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations($command, rea_tree.getLine());
 		}
 	;
 
@@ -567,12 +605,11 @@ write_cmd returns [List<Statement> commands]
 		{
 			if ($commands == null) {$commands = new ArrayList<Statement>();}
 			final Value val = e.val != null ? e.val : e.statList.get(e.statList.size()-1).getAssign();
-			updateAnnotations(wr_tree.getLine());
 			final Statement assignStatement = statementFactory.createSimpleStatement(
 				StatementType.WRITE, new CodeLocation(wr_tree.getLine()), annotations,
 				null, val
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations(assignStatement, wr_tree.getLine());
 			if (e.val == null) {
 				$commands.addAll(e.statList);
 			}
@@ -583,22 +620,20 @@ write_cmd returns [List<Statement> commands]
 if_cmd returns [Statement command]
 	: ift=IF gc=guarded_cmd FI
 		{
-			updateAnnotations(ift_tree.getLine());
 			$command = statementFactory.createCompoundStatement(
 				StatementType.IF, new CodeLocation(ift_tree.getLine()), annotations, gc.commands
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations($command, ift_tree.getLine());
 		}
 	;
 
 do_cmd returns [Statement command]
 	: dot=DO gc=guarded_cmd OD
 		{
-			updateAnnotations(dot_tree.getLine());
 			$command = statementFactory.createCompoundStatement(
 				StatementType.DO, new CodeLocation(dot_tree.getLine()), annotations, gc.commands
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations($command, dot_tree.getLine());
 		}
 	;
 
@@ -610,8 +645,15 @@ guarded_cmd returns [List<Statement> commands]
 		}
 	}
 	(e=expression ARROW c=command) {
+	
+		
+		//Put the expression into a scope.
+	
+		List<Statement> statList;
+		//If there is a value, make a statement for it and add it to the statList.
 		if (e.val != null) {
-			updateAnnotations(e.tree.getLine());
+			statList = new ArrayList<Statement>();
+			
 			final Statement newestStat = statementFactory.createSimpleStatement(
 				StatementType.ASSIGN,
 				new CodeLocation(e.tree.getLine()),
@@ -619,16 +661,21 @@ guarded_cmd returns [List<Statement> commands]
 				variableTable.createTemporaryVariable(e.val.getValueType()),
 				e.val
 			);
-			$commands.add(newestStat);
-			annotations = new ArrayList<Annotation>();
+			statList.add(newestStat);
 		}
+		//Else, simply retrieve the statList of the expression and use that instead.
 		else {
-			updateAnnotations(e.tree.getLine());
-			$commands.add(statementFactory.createCompoundStatement(
-				StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, e.statList
-			));
-			annotations = new ArrayList<Annotation>();
+			statList = e.statList;
 		}
+		//Make a scope containing the statList.
+		final Statement scopeStat = statementFactory.createCompoundStatement(
+			StatementType.SCOPE, new CodeLocation(e.tree.getLine()), annotations, statList
+		);
+		$commands.add(scopeStat);
+		updateAnnotations(scopeStat, e.tree.getLine());
+		
+		
+		//Put the command into a scope.
 		$commands.add(statementFactory.createCompoundStatement(
 			StatementType.SCOPE, new CodeLocation(c.tree.getLine()), annotations, c.commands
 		));
@@ -639,11 +686,10 @@ guarded_cmd returns [List<Statement> commands]
 program returns [CompilationUnit compilationUnit]
 	: m=MODULE id=IDENTIFIER COLON c=command END
 		{
-			updateAnnotations(m_tree.getLine());
 			final Statement command = statementFactory.createRootStatement(
 				new CodeLocation(m_tree.getLine()), annotations, c.commands
 			);
-			annotations = new ArrayList<Annotation>();
+			updateAnnotations(command, m_tree.getLine());
 			final Statement lastCommand = c.commands.get(c.commands.size()-1);
 			if (!endCommands.contains(lastCommand)) {
 				endCommands.add(lastCommand);
@@ -651,6 +697,8 @@ program returns [CompilationUnit compilationUnit]
 			$compilationUnit = new CompilationUnit(
 				id.getText(), command, variableTable, endCommands, statementFactory
 			);
+			
+			fixAnnotations(command);
 		}
 	;
 	

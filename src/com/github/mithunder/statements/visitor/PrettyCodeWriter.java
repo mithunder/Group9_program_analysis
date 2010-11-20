@@ -87,16 +87,23 @@ public class PrettyCodeWriter implements StatementVisitor {
 			}
 		});
 
+
+
 		//* Print.
 		if(entry) {
 			out.println("// Printing entry evaluation");
 		} else {
 			out.println("// Printing exit evaluation");
 		}
-		out.println("module " + unit.getUnitName() + ":");
 
-		printStatements(unit.getRootStatement(), -1, GuardedType.NONE, "");
-		System.out.println("end");
+		final Statement rootStat = unit.getRootStatement();
+
+		out.print("module " + unit.getUnitName() + ":");
+		printAnnotations(rootStat);
+		out.println();
+
+		printStatements(rootStat, -1, GuardedType.NONE, "");
+		out.println("end");
 	}
 
 	private void walkStatements(Statement s, Visitor visitor) {
@@ -114,16 +121,12 @@ public class PrettyCodeWriter implements StatementVisitor {
 
 	private void printStatements(Statement s, int level, GuardedType guardedType, String postFix) {
 		final int sType = s.getStatementType();
-		boolean doPrintNewline = true;
 		switch (sType) {
 		case DO :
 		case IF :{
 			//Print start.
 			if (sType == DO) {out.println(repeat(level) + "do");}
 			else if  (sType == IF) {out.println(repeat(level) + "if");}
-			if(s instanceof EvaluatedStatement && sType != SCOPE){
-				printEvaluation((EvaluatedStatement)s);
-			}
 
 			//Print children.
 			final List<? extends Statement> children = s.getChildren();
@@ -139,6 +142,9 @@ public class PrettyCodeWriter implements StatementVisitor {
 			//Print final.
 			if (sType == DO) {out.print(repeat(level) + "od");}
 			else if  (sType == IF) {out.print(repeat(level) + "fi");}
+			out.print(postFix);
+			printAnnoEval(s);
+
 			break;
 		}
 		case SCOPE :{
@@ -153,49 +159,54 @@ public class PrettyCodeWriter implements StatementVisitor {
 						)
 				);
 
+				out.print(postFix);
+				//Print the annotations of the scope, not the child.
+				printAnnotations(s);
 				if(lastChild instanceof EvaluatedStatement){
 					printEvaluation((EvaluatedStatement)lastChild);
 				}
-				break;
+				out.println();
 			}
+			else {
 
-			//This is not a test scope.
-			//Since the statements will print plenty of newlines,
-			//do not print newlines here.
-			//			doPrintNewline = false;
+				//This is not a test scope.
 
-			//First, find the last non-temporary assign-value child.
-			Statement lastNonTempChild = null;
-			for (Statement child : s.getChildren()) {
-				final Variable ass = child.getAssign();
-				if (ass != null && varTable.isTemporaryVariable(ass)) {
-					continue;
-				}
-				lastNonTempChild = child;
-			}
-
-			//Print all children, but remember to add semicolon the right places.
-			for (Statement child : s.getChildren()) {
-
-				//If it is a temporary variable, ignore it.
-				final Variable ass = child.getAssign();
-				if (ass != null && varTable.isTemporaryVariable(ass)) {
-					continue;
+				//First, find the last non-temporary assign-value child.
+				Statement lastNonTempChild = null;
+				for (Statement child : s.getChildren()) {
+					final Variable ass = child.getAssign();
+					if (ass != null && varTable.isTemporaryVariable(ass)) {
+						continue;
+					}
+					lastNonTempChild = child;
 				}
 
-				final String childPostFix;
-				if (child != lastNonTempChild) {
-					childPostFix = ";";
+				//Print all children, but remember to add semicolon the right places.
+				for (Statement child : s.getChildren()) {
+
+					//If it is a temporary variable, ignore it.
+					final Variable ass = child.getAssign();
+					if (ass != null && varTable.isTemporaryVariable(ass)) {
+						continue;
+					}
+
+					final String childPostFix;
+					if (child != lastNonTempChild) {
+						childPostFix = ";";
+					}
+					else {
+						childPostFix = "";
+					}
+					printStatements(child, level+1, GuardedType.NONE, childPostFix);
 				}
-				else {
-					childPostFix = "";
-				}
-				printStatements(child, level+1, GuardedType.NONE, childPostFix);
+				out.print(postFix);
 			}
 			break;
 		}
 		case WRITE : {
 			out.print(repeat(level) + getExpressionPart(s, tempVarToStatement));
+			out.print(postFix);
+			printAnnoEval(s);
 			break;
 		}
 		case READ : {
@@ -203,6 +214,8 @@ public class PrettyCodeWriter implements StatementVisitor {
 					SIMPLE_STATEMENT_SYMBOLS[sType] + " " +
 					v2s(s.getAssign())
 			);
+			out.print(postFix);
+			printAnnoEval(s);
 			break;
 		}
 		default : {
@@ -214,24 +227,28 @@ public class PrettyCodeWriter implements StatementVisitor {
 						SIMPLE_STATEMENT_SYMBOLS[ASSIGN] + " " +
 						getExpressionPart(s, tempVarToStatement)
 				);
-				break;
+				out.print(postFix);
+				printAnnoEval(s);
 			}
-
-			//Else, simply print the statement symbol.
-			out.print(repeat(level) + SIMPLE_STATEMENT_SYMBOLS[sType]);
+			else {
+				//Else, simply print the statement symbol.
+				out.print(repeat(level) + SIMPLE_STATEMENT_SYMBOLS[sType]);
+				out.print(postFix);
+				printAnnoEval(s);
+			}
 			break;
 		}
 		}
+	}
 
-		out.print(postFix);
+	private void printAnnoEval(Statement s) {
+		printAnnotations(s);
 
 		if(s instanceof EvaluatedStatement){
 			printEvaluation((EvaluatedStatement)s);
 		}
 
-		if (doPrintNewline) {
-			out.println();
-		}
+		out.println();
 	}
 
 	private String getExpressionPart(final Statement s,
@@ -314,6 +331,17 @@ public class PrettyCodeWriter implements StatementVisitor {
 
 	private void printEvaluation(EvaluatedStatement e){
 		Statement o = e.getStatement();
+		out.print(repeat(2) + " //");
+		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: ");
+		if(entry) {
+			out.print(e.getEntryEvaluation());
+		} else {
+			out.print(e.getExitEvaluation());
+		}
+	}
+
+	private void printAnnotations(Statement e) {
+
 		String name = null;
 		for(Annotation a : e.getAnnotations()) {
 			if("Name".equalsIgnoreCase(a.getName())) {
@@ -321,15 +349,9 @@ public class PrettyCodeWriter implements StatementVisitor {
 				break;
 			}
 		}
-		out.print(indent + " //");
 		if(name != null) {
-			out.print("Name: " + name + ", ");
-		}
-		out.print("ID: " + Integer.toHexString(System.identityHashCode(o)) + ", Analysis: ");
-		if(entry) {
-			out.print(e.getEntryEvaluation());
-		} else {
-			out.print(e.getExitEvaluation());
+			out.print(repeat(2) + " //");
+			out.print("Name: " + name);
 		}
 	}
 }
