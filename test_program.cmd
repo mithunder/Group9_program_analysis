@@ -11,7 +11,7 @@ A multiline comment in the start.
 //Line comment.
 			//Another line comment.
 
-@annotation_variable="value1"
+@name="value1"
 module test_program :
 	y := 3;
 	x := b;
@@ -30,7 +30,7 @@ module test_program :
 	x := a*--!12312093 + 132 + ----!-23432;
 	x := 3;
         ##@IDLE_CODE@;
-@point="firstloop"
+@name="firstloop"
 	do
 		(a > 3 > x*30 + asdf / 30) -> x := 1
 	[]	a <= x -> x := 0
@@ -39,7 +39,7 @@ module test_program :
 	[]	a <= x -> x := 0
 	od
 	;
-@point="firstif"
+@name="firstif"
 	if 
 		(a > x) -> x := 1
 	[]	a <= x -> x := 0
@@ -68,7 +68,7 @@ module test_program :
 end			//LineComment.
 
 
-@a1="something"
+@n="something"
 
 /*
 
