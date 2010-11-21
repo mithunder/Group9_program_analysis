@@ -1,3 +1,3 @@
-module chain_test_3:
+module chain_test_0:
   x := 1
 end
