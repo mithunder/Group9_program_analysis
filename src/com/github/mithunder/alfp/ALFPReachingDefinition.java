@@ -38,11 +38,6 @@ public class ALFPReachingDefinition extends ALFP {
 	}
 
 	private ArrayList<String> iterate(List<EvaluatedStatement> statements, int statementType) {
-		if(statementType == StatementType.IF) {
-			System.err.println("ENTER IF");
-		} else if(statementType == StatementType.DO) {
-			System.err.println("ENTER DO");
-		}
 		int limit;
 		if(statementType != StatementType.IF && statementType != StatementType.DO) {
 			limit = statements.size();
@@ -59,44 +54,32 @@ public class ALFPReachingDefinition extends ALFP {
 			switch(statementType) {
 			case StatementType.IF:
 				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
-				System.err.println("ADDING: " + labelStack.peek() + " -> " + newLabel);
 				flowList.add(new FlowElement(labelStack.peek(), newLabel));
 				labelStack.add(newLabel);
-				System.err.println("PUSH: " + newLabel + " " + labelStack);
 				iterate(statement.getChildren(), statement.getStatementType());
 				s = statements.get(i + limit);
 				fromReturn = iterate(s.getChildren(), s.getStatementType());
 				if(fromReturn.size() > 0) {
 					toReturn.addAll(fromReturn);
-					System.err.println("toReturn CONTAINS: " + toReturn);
 				} else {
 					toReturn.add(labelStack.pop());
-					System.err.println("POP: " + toReturn.get(toReturn.size() - 1) + " " + labelStack);
-					System.err.println("toReturn CONTAINS: " + toReturn);
 				}
 				break;
 			case StatementType.DO:
 				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
-				System.err.println("ADDING: " + labelStack.peek() + " -> " + newLabel);
 				flowList.add(new FlowElement(labelStack.peek(), newLabel));
 				labelStack.add(newLabel);
-				System.err.println("PUSH: " + newLabel + " " + labelStack);
 				iterate(statement.getChildren(), statement.getStatementType());
 				s = statements.get(i + limit);
 				fromReturn = iterate(s.getChildren(), s.getStatementType());
-				//toReturn.addAll(returned);
-				System.err.println("RETURNED LIST CONTAINS: " + fromReturn);
 				if(fromReturn.size() > 0) {
 					String tmpLabel = labelStack.peek();
 					for(int j = 0; j < fromReturn.size(); j++) {
-						System.err.println("ADDING: " + fromReturn.get(j) + " -> " + tmpLabel);
 						flowList.add(new FlowElement(fromReturn.get(j), tmpLabel));
 					}
 					fromReturn.clear();
 				} else {
 					String tmpLabel = labelStack.pop();
-					System.err.println("POP: " + tmpLabel + " " + labelStack);
-					System.err.println("ADDING: " + tmpLabel + " -> " + labelStack.peek());
 					flowList.add(new FlowElement(tmpLabel, labelStack.peek()));
 				}
 				break;
@@ -104,17 +87,13 @@ public class ALFPReachingDefinition extends ALFP {
 				newLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
 				if(ifOnIndex+1 == i && fromReturn != null) {
 					for(int j = 0; j < fromReturn.size(); j++) {
-						System.err.println("ADDING: " + fromReturn.get(j) + " -> " + newLabel);
 						flowList.add(new FlowElement(fromReturn.get(j), newLabel));
 					}
 				} else {
 					String oldLabel = labelStack.pop();
-					System.err.println("POP: " + oldLabel + " " + labelStack);
-					System.err.println("ADDING: " + oldLabel + " -> " + newLabel);
 					flowList.add(new FlowElement(oldLabel, newLabel));
 				}
 				labelStack.push(newLabel);
-				System.err.println("PUSH: " + newLabel + " " + labelStack);
 				labelList.add(newLabel);
 				if(statement.getChildCount() > 0) {
 					fromReturn = iterate(statement.getChildren(), statement.getStatementType());
@@ -139,15 +118,8 @@ public class ALFPReachingDefinition extends ALFP {
 			}
 		}
 		if(statementType == StatementType.IF) {
-			System.err.println("POP: " + labelStack.pop() + " " + labelStack);
-			//labelStack.pop();
+			labelStack.pop();
 		}
-		if(statementType == StatementType.IF) {
-			System.err.println("LEAVING IF");
-		} else if(statementType == StatementType.DO) {
-			System.err.println("LEAVING DO");
-		}
-		System.err.println("toReturn CONTAINS (at return): " + toReturn);
 		return toReturn;
 	}
 
