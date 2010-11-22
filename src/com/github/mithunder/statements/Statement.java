@@ -29,4 +29,6 @@ public abstract class Statement {
 	public abstract boolean isKilled();
 
 	public abstract void killStatement();
+
+	public abstract void replaceChild(int i, Statement replacement);
 }

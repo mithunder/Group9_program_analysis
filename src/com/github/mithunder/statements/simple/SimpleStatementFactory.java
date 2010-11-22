@@ -8,6 +8,7 @@ import static com.github.mithunder.statements.StatementType.SKIP;
 import static com.github.mithunder.statements.StatementType.WRITE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.github.mithunder.statements.Annotation;
@@ -28,7 +29,7 @@ public class SimpleStatementFactory extends StatementFactory{
 	@Override
 	public SimpleStatement createCompoundStatement(int type, CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s) {
 		isGroupingStatement(type);
-		return new SimpleStatement(type, null, codeLoc, annotations, reorder(type, typecast(s)));
+		return new SimpleStatement(type, null, codeLoc, annotations, reorder(type, s));
 	}
 
 	@Override
@@ -38,7 +39,7 @@ public class SimpleStatementFactory extends StatementFactory{
 
 	@Override
 	public SimpleStatement createRootStatement(CodeLocation codeLoc, List<Annotation> annotations, List<Statement> s) {
-		return new SimpleStatement(SCOPE, null, codeLoc, annotations, typecast(s));
+		return new SimpleStatement(SCOPE, null, codeLoc, annotations, s);
 	}
 
 	@Override
@@ -55,23 +56,18 @@ public class SimpleStatementFactory extends StatementFactory{
 		return new SimpleStatement(type, null, codeLoc, annotations);
 	}
 
-	@SuppressWarnings("all")
-	private List<SimpleStatement> typecast(List<Statement> s){
-		return (List)s;
-	}
-
-	private List<SimpleStatement> reorder(int type, List<SimpleStatement> s){
+	private List<Statement> reorder(int type, List<Statement> s){
 		final int size;
 		final int sh;
-		List<SimpleStatement> copy;
+		List<Statement> copy;
 		if(type == SCOPE) {
 			return s;
 		}
 		size = s.size();
 		sh = size/2;
-		copy = new ArrayList<SimpleStatement>(s.size());
+		copy = new ArrayList<Statement>(s.size());
 		for(int i = 0 ; i < size ; i++){
-			SimpleStatement st1;
+			Statement st1;
 			if(i >= sh){
 				st1 = s.get((i-sh)* 2 + 1);
 			} else {
@@ -82,11 +78,9 @@ public class SimpleStatementFactory extends StatementFactory{
 		return copy;
 	}
 
-	private List<SimpleStatement> array2list(Statement[] s){
-		List<SimpleStatement> l = new ArrayList<SimpleStatement>(s.length);
-		for(int i = 0 ; i < s.length ; i++) {
-			l.add((SimpleStatement)s[i]);
-		}
+	private List<Statement> array2list(Statement[] s){
+		List<Statement> l = new ArrayList<Statement>(s.length);
+		Collections.addAll(l, s);
 		return l;
 	}
 

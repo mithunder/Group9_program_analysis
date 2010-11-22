@@ -26,7 +26,7 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 			lve = new LiveVariableEvaluation(table);
 			statement.setExitEvaluation(lve);
 			changed = true;
-		} else {
+		} else if(values != null) {
 			pre = new boolean[values.length];
 			for(int i = 0 ; i < values.length ; i++) {
 				if(!values[i].isConstant()) {

@@ -19,8 +19,11 @@ import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
+import com.github.mithunder.rewrite.ConstantFolder;
+import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
+import com.github.mithunder.statements.visitor.CodeWriter;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
@@ -54,22 +57,17 @@ public class PrintRunner {
 				reader.close();
 			}
 		}
-
-		if (fileName.equals("")) {
-			fileName = "test_program_simple2.cmd";
-		}
 		GuardCommandLexer lex = new GuardCommandLexer(new ANTLRFileStream(fileName));
 		CommonTokenStream tokens = new CommonTokenStream(lex);
 
 		GuardCommandParser parser = new GuardCommandParser(tokens);
-		parser.setAnnotations(lex.getAnnotations());
 
 		CompilationUnit unit;
 
 		try {
 
 			program_return program_r = parser.program();
-			PrettyCodeWriter cw = new PrettyCodeWriter();
+			CodeWriter cw = new CodeWriter();
 			unit = program_r.compilationUnit;
 
 			switch (chosenOption) {
@@ -105,16 +103,25 @@ public class PrintRunner {
 				default: throw new AssertionError();
 				}
 				if(!ana.isForwardAnalysis()) {
-					cw.setPrintEntryEvaluation(true);
+					//cw.setPrintEntryEvaluation(true);
 				}
 				StatementIterator staIte = new StatementIterator(cw);
+				CompilationUnit eunit;
 				System.out.println("Starting analysis");
 				long st = System.currentTimeMillis();
 				EvaluatedStatement nroot = wl.run(ana, unit);
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(
-						new CompilationUnit(unit.getUnitName(), nroot,
-								unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory()));
+				eunit = new CompilationUnit(unit.getUnitName(), nroot,
+						unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory());
+				staIte.tour(eunit);
+				if(chosenOption == Options.CP || chosenOption == Options.CPBK) {
+					eunit = new ConstantFolder().rewrite(eunit);
+					System.out.println("\n\n\n######## The rewritten code ########\n");
+					staIte.tour(eunit);
+				}
+				eunit = new PurgeDeadCode().rewrite(eunit);
+				System.out.println("\n\n\n######## The purged code ########\n");
+				staIte.tour(eunit);
 				break;
 			}
 			}

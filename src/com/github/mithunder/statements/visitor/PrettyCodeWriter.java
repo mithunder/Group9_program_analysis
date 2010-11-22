@@ -6,6 +6,7 @@ import static com.github.mithunder.statements.StatementType.IF;
 import static com.github.mithunder.statements.StatementType.READ;
 import static com.github.mithunder.statements.StatementType.SCOPE;
 import static com.github.mithunder.statements.StatementType.SIMPLE_STATEMENT_SYMBOLS;
+import static com.github.mithunder.statements.StatementType.SKIP;
 import static com.github.mithunder.statements.StatementType.WRITE;
 
 import java.io.File;
@@ -255,6 +256,10 @@ public class PrettyCodeWriter implements StatementVisitor {
 			final Map<Variable, Statement> tempVarToStatement) {
 		final int sType = s.getStatementType();
 
+		if(sType == SKIP){
+			return "skip";
+		}
+
 		//Handle unary expressions.
 		if (StatementType.isUnary(sType) && sType != ASSIGN) {
 			final Value val = s.getValues()[0];
@@ -287,7 +292,6 @@ public class PrettyCodeWriter implements StatementVisitor {
 										;
 									return "(" + str1 + SIMPLE_STATEMENT_SYMBOLS[sType] + str2 + ")";
 		}
-
 		//Handle single val.
 		return v2s(s.getValues()[0]);
 	}
