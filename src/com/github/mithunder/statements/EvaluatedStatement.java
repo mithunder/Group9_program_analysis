@@ -1,5 +1,6 @@
 package com.github.mithunder.statements;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.github.mithunder.analysis.Evaluation;
@@ -83,5 +84,35 @@ public final class EvaluatedStatement extends Statement {
 			e.killStatement();
 		}
 		exitEval = null;
+	}
+
+	private List<EvaluatedStatement> eval(List<? extends Statement> children){
+		final int size;
+		List<EvaluatedStatement> e;
+		if(children == null) {
+			return new ArrayList<EvaluatedStatement>();
+		}
+		size = children.size();
+		e = new ArrayList<EvaluatedStatement>(size);
+		for(int i = 0 ; i < size ; i++){
+			Statement s = children.get(i);
+			e.add(new EvaluatedStatement(s, eval(s.getChildren())));
+		}
+		return e;
+	}
+
+	@Override
+	public void replaceChild(int i, Statement replacement) {
+		Statement sr;
+		EvaluatedStatement er;
+		if(replacement instanceof EvaluatedStatement) {
+			er = (EvaluatedStatement)replacement;
+			sr = er.getStatement();
+		} else {
+			sr = replacement;
+			er = new EvaluatedStatement(sr, eval(sr.getChildren()));
+		}
+		statement.replaceChild(i, sr);
+		children.set(i, er);
 	}
 }

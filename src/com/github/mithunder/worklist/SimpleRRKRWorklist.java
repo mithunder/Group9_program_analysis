@@ -415,7 +415,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 					continue;
 				}
 
-				if(evaluateStatement(cmd, entry)) {
+				if(evaluateStatement(cmd, e)) {
 					changed = true;
 					hasChanged = true;
 				}
