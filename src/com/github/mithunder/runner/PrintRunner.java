@@ -21,8 +21,10 @@ import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
+import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
+import com.github.mithunder.transformation.ProgramSlicing;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
@@ -82,16 +84,19 @@ public class PrintRunner {
 				KillRepairAnalysis ana;
 				KillRepairAnalysisWorklist wl = new SimpleRRKRWorklist();
 				ana = new ReachingDefinitionAnalysis();
-				StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
 				System.out.println("Starting analysis");
 				long st = System.currentTimeMillis();
 				EvaluatedStatement nroot = wl.run(ana, unit);
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory()));
+				printCode(nroot, unit);
 				new ALFPReachingDefinition().convertToALFP(nroot, unit);
 				break;
 			}
 			case PS : {
+				KillRepairAnalysisWorklist workList = new SimpleRRKRWorklist();
+				ProgramSlicing programSlicing = new ProgramSlicing();
+				unit = programSlicing.performTransformation(unit, workList);
+				printCode(unit.getRootStatement(), unit);
 				break;
 			}
 			default : {
@@ -107,14 +112,11 @@ public class PrintRunner {
 				if(!ana.isForwardAnalysis()) {
 					cw.setPrintEntryEvaluation(true);
 				}
-				StatementIterator staIte = new StatementIterator(cw);
 				System.out.println("Starting analysis");
 				long st = System.currentTimeMillis();
 				EvaluatedStatement nroot = wl.run(ana, unit);
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
-				staIte.tour(
-						new CompilationUnit(unit.getUnitName(), nroot,
-								unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory()));
+				printCode(nroot, unit);
 				break;
 			}
 			}
@@ -122,6 +124,17 @@ public class PrintRunner {
 		} catch (RecognitionException e)  {
 			e.printStackTrace();
 		}
+	}
+
+	private static void printCode(final Statement nroot,
+			final CompilationUnit unit) throws Exception {
+
+		StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
+		staIte.tour(new CompilationUnit(
+				unit.getUnitName(), nroot,
+				unit.getVariableTable(), unit.getFinalStatements(),
+				unit.getFactory()
+		));
 	}
 
 	private static String findFile(final String name) throws FileNotFoundException {
