@@ -12,12 +12,11 @@ import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
-import com.github.mithunder.statements.simple.SimpleVariable;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
 public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 
-	protected CompilationUnit unit;
+	protected VariableTable table;
 
 	@Override
 	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
@@ -28,11 +27,11 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 		Variable assign = statement.getAssign();
 		Set<Statement> old = null;
 		if(rde == null){
-			rde = new ReachingDefinitionEvaluation(unit.getVariableTable());
+			rde = new ReachingDefinitionEvaluation(table);
 			statement.setExitEvaluation(rde);
 			changed = true;
 		} else {
-			if(assign != null && !(unit.getVariableTable()).isTemporaryVariable(assign)) {
+			if(assign != null && !table.isTemporaryVariable(assign)) {
 				old = rde.map.get(assign);
 			}
 		}
@@ -46,7 +45,7 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 		}
 		if(stype == StatementType.READ || StatementType.isBinary(stype) ||
 				StatementType.isUnary(stype)){
-			if(!(unit.getVariableTable()).isTemporaryVariable(assign)){
+			if(!table.isTemporaryVariable(assign)){
 				rde.remove(assign);
 				rde.add(assign, statement);
 			}
@@ -59,7 +58,7 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 	public Evaluation merge(Evaluation e1, Evaluation e2) {
 		ReachingDefinitionEvaluation re1 = (ReachingDefinitionEvaluation)e1;
 		ReachingDefinitionEvaluation re2 = (ReachingDefinitionEvaluation)e2;
-		ReachingDefinitionEvaluation rde = new ReachingDefinitionEvaluation(unit.getVariableTable());
+		ReachingDefinitionEvaluation rde = new ReachingDefinitionEvaluation(table);
 		if(e1 != null) {
 			rde.merge(re1);
 		}
@@ -71,8 +70,8 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 
 	@Override
 	public Evaluation initEvaluation() {
-		ReachingDefinitionEvaluation e = new ReachingDefinitionEvaluation(unit.getVariableTable());
-		SimpleVariable[] list = unit.getVariableTable().getVariableList();
+		ReachingDefinitionEvaluation e = new ReachingDefinitionEvaluation(table);
+		Variable[] list = table.getVariableList();
 		for(int i = 0; i < list.length; i++) {
 			e.add(list[i], null);
 		}
@@ -86,7 +85,7 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 
 	@Override
 	public void startAnalysis(CompilationUnit unit) {
-		this.unit = unit;
+		table = unit.getVariableTable();
 	}
 
 	@Override
@@ -180,11 +179,10 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 					if(st instanceof EvaluatedStatement){
 						st = ((EvaluatedStatement)st).getStatement();
 					}
-					String statementHash = (st == null) ? "?" : Integer.toHexString(System.identityHashCode(st));
 					if(sts != null) {
-						sts += ", " + statementHash;
+						sts += ", " + Integer.toHexString(System.identityHashCode(st));
 					} else {
-						sts = statementHash;
+						sts = Integer.toHexString(System.identityHashCode(st));
 					}
 				}
 				if(sts == null) {
