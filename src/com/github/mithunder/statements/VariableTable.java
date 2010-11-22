@@ -27,6 +27,8 @@ public abstract class VariableTable {
 
 	public abstract boolean isTemporaryVariable(Variable var);
 
+	public abstract Variable[] getVariableList();
+
 	public static VariableTable newInstance() {
 		return new SimpleVariableTable();
 	}

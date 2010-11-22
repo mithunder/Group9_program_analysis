@@ -22,5 +22,3 @@ Morten:
     (Dead code elimination)
   Project:
     Investigate worklist, LV
-    Variable table
-    RD and undefined variables.

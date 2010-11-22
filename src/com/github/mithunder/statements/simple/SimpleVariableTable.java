@@ -58,4 +58,9 @@ public class SimpleVariableTable extends VariableTable {
 		SimpleVariable v = (SimpleVariable)var;
 		return v.vid < 0;
 	}
+
+	@Override
+	public final Variable[] getVariableList() {
+		return name2var.values().toArray(new SimpleVariable[0]);
+	}
 }
