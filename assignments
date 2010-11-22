@@ -1,0 +1,26 @@
+Melvin:
+  Report:
+    RD
+    General definitions
+    Program slicing
+    Test-results RD, own and Succinct Solver
+  Project:
+    Program slicing
+    Test RD-programs, test program slicing
+    Find big programs
+
+Niels:
+  Report:
+    Program structure
+    CP
+    CPBK/CPBE
+  Project:
+    Dead code handler
+
+Morten:
+  Report:
+    (Dead code elimination)
+  Project:
+    Investigate worklist, LV
+    Variable table
+    RD and undefined variables.
