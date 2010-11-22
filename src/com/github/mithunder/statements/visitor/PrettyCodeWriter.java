@@ -78,7 +78,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 
 		//Go through all statements, and add them if they are temporary variables.
 		tempVarToStatement = new HashMap<Variable, Statement>();
-		walkStatements(rootStatement, new Visitor(){
+		walkStatements(rootStatement, new Visitor<Statement>(){
 			public void visitStatement(Statement s) {
 				if (s.getAssign() != null &&
 						varTable.isTemporaryVariable(s.getAssign())) {
@@ -106,17 +106,17 @@ public class PrettyCodeWriter implements StatementVisitor {
 		out.println("end");
 	}
 
-	private void walkStatements(Statement s, Visitor visitor) {
+	public static <T extends Statement> void  walkStatements(T s, Visitor<T> visitor) {
 		visitor.visitStatement(s);
 		if (s.getChildCount() != 0) {
 			for (Statement child : s.getChildren()) {
-				walkStatements(child, visitor);
+				walkStatements((T) child, visitor);
 			}
 		}
 	}
 
-	private interface Visitor {
-		public void visitStatement(Statement s);
+	public interface Visitor<T extends Statement> {
+		public void visitStatement(T s);
 	}
 
 	private void printStatements(Statement s, int level, GuardedType guardedType, String postFix) {

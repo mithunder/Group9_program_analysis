@@ -58,5 +58,4 @@ public class SimpleVariableTable extends VariableTable {
 		SimpleVariable v = (SimpleVariable)var;
 		return v.vid < 0;
 	}
-
 }

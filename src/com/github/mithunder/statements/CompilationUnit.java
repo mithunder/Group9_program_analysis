@@ -38,6 +38,4 @@ public class CompilationUnit {
 	public StatementFactory getFactory() {
 		return factory;
 	}
-
-
 }

@@ -28,7 +28,7 @@ import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
 public class PrintRunner {
 
-	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD };
+	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS };
 
 	public static void main(String[] args) throws Exception {
 
@@ -89,6 +89,9 @@ public class PrintRunner {
 				System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
 				staIte.tour(new CompilationUnit(unit.getUnitName(), nroot, unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory()));
 				new ALFPReachingDefinition().convertToALFP(nroot, unit);
+				break;
+			}
+			case PS : {
 				break;
 			}
 			default : {
