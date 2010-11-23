@@ -15,7 +15,10 @@ An important point in regards to the flow is whether or not the program is termi
 at a certain point. For instance, the program may terminate at an if, but is not
 certain to do so. On the other hand, an abort is certain to terminate, and no flow
 occurs in a command that looks like: abort; C$_2$. To get a precise analysis, termination
-will be considered.
+may be considered. However, since this represents a complication, abort is not guaranteed
+to be considered everywhere. In the cases where abort is not considered, the below analysis
+can still be applied: replace any occurrence of "abort" in the program with "skip".
+This simplifies the analysis, but makes it less precise.
 
 \subsection{Labelling}
 
@@ -65,12 +68,12 @@ final([abort]$_l$)       = \{l\}\newline
 final([read x]$_l$)      = \{l\}\newline
 final([write x]$_l$)   	 = \{l\}\newline
 final(C$_1$; C$_2$)		 = \begin{cases}
-($el in final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) if (el in final(C$_1$) $\wedge$ el $\not$ = abort) $\not = \emptyset$ \\
-($el in final(C$_1$) $\wedge$ el = abort) else
+($el \vert $el \in$ final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) \textbf{if} (el \vert $el $\in$ final(C$_1$) $\wedge$ el $\not =$ abort) $\not = \emptyset$ \\
+($el \vert $el $\in$ final(C$_1$) $\wedge$ el = abort) \textbf{else}
 \end{cases}\newline
 final(\{C\})             = final(C)\newline
 final(if gC fi)        = final(gC)\newline
-final([do]$_l$ gC od)        = \{l\} $\cup$ (el in final(gC) $\wedge$ el = abort)\newline
+final([do]$_l$ gC od)        = \{l\} $\cup$ (el \vert $el $\in$ final(gC) $\wedge$ el = abort)\newline
 final([e]$_l$ $\to C$)      = final(C)\newline
 final(gC1 [] gC2)      = final(gC1) $\cup$ final(gC2)\newline
 
@@ -102,14 +105,14 @@ blocks([abort]$_l$)       = {[abort]$_l$}\newline
 blocks([read x]$_l$)      = {[read x]$_l$}\newline
 blocks([write x]$_l$)     = {[write x]$_l$}\newline
 blocks(C$_1$; C$_2$)		 = \begin{cases}
-$blocks(C$_1$) $\cup$ blocks(C$_2$) if flow(C$_1$; C$_2$) $\not = \emptyset$\\
-$blocks(C$_1$) else
+$blocks(C$_1$) $\cup$ blocks(C$_2$) \textbf{if} (flow(C$_1$; C$_2$) $\setminus$ (flow(C$_1$) $\cup$ flow(C$_2$))) $\not = \emptyset$\\
+$blocks(C$_1$) \textbf{else}
 \end{cases}\newline
 blocks(\{C\})             = blocks(C)\newline
 blocks(if gC fi)        = blocks(gC)\newline
 blocks(do gC od)        = blocks(gC)\newline
-blocks([e]$_l$ $\to$ C)      = \{[e]$_l$\} join blocks(C)\newline
-blocks(gC$_1$ [] gC$_2$)= blocks(gC$_1$) join blocks(gC$_2$)\newline
+blocks([e]$_l$ $\to$ C)      = \{[e]$_l$\} $\cup$ blocks(C)\newline
+blocks(gC$_1$ [] gC$_2$)= blocks(gC$_1$) $\cup$ blocks(gC$_2$)\newline
 
 The reasoning behing the definition of the semicolon command is that the
 blocks function only includes those commands that may be reached. If there is
@@ -126,8 +129,32 @@ flow([skip]$_l$)          =$\emptyset$\newline
 flow([abort]$_l$)         =$\emptyset$\newline
 flow([read x]$_l$)        =$\emptyset$\newline
 flow([write x]$_l$)       =$\emptyset$\newline
-                        = flow(C$_1$) union flow(C$_2$) union { (l, init(C_2)) | l ∈ final(C_1) }
-flow(C_1; C_2)
+flow-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) \vert $el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\newline
+flow(C$_1$; C$_2$)		 = \begin{cases}
+$flow(C$_1$) $\cup$ flow(C$_2$) $\cup$ flow-between(C$_1$, C$_2$) \textbf{if} flow-between(C$_1$, C$_2$) $\not = \emptyset$\\
+$flow(C$_1$) \textbf{else}
+\end{cases}\newline
+flow(\{C\}) = C\newline
+guards([e]$_l$ $\to$ C)      = \{[e]$_l$\} \newline
+guards(gC$_1$ [] gC$_2$)= guards(gC$_1$) $\cup$ guards(gC$_2$)\newline
+flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) \vert $el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
+$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
+$\cup$ flow(gC)\newline
+flow([do]$_l$ gC od) = ((el$_1$, el$_2$) \vert $el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
+$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
+$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
+$\cup$ flow(gC)\newline
+flow([e]$_l$ $\to$ C)      = \{([e]$_l$, init(C))\} $\cup$ flow(C) \newline
+flow(gC$_1$ [] gC$_2$)= flow(gC$_1$) $\cup$ flow(gC$_2$)\newline
+
+\newline
+\newline
+flow(C$_1$; C$_2$)        = flow(C$_1$) union flow(C$_2$) union { (l, init(C_2)) | l ∈ final(C_1) }
+
+\newline
+\newline
+\newline
+
 flow({C})               = flow(C)
                         = flow(gC) union { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') }
 flow(if gC fi)
