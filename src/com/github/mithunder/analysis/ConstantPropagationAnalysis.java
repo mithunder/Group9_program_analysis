@@ -258,7 +258,7 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 
 		public ConstantValue getConstant(Variable v){
 			CPAInfo info = cpadata.get(v);
-			if(info.def == CONSTANT) {
+			if(info != null && info.def == CONSTANT) {
 				return info.value;
 			}
 			return null;

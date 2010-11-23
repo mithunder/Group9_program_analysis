@@ -45,8 +45,7 @@ public class PurgeDeadCode extends CodeRewriter {
 		final int stype = scope.getStatementType();
 		List<? extends Statement> children = scope.getChildren();
 		final int size = children != null ? children.size() : 0;
-		Statement[] nc = new Statement[size];
-		int cr = 0;
+		List<Statement> resc = new ArrayList<Statement>(size);
 		Statement result;
 
 		if(stype == IF || stype == DO){
@@ -55,25 +54,24 @@ public class PurgeDeadCode extends CodeRewriter {
 				Statement s = children.get(i);
 				if(!s.isKilled()){
 					Statement c = children.get(i + half);
-					nc[cr] = check(s);
+					resc.add(check(s));
 					if(c.isKilled()){
-						nc[cr + half] = factory.createSimpleStatement(SKIP,
-								c.getCodeLocation(), c.getAnnotations());
+						resc.add(factory.createSimpleStatement(SKIP,
+								c.getCodeLocation(), c.getAnnotations()));
 					} else {
-						nc[cr + half] = check(c);
+						resc.add(check(c));
 					}
-					cr++;
 				}
 			}
 		} else if(size > 0) {
 			for(int i = 0 ; i < size; i++) {
 				Statement s = children.get(i);
 				if(!s.isKilled()){
-					nc[cr++] = check(s);
+					resc.add(check(s));
 				}
 			}
 		}
-		if(cr == 0){
+		if(resc.size() == 0){
 			if(stype == IF){
 				result = factory.createSimpleStatement(ABORT,
 						scope.getCodeLocation(), scope.getAnnotations());
@@ -85,12 +83,6 @@ public class PurgeDeadCode extends CodeRewriter {
 						scope.getAnnotations(), scope.getAssign(), scope.getValues());
 			}
 		} else {
-			List<Statement> resc = new ArrayList<Statement>(cr * (stype == SCOPE?1:2));
-			for(int i = 0 ; i < size ; i++){
-				if(nc[i] != null) {
-					resc.add(nc[i]);
-				}
-			}
 			result = factory.createCompoundStatement(stype, scope.getCodeLocation(),
 					scope.getAnnotations(), resc);
 		}

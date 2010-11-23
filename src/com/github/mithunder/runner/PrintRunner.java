@@ -108,7 +108,7 @@ public class PrintRunner {
 				default: throw new AssertionError();
 				}
 				if(!ana.isForwardAnalysis()) {
-					//cw.setPrintEntryEvaluation(true);
+					cw.setPrintEntryEvaluation(true);
 				}
 				StatementIterator staIte = new StatementIterator(cw);
 				CompilationUnit eunit;
