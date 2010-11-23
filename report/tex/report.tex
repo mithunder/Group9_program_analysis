@@ -7,6 +7,7 @@
 \usepackage{verbatim}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{color}
 
 \hypersetup{
     colorlinks,%
@@ -16,8 +17,12 @@
     urlcolor=black
 }
 
+\newcommand{\email}[1]{{\href{#1}{#1}}}
+
 \title{Program Analysis 02242 - Guarded Command Language}
-\author{Niels Thykier s072425\\Melvin Winstrøm-Møller s072435\\Morten Sørensen s072440}
+\author{Niels Thykier, s072425 (\email{s072425@student.dtu.dk})
+\\Melvin Winstrøm-Møller, s072435 (\email{s072435@student.dtu.dk})
+\\Morten Sørensen, s072440 (\email{s072440@student.dtu.dk})}
 
 \begin{document}
 \parindent 0pt
@@ -42,9 +47,11 @@
 
 \input{introduction}
 
-\chapter{Design}
+\chapter{Analysis}
 
 \input{general_definitions}
+
+\chapter{Design}
 
 \input{data_structure}
 
@@ -69,6 +76,7 @@ the report.
 
 \begin{itemize}
 \item RD - Reaching Definitions
+\item GCL - Reaching Definitions
 \end{itemize}
 
 \end{document}

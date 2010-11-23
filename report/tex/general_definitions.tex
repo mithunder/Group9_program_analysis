@@ -27,6 +27,13 @@ the commands assign, skip, abort, read, write, and test. Furthermore, a label is
 to if and do, to simplify definitions later. For all intentions and purposes, the
 label of if and do can be seen as being the label of a skip elementary block.
 
+\subsection{Helper functions}
+
+Some helper functions:
+
+guards([e]$_l$ $\to$ C)      = \{[e]$_l$\} \newline
+guards(gC$_1$ [] gC$_2$)= guards(gC$_1$) $\cup$ guards(gC$_2$)\newline
+
 \subsection{Init}
 
 init(C) denotes the entry point for the flow of a command.
@@ -73,7 +80,7 @@ final(C$_1$; C$_2$)		 = \begin{cases}
 \end{cases}\newline
 final(\{C\})             = final(C)\newline
 final(if gC fi)        = final(gC)\newline
-final([do]$_l$ gC od)        = \{l\} $\cup$ (el \vert $el $\in$ final(gC) $\wedge$ el = abort)\newline
+final([do]$_l$ gC od)        = guards(gC) $\cup$ (el \vert $el $\in$ final(gC) $\wedge$ el = abort)\newline
 final([e]$_l$ $\to C$)      = final(C)\newline
 final(gC1 [] gC2)      = final(gC1) $\cup$ final(gC2)\newline
 
@@ -123,6 +130,12 @@ therefore never included.
 
 \subsection{Flow}
 
+Flow denotes the possible transitions between elementary blocks.
+For instance, the flow of flow(skip[l$_1$]; skip[l$_2$]) is equal to
+(l$_1$, l$_2$), since the program would simply transition from the first
+skip to the last skip. The domain is:
+\[flow \colon Command \to \mathcal{P}(Label)\times\mathcal{P}(Label)\]
+
 flow(C):\newline
 flow([x := a]$_l$)        =$\emptyset$\newline
 flow([skip]$_l$)          =$\emptyset$\newline
@@ -135,42 +148,32 @@ $flow(C$_1$) $\cup$ flow(C$_2$) $\cup$ flow-between(C$_1$, C$_2$) \textbf{if} fl
 $flow(C$_1$) \textbf{else}
 \end{cases}\newline
 flow(\{C\}) = C\newline
-guards([e]$_l$ $\to$ C)      = \{[e]$_l$\} \newline
-guards(gC$_1$ [] gC$_2$)= guards(gC$_1$) $\cup$ guards(gC$_2$)\newline
+
 flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) \vert $el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
-$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
 $\cup$ flow(gC)\newline
+
 flow([do]$_l$ gC od) = ((el$_1$, el$_2$) \vert $el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
-$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
-$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ guards(gC) $\wedge$ el$_2$ $\in$ guards(gC) $\wedge$ el$_1$ $\neq$ el$_2$)\newline
 $\cup$ flow(gC)\newline
+$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ final(gC) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ guards(gC))\newline
+
 flow([e]$_l$ $\to$ C)      = \{([e]$_l$, init(C))\} $\cup$ flow(C) \newline
 flow(gC$_1$ [] gC$_2$)= flow(gC$_1$) $\cup$ flow(gC$_2$)\newline
 
-\newline
-\newline
-flow(C$_1$; C$_2$)        = flow(C$_1$) union flow(C$_2$) union { (l, init(C_2)) | l ∈ final(C_1) }
 
-\newline
-\newline
-\newline
+\begin{itemize}
+\item The reasoning behing the definition of the semicolon command is that there
+is only flow from C$_1$ to C$_2$ if C$_1$ does not abort in all final statements.
+\item The reasoning behind the definition of flow for if is that the flow should
+flow through the guards, from each guard to its command, and flow through the command.
+\item The reasoning behind the definition of flow for do is that the flow should flow
+like for if, except that it should flow back to the do label. This is because the do loops,
+unlike the if.
+\end{itemize}
 
-flow({C})               = flow(C)
-                        = flow(gC) union { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') }
-flow(if gC fi)
-         (An expression flows to its command,
-         and every expression flows to every expression).
-flow(do gC od)          = flow(gC) union
-                          { ((l, l') | l, l' ∈ label(expressions(gC) and l != l') } union
-                          { ((l, l') | l ∈ final(gC) and l' ∈ label(expressions(gC)) }
-         (An expression flows to its command,
-         and every expression flows to every expression,
-         and every final labels of commands goes to every expression).
-flow([e]_l -> C)        = {(l, init(C))} union flow(C)
-flow(gC1 [] gC2)        = flow(gC1) union flow(gC2)
-expressions([e]_l -> C)          = {[e]_l}
-                                                                                                   3/17
-expressions(gC1 [] gC2)      = expressions(gC1) union expressions(gC2)
+\subsection{Used}
+
+//TODO:
+
 used(C):
 used([x := a])       = fv(a)
 used([skip])         =Ø
