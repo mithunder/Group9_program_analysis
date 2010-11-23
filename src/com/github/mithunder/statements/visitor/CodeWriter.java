@@ -177,9 +177,9 @@ public class CodeWriter implements StatementVisitor {
 			int value = cv.getValue();
 			if(cv.getValueType() == ValueType.BOOLEAN_TYPE){
 				if(value != 0) {
-					ret = "TRUE";
+					ret = "true";
 				} else {
-					ret = "FALSE";
+					ret = "false";
 				}
 			} else {
 				ret = String.valueOf(value);
