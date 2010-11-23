@@ -1,0 +1,14 @@
+module ps :
+x := 1;
+do x = 0 -> x := 0; y := 10; abort; skip
+[] true -> y := 1
+od;
+if (y > 0) -> z := 10
+[] true -> skip
+fi;
+write x;
+@programanalysis="true"
+write y;
+@programanalysis="true"
+write z
+end

@@ -4,7 +4,7 @@ import com.github.mithunder.statements.Variable;
 
 public class SimpleVariable extends Variable implements Comparable<SimpleVariable> {
 
-	protected final int vid;
+	public final int vid;
 
 	protected SimpleVariable(int vtype, int vid) {
 		super(vtype);

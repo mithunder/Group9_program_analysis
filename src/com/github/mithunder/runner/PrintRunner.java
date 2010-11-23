@@ -19,6 +19,8 @@ import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
+import com.github.mithunder.rewrite.ConstantFolder;
+import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
@@ -61,6 +63,8 @@ public class PrintRunner {
 		CommonTokenStream tokens = new CommonTokenStream(lex);
 
 		GuardCommandParser parser = new GuardCommandParser(tokens);
+		//Do not remove.
+		parser.setAnnotations(lex.getAnnotations());
 
 		CompilationUnit unit;
 
@@ -89,9 +93,8 @@ public class PrintRunner {
 				break;
 			}
 			case PS : {
-				KillRepairAnalysisWorklist workList = new SimpleRRKRWorklist();
-				ProgramSlicing programSlicing = new ProgramSlicing();
-				unit = programSlicing.performTransformation(unit, workList);
+				ProgramSlicing programSlicing = new ProgramSlicing(new SimpleRRKRWorklist());
+				unit = programSlicing.rewrite(unit);
 				printCode(unit.getRootStatement(), unit);
 				break;
 			}
