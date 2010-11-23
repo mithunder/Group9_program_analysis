@@ -338,6 +338,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 		} else {
 			out.print(e.getExitEvaluation());
 		}
+		out.print(", is killed: " + e.isKilled());
 	}
 
 	private void printAnnotations(Statement e) {
