@@ -1,7 +1,7 @@
 package com.github.mithunder.rewrite;
 
+import static com.github.mithunder.statements.StatementType.ABORT;
 import static com.github.mithunder.statements.StatementType.ASSIGN;
-import static com.github.mithunder.statements.StatementType.WRITE;
 
 import com.github.mithunder.analysis.ConstantPropagationAnalysis.CPAEvaluation;
 import com.github.mithunder.statements.CompilationUnit;
@@ -88,8 +88,13 @@ public class ConstantFolder extends CodeRewriter implements StatementVisitor {
 		EvaluatedStatement e = (EvaluatedStatement)s;
 		CPAEvaluation data = (CPAEvaluation)e.getExitEvaluation();
 		final int stype = e.getStatementType();
-		Variable assign = e.getAssign();
+		Variable assign;
+		Value[] values;
 		if(data == null) {
+			return;
+		}
+		if(stype == ABORT) {
+			/* Cannot do anything about abort */
 			return;
 		}
 		if(data.isAbortEvaluation()) {
@@ -101,36 +106,44 @@ public class ConstantFolder extends CodeRewriter implements StatementVisitor {
 			s.killStatement();
 			return;
 		}
+		assign = e.getAssign();
+		values = e.getValues();
 		if(assign != null){
-			ConstantValue con;
-			if(table.isTemporaryVariable(assign)) {
-				/* Not interested in temporary variables */
-				return;
-			}
-			con = data.getConstant(assign);
+			ConstantValue con = data.getConstant(assign);
 			if(con != null){
 				/* awesome */
 				Statement re;
-				if(stype == ASSIGN && e.getValues()[0].isConstant()){
+				if(stype == ASSIGN && values[0].isConstant()){
 					/* Not quite as awesome after all*/
 					return;
 				}
 				e.killStatement();
 				re = factory.createSimpleStatement(ASSIGN, s.getCodeLocation(), s.getAnnotations(), assign, con);
 				parent.replaceChild(cno, re);
+				return;
 			}
-		} else if(stype == WRITE){
-			Value v = e.getValues()[0];
-			if(!v.isConstant()){
-				ConstantValue con = data.getConstant((Variable)v);
-				if(con != null){
-					/* awesome */
-					Statement re = factory.createSimpleStatement(WRITE, s.getCodeLocation(), s.getAnnotations(), null, con);
-					e.killStatement();
-					parent.replaceChild(cno, re);
+		}
+		if(values != null){
+			/* partial rewrite */
+			boolean changed = false;
+			Value[] rv = new Value[values.length];
+			for(int i = 0 ; i < values.length ; i++) {
+				if(!values[i].isConstant()){
+					ConstantValue con = data.getConstant((Variable)values[i]);
+					if(con != null){
+						/* awesome */
+						rv[i] = con;
+						changed = true;
+						continue;
+					}
 				}
+				rv[i] = values[i];
+			}
+			if(changed){
+				Statement re = factory.createSimpleStatement(stype, s.getCodeLocation(), s.getAnnotations(), s.getAssign(), rv);
+				e.killStatement();
+				parent.replaceChild(cno, re);
 			}
 		}
 	}
-
 }
