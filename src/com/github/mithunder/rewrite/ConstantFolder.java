@@ -92,6 +92,15 @@ public class ConstantFolder extends CodeRewriter implements StatementVisitor {
 		if(data == null) {
 			return;
 		}
+		if(data.isAbortEvaluation()) {
+			/*
+			 * A forward *MUST* analysis claims this statement always
+			 * follows an abort statement, regardless of the path taken
+			 * to it... That sounds like it is dead.
+			 */
+			s.killStatement();
+			return;
+		}
 		if(assign != null){
 			ConstantValue con;
 			if(table.isTemporaryVariable(assign)) {
