@@ -26,6 +26,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 	protected EvaluatedStatement curST;
 	protected EvaluatedStatement curBrC;
 	protected EvaluatedStatement curBrG;
+	protected boolean last = true;
 
 	@Override
 	public boolean isFirstVisit() {
@@ -75,6 +76,8 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		Statement root = unit.getRootStatement();
 		EvaluatedStatement s;
 		List<EvaluatedStatement> children;
+		loopNest = 0;
+		last = true;
 		kanalysis = ana;
 		isFwd = ana.isForwardAnalysis();
 		kanalysis.startAnalysis(unit);
@@ -120,12 +123,21 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			break;
 		case DO:
 			loopNest++;
+			last = false;
 			if(isFwd){
-				changed = evaluateDoStatementForward(toEval, entry);
+				changed = evaluateDoStatementForward(toEval, entry, true);
 			} else {
-				changed = evaluateDoStatementBackward(toEval, entry);
+				changed = evaluateDoStatementBackward(toEval, entry, true);
 			}
 			loopNest--;
+			if(loopNest == 0) {
+				last = true;
+				if(isFwd){
+					changed = evaluateDoStatementForward(toEval, toEval.getExitEvaluation(), false);
+				} else {
+					changed = evaluateDoStatementBackward(toEval, toEval.getExitEvaluation(), false);
+				}
+			}
 			break;
 		case SKIP:
 			/* Does not change the state of the program */
@@ -316,7 +328,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 	 * NOTE: Sets the exit value to the entry value if all the guards are killed
 	 * The exit value is unaffected by this.
 	 */
-	protected boolean evaluateDoStatementForward(EvaluatedStatement dost, Evaluation entry){
+	protected boolean evaluateDoStatementForward(EvaluatedStatement dost, Evaluation entry, boolean updateEntry){
 		boolean changed = false;
 		boolean hasChanged;
 		List<EvaluatedStatement> children = dost.getChildren();
@@ -327,6 +339,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		EvaluatedStatement fchild = findFirstNonDeadGuard(dost);
 		if(fchild == null) {
 			/* Short cut exit. */
+			dost.setEntryEvaluation(entry);
 			dost.setExitEvaluation(entry);
 			return false;
 		}
@@ -361,8 +374,10 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			/* Update the current evaluation */
 			e = exitValue;
 		} while(hasChanged);
-		/* Update the entry value */
-		dost.setEntryEvaluation(entry);
+		if(updateEntry) {
+			/* Update the entry value */
+			dost.setEntryEvaluation(entry);
+		}
 		if(fchild.isKilled()) {
 			/* The analysis managed to kill the cached guard */
 			fchild = findFirstNonDeadGuard(dost);
@@ -388,7 +403,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 	 * NOTE: Sets the exit value to the entry value if all the guards are killed
 	 * The exit value is unaffected by this.
 	 */
-	protected boolean evaluateDoStatementBackward(EvaluatedStatement dost, Evaluation entry){
+	protected boolean evaluateDoStatementBackward(EvaluatedStatement dost, Evaluation entry, boolean updateEntry){
 		boolean changed = false;
 		boolean hasChanged;
 		List<EvaluatedStatement> children = dost.getChildren();
@@ -399,6 +414,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		EvaluatedStatement fchild = findFirstNonDeadGuard(dost);
 		if(fchild == null) {
 			/* Short cut exit. */
+			dost.setEntryEvaluation(entry);
 			dost.setExitEvaluation(entry);
 			return false;
 		}
@@ -445,8 +461,10 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			exitValue = kanalysis.merge(exitValue, entry);
 			e = exitValue;
 		} while(hasChanged);
-		/* Update the entry value */
-		dost.setEntryEvaluation(entry);
+		if(updateEntry) {
+			/* Update the entry value */
+			dost.setEntryEvaluation(entry);
+		}
 		if(exitValue != null) {
 			dost.setExitEvaluation(exitValue);
 		} else {
@@ -511,6 +529,11 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			scope.setExitEvaluation(e);
 		}
 		return changed;
+	}
+
+	@Override
+	public boolean isLastVisit() {
+		return last;
 	}
 
 }

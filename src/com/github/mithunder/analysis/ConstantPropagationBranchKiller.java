@@ -4,6 +4,8 @@ import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.ConstantValue;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
+import com.github.mithunder.statements.StatementType;
+import com.github.mithunder.statements.Value;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
 public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
@@ -53,15 +55,22 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 
 	@Override
 	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
-		EvaluatedStatement last;
-		ConstantPropagationAnalysis.CPAEvaluation eval;
+		EvaluatedStatement last = Statement.finalGuardStatement(guard);
+		ConstantPropagationAnalysis.CPAEvaluation eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getExitEvaluation();
 		ConstantValue con;
-		if(w.isInsideLoop()) {
-			return;
+		if(w.isInsideLoop() && !w.isLastVisit()){
+			con = null;
+			if(last.getStatementType() == StatementType.ASSIGN){
+				Value v = last.getValues()[0];
+				if(v.isConstant()){
+					/* Even inside a loop a constant value will always be a constant value. */
+					con = (ConstantValue)v;
+				}
+			}
+		} else {
+			/* not in a loop or it is the final visit in the loop */
+			con = eval.getConstant(last.getAssign());
 		}
-		last = Statement.finalGuardStatement(guard);
-		eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getExitEvaluation();
-		con = eval.getConstant(last.getAssign());
 		if(con != null && con.getValue() == 0){
 			/* Not inside a loop; last statement evaluates to 0 or false - we will never enter the branch */
 			w.killBranch();

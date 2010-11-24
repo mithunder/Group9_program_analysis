@@ -56,4 +56,11 @@ public interface KillRepairAnalysisWorklist {
 	 */
 	public abstract EvaluatedStatement run(KillRepairAnalysis analysis, CompilationUnit unit);
 
+	/**
+	 * @return true if this is the last time the analysis will visit this guard/statement
+	 * 
+	 * @note The return value <i>may</i> not be updated even if the analysis kills the current statement.
+	 */
+	public abstract boolean isLastVisit();
+
 }
