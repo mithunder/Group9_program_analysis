@@ -14,6 +14,7 @@ import java.util.Set;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis.ReachingDefinitionEvaluation;
 import com.github.mithunder.rewrite.CodeRewriter;
+import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
@@ -123,6 +124,7 @@ public class ProgramSlicing extends CodeRewriter {
 				(currentStatement).getExitEvaluation();
 
 			for (final Set<Statement> statements : rdEvaluation.getMap().values()) {
+				//TODO: Filter those variables actually used.
 				for (final Statement statement : statements) {
 					testIncludeStatement(
 						statementToEvaluated.get(statement), investigationQueue,
@@ -156,15 +158,14 @@ public class ProgramSlicing extends CodeRewriter {
 				}
 			}
 		});
-		//TODO: Clean up the killed code.
-
-		return new CompilationUnit(
+		//Clean up the dead code and return.
+		return (new PurgeDeadCode()).rewrite(new CompilationUnit(
 				compilationUnit.getUnitName(),
 				rdStatement,
 				compilationUnit.getVariableTable(),
 				compilationUnit.getFinalStatements(),
 				compilationUnit.getFactory()
-		);
+		));
 	}
 
 	private final void testIncludeStatement(final EvaluatedStatement evalStatement,
@@ -186,7 +187,13 @@ public class ProgramSlicing extends CodeRewriter {
 				int childCount = 0;
 				final int childHalfCount = evalStatement.getChildCount()/2;
 				for (EvaluatedStatement child : evalStatement.getChildren()) {
+					//Include the scope.
 					testIncludeStatement(child, investigationQueue, childToParent);
+					//Remember to include not just the scope, but also the test.
+					testIncludeStatement(
+							child.getChildren().get(child.getChildCount()-1),
+							investigationQueue, childToParent
+					);
 					childCount++;
 					if (childCount >= childHalfCount) {
 						break;
