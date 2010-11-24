@@ -31,16 +31,11 @@ public class PurgeDeadCode extends CodeRewriter {
 		Statement root = unit.getRootStatement();
 		CompilationUnit result;
 		finalStatements = new HashMap<Statement, Boolean>(fs.size());
-		for(Statement s : fs) {
-			finalStatements.put(s, Boolean.TRUE);
-		}
 		factory = unit.getFactory();
 		root = check(root);
-		if(finalStatements.size() != fs.size()) {
-			fs = new ArrayList<Statement>(finalStatements.size());
-			for(Statement s : finalStatements.keySet()) {
-				fs.add(s);
-			}
+		fs = new ArrayList<Statement>(finalStatements.size());
+		for(Statement s : finalStatements.keySet()) {
+			fs.add(s);
 		}
 		result = new CompilationUnit(unit.getUnitName(), root, unit.getVariableTable(), fs, factory);
 		factory = null;
@@ -79,13 +74,15 @@ public class PurgeDeadCode extends CodeRewriter {
 					if(rstype == SCOPE){
 						/* Scope within a scope? Promote the inner scope */
 						List<? extends Statement> rchildren = replacement.getChildren();
-						rstype = rchildren.get(rchildren.size() - 1).getStatementType();
+						replacement = rchildren.get(rchildren.size() - 1);
+						rstype = replacement.getStatementType();
 						resc.addAll(rchildren);
 					} else {
 						resc.add(replacement);
 					}
 					if(rstype == ABORT) {
 						/* The rest are dead since nothing goes beyond an abort. */
+						finalStatements.put(replacement, Boolean.TRUE);
 						break;
 					}
 				}
