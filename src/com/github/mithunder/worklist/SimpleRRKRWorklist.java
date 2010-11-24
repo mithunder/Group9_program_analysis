@@ -140,22 +140,19 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			}
 			break;
 		default:
-			changed = evaluateSimpleStatement(toEval, entry);
-			if(stype == ABORT){
-				toEval.setExitEvaluation(kanalysis.initEvaluation());
-			}
+			changed = analyseStatement(toEval, entry, stype);
 			break;
 		}
 		return changed;
 	}
 
-	protected boolean evaluateSimpleStatement(EvaluatedStatement toEval, Evaluation entry){
+	protected boolean analyseStatement(EvaluatedStatement toEval, Evaluation entry, int semeq){
 		boolean changed;
 		if(toEval.getEntryEvaluation() == null) {
 			firstVisit = true;
 		}
 		curST = toEval;
-		changed = kanalysis.evaluate(toEval, entry, this);
+		changed = kanalysis.evaluate(toEval, entry, semeq, this);
 		toEval.setEntryEvaluation(entry);
 		return changed;
 	}
@@ -218,7 +215,6 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 		List<EvaluatedStatement> children = ifst.getChildren();
 		final int size = children.size();
 		final int hsize = size / 2;
-		Evaluation e;
 		Evaluation exitValue = null;
 		if(evaluateGuards(ifst, entry)){
 			changed = true;
@@ -227,6 +223,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			/* Fetch the command and the related guard */
 			EvaluatedStatement cmd = children.get(i);
 			EvaluatedStatement guard = children.get(i - hsize);
+			Evaluation e;
 			if(cmd.isKilled() || guard.isKilled()) {
 				continue;
 			}
@@ -249,7 +246,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			ifst.setExitEvaluation(exitValue);
 		} else {
 			/* All branches are dead == abort */
-			ifst.setExitEvaluation(kanalysis.initEvaluation());
+			analyseStatement(ifst, entry, ABORT);
 		}
 		return changed;
 	}
@@ -292,7 +289,7 @@ public class SimpleRRKRWorklist implements KillRepairAnalysisWorklist {
 			ifst.setExitEvaluation(child.getExitEvaluation());
 		} else {
 			/* All branches are dead == abort */
-			ifst.setExitEvaluation(kanalysis.initEvaluation());
+			analyseStatement(ifst, entry, ABORT);
 		}
 		return changed;
 	}

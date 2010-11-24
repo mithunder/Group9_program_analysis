@@ -1,6 +1,7 @@
 package com.github.mithunder.rewrite;
 
 import static com.github.mithunder.statements.StatementType.ABORT;
+import static com.github.mithunder.statements.StatementType.ASSIGN;
 import static com.github.mithunder.statements.StatementType.DO;
 import static com.github.mithunder.statements.StatementType.IF;
 import static com.github.mithunder.statements.StatementType.SCOPE;
@@ -12,8 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.mithunder.statements.CompilationUnit;
+import com.github.mithunder.statements.ConstantValue;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.StatementFactory;
+import com.github.mithunder.statements.Value;
 
 
 /* Does not require that the statements are EvaluatedStatements*/
@@ -26,6 +29,7 @@ public class PurgeDeadCode extends CodeRewriter {
 	public CompilationUnit rewrite(CompilationUnit unit) throws IllegalArgumentException {
 		List<Statement> fs = unit.getFinalStatements();
 		Statement root = unit.getRootStatement();
+		CompilationUnit result;
 		finalStatements = new HashMap<Statement, Boolean>(fs.size());
 		for(Statement s : fs) {
 			finalStatements.put(s, Boolean.TRUE);
@@ -38,7 +42,10 @@ public class PurgeDeadCode extends CodeRewriter {
 				fs.add(s);
 			}
 		}
-		return new CompilationUnit(unit.getUnitName(), root, unit.getVariableTable(), fs, factory);
+		result = new CompilationUnit(unit.getUnitName(), root, unit.getVariableTable(), fs, factory);
+		factory = null;
+		finalStatements = null;
+		return result;
 	}
 
 	protected Statement check(Statement scope){
@@ -67,8 +74,30 @@ public class PurgeDeadCode extends CodeRewriter {
 			for(int i = 0 ; i < size; i++) {
 				Statement s = children.get(i);
 				if(!s.isKilled()){
-					resc.add(check(s));
+					Statement replacement = check(s);
+					int rstype = replacement.getStatementType();
+					if(rstype == SCOPE){
+						/* Scope within a scope? Promote the inner scope */
+						List<? extends Statement> rchildren = replacement.getChildren();
+						rstype = rchildren.get(rchildren.size() - 1).getStatementType();
+						resc.addAll(rchildren);
+					} else {
+						resc.add(replacement);
+					}
+					if(rstype == ABORT) {
+						/* The rest are dead since nothing goes beyond an abort. */
+						break;
+					}
 				}
+			}
+		}
+		if(stype == IF && resc.size() == 2){
+			Statement guard = resc.get(0);
+			Statement last = Statement.finalGuardStatement(guard);
+			Value[] v = last.getValues();
+			if(last.getStatementType() == ASSIGN && v[0].isConstant() && ((ConstantValue)v[0]).getValue() != 0){
+				/* IF with only one child that is always true ... promote the child */
+				return resc.get(1);
 			}
 		}
 		if(resc.size() == 0){

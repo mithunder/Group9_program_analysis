@@ -1,12 +1,10 @@
 package com.github.mithunder.analysis;
 
-import java.util.ListIterator;
-
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.ConstantValue;
 import com.github.mithunder.statements.EvaluatedStatement;
+import com.github.mithunder.statements.Statement;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
-import com.github.mithunder.worklist.ReverseListIterator;
 
 public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 
@@ -44,8 +42,8 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 	}
 
 	@Override
-	public boolean evaluate(EvaluatedStatement s, Evaluation e, KillRepairAnalysisWorklist w) {
-		return cp.evaluate(s, e, w);
+	public boolean evaluate(EvaluatedStatement s, Evaluation e, int eqv, KillRepairAnalysisWorklist w) {
+		return cp.evaluate(s, e, eqv, w);
 	}
 
 	@Override
@@ -55,18 +53,13 @@ public class ConstantPropagationBranchKiller extends KillRepairAnalysis {
 
 	@Override
 	public void leavingGuard(EvaluatedStatement guard, KillRepairAnalysisWorklist w) {
-		ListIterator<EvaluatedStatement> it;
 		EvaluatedStatement last;
 		ConstantPropagationAnalysis.CPAEvaluation eval;
 		ConstantValue con;
 		if(w.isInsideLoop()) {
 			return;
 		}
-		it = new ReverseListIterator<EvaluatedStatement>(guard.getChildren());
-		if(!it.hasNext()){
-			return;
-		}
-		last = it.next();
+		last = Statement.finalGuardStatement(guard);
 		eval = (ConstantPropagationAnalysis.CPAEvaluation)last.getExitEvaluation();
 		con = eval.getConstant(last.getAssign());
 		if(con != null && con.getValue() == 0){

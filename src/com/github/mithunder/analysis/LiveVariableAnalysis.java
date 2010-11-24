@@ -16,13 +16,13 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 	private VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, int eqv, KillRepairAnalysisWorklist w) {
 		LiveVariableEvaluation olve = (LiveVariableEvaluation) e;
 		LiveVariableEvaluation lve = (LiveVariableEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
 		boolean[] pre = null;
 		Value[] values = statement.getValues();
-		if(lve == null) {
+		if(lve == null|| (eqv == StatementType.ABORT && lve.set.size() > 0)) {
 			lve = new LiveVariableEvaluation(table);
 			statement.setExitEvaluation(lve);
 			changed = true;
@@ -33,6 +33,10 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 					pre[i] = lve.contains((Variable)values[i]);
 				}
 			}
+		}
+		if(StatementType.ABORT == eqv) {
+			/* We do not get anything from abort statements */
+			return changed;
 		}
 		lve.merge(olve);
 		if(w.isGuard() || statement.getStatementType() == StatementType.WRITE

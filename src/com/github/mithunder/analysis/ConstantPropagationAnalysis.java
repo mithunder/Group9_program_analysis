@@ -24,11 +24,21 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 	protected VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, int eqv, KillRepairAnalysisWorklist w) {
 		CPAEvaluation ocpae = (CPAEvaluation)e;
 		CPAEvaluation cpae = (CPAEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
 		CPAInfo old = null;
+		// If this statement is an abort statement or it follows an abort
+		if(eqv == StatementType.ABORT || ocpae.isAbortEvaluation()){
+			/* Mark it as an abort statement */
+			if(cpae == null || !cpae.isAbortEvaluation()) {
+				cpae = new CPAEvaluation();
+				statement.setExitEvaluation(cpae);
+				return true;
+			}
+			return false;
+		}
 		if(cpae == null){
 			cpae = new CPAEvaluation(table);
 			statement.setExitEvaluation(cpae);
@@ -133,6 +143,9 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 		if(v.isConstant()) {
 			return (ConstantValue)v;
 		}
+		if(cpae.isAbortEvaluation()) {
+			return null;
+		}
 		i = cpae.cpadata.get(v);
 		if(i == null) {
 			return null;
@@ -159,11 +172,24 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 	public Evaluation merge(Evaluation e1, Evaluation e2) {
 		CPAEvaluation re1 = (CPAEvaluation)e1;
 		CPAEvaluation re2 = (CPAEvaluation)e2;
-		CPAEvaluation result = new CPAEvaluation(table);
-		if(e1 != null) {
+		CPAEvaluation result;
+		if((e1 == null || re1.isAbortEvaluation()) &&
+				(e2 == null || re2.isAbortEvaluation())) {
+			/* either dual null or dual abort or a mix thereof */
+			if(e1 != null) {
+				return re1;
+			}
+			if(e2 != null) {
+				return re2;
+			}
+			/* According to the interface we are not supposed to get here - oh well */
+			return new CPAEvaluation();
+		}
+		result = new CPAEvaluation(table);
+		if(e1 != null && !re1.isAbortEvaluation()) {
 			result.merge(re1, false);
 		}
-		if(e2 != null) {
+		if(e2 != null && !re2.isAbortEvaluation()) {
 			result.merge(re2, false);
 		}
 		return result;
@@ -235,16 +261,30 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 		Map<Variable, CPAInfo> cpadata = new HashMap<Variable, CPAInfo>();
 		final VariableTable table;
 
+		public CPAEvaluation(){
+			table = null;
+		}
+
 		public CPAEvaluation(VariableTable table){
 			this.table = table;
 		}
 
+		public boolean isAbortEvaluation(){
+			return table == null;
+		}
+
 		public boolean set(Variable v, ConstantValue c, CPAInfo i){
+			if(isAbortEvaluation()) {
+				return false;
+			}
 			cpadata.put(v, new CPAInfo(c));
 			return i == null || i.def != CONSTANT || c.getValue() != i.value.getValue();
 		}
 
 		public boolean set(Variable v, int def, CPAInfo info){
+			if(isAbortEvaluation()) {
+				return false;
+			}
 			if(info == null) {
 				cpadata.put(v, def == UNKNOWN? CPAInfo.UNK : CPAInfo.UNDEF);
 				return true;
@@ -257,7 +297,11 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 		}
 
 		public ConstantValue getConstant(Variable v){
-			CPAInfo info = cpadata.get(v);
+			CPAInfo info;
+			if(isAbortEvaluation()) {
+				return null;
+			}
+			info = cpadata.get(v);
 			if(info != null && info.def == CONSTANT) {
 				return info.value;
 			}
@@ -266,6 +310,9 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 
 		public boolean merge(CPAEvaluation e, boolean overwrite){
 			boolean changed = false;
+			if(isAbortEvaluation()) {
+				return false;
+			}
 			for(Map.Entry<Variable, CPAInfo> entry : e.cpadata.entrySet() ) {
 				Variable v = entry.getKey();
 				CPAInfo ei = entry.getValue();
@@ -285,6 +332,9 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 		public String toString(){
 			String s = "";
 			TreeSet<String> t = new TreeSet<String>();
+			if(isAbortEvaluation()) {
+				return "[<abort>]";
+			}
 			for(Map.Entry<Variable, CPAInfo> e : cpadata.entrySet()){
 				if(table.isTemporaryVariable(e.getKey())) {
 					continue;

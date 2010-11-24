@@ -19,14 +19,15 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 	protected VariableTable table;
 
 	@Override
-	public boolean evaluate(EvaluatedStatement statement, Evaluation e, KillRepairAnalysisWorklist w) {
+	public boolean evaluate(EvaluatedStatement statement, Evaluation e, int eqv, KillRepairAnalysisWorklist w) {
 		ReachingDefinitionEvaluation orde = (ReachingDefinitionEvaluation)e;
 		ReachingDefinitionEvaluation rde = (ReachingDefinitionEvaluation)statement.getExitEvaluation();
 		boolean changed = false;
+		// Semantic eqv may be different from the actual type.
 		int stype = statement.getStatementType();
 		Variable assign = statement.getAssign();
 		Set<Statement> old = null;
-		if(rde == null){
+		if(rde == null || (eqv == StatementType.ABORT && rde.map.size() > 0)){
 			rde = new ReachingDefinitionEvaluation(table);
 			statement.setExitEvaluation(rde);
 			changed = true;
@@ -34,6 +35,10 @@ public class ReachingDefinitionAnalysis extends KillRepairAnalysis {
 			if(assign != null && !table.isTemporaryVariable(assign)) {
 				old = rde.map.get(assign);
 			}
+		}
+		if(eqv == StatementType.ABORT) {
+			/* We do not get anything from abort statements */
+			return changed;
 		}
 		rde.merge(orde);
 		if(old != null){
