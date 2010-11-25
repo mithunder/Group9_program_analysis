@@ -24,7 +24,6 @@ import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
-import com.github.mithunder.statements.visitor.CodeWriter;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
 import com.github.mithunder.transformation.ProgramSlicing;
@@ -76,7 +75,7 @@ public class PrintRunner {
 
 			switch (chosenOption) {
 			case PRINT : {
-				StatementIterator staIte = new StatementIterator(new CodeWriter());
+				StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
 				staIte.tour(unit);
 				break;
 			}
