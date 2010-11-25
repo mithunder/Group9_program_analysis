@@ -26,23 +26,32 @@ import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
-import com.github.mithunder.statements.visitor.StatementIterator;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter.Visitor;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 
-//TODO: Not finished!
-//TODO: Consider making some local variables fields instead,
-//such as variable table, rdStatement, temporaryToStatement, etc.
 public class ProgramSlicing extends CodeRewriter {
 
+	//State.
 	private final Set<Statement> includedStatements =
 		new HashSet<Statement>();
 	private final KillRepairAnalysisWorklist workList;
-	public static final String programAnalysisAnnoName = "programanalysis";
+	private final Queue<EvaluatedStatement> investigationQueue = new LinkedList<EvaluatedStatement>();
+	private final Map<EvaluatedStatement, EvaluatedStatement> childToParent =
+		new HashMap<EvaluatedStatement, EvaluatedStatement>();
+	private final Map<Statement, EvaluatedStatement> statementToEvaluated =
+		new HashMap<Statement, EvaluatedStatement>();
+	private final Map<Variable, EvaluatedStatement> tempVarToStatement =
+		new HashMap<Variable, EvaluatedStatement>();
+
+	public static final String programSlicingAnnoName = "programslicing";
 	public static final String trueString = "true";
 
 	private void clear() {
 		includedStatements.clear();
+		investigationQueue.clear();
+		childToParent.clear();
+		statementToEvaluated.clear();
+		tempVarToStatement.clear();
 	}
 
 	public ProgramSlicing(final KillRepairAnalysisWorklist workList) {
@@ -67,8 +76,6 @@ public class ProgramSlicing extends CodeRewriter {
 
 		//Init:
 		//Make a map to each parent, simply by going through statements.
-		final Map<EvaluatedStatement, EvaluatedStatement> childToParent =
-			new HashMap<EvaluatedStatement, EvaluatedStatement>();
 		PrettyCodeWriter.walkStatements(rdStatement, new Visitor<EvaluatedStatement>() {
 			public void visitStatement(EvaluatedStatement s) {
 				if (s.getChildCount() != 0) {
@@ -81,8 +88,6 @@ public class ProgramSlicing extends CodeRewriter {
 			}
 		});
 		//Make a map to each evaluated statement, simply by going through statements.
-		final Map<Statement, EvaluatedStatement> statementToEvaluated =
-			new HashMap<Statement, EvaluatedStatement>();
 		PrettyCodeWriter.walkStatements(rdStatement, new Visitor<EvaluatedStatement>() {
 			public void visitStatement(EvaluatedStatement s) {
 				statementToEvaluated.put(s.getStatement(), s);
@@ -92,27 +97,24 @@ public class ProgramSlicing extends CodeRewriter {
 		//programslicing="true".
 		//These will be included in the program slicing,
 		//and will be the starting points for the transformation.
-		final Queue<EvaluatedStatement> investigationQueue = new LinkedList<EvaluatedStatement>();
 		PrettyCodeWriter.walkStatements(rdStatement, new Visitor<EvaluatedStatement>() {
 			public void visitStatement(EvaluatedStatement s) {
 				for (final Annotation anno : s.getAnnotations()) {
-					if (anno.getName().equalsIgnoreCase(programAnalysisAnnoName)
+					if (anno.getName().equalsIgnoreCase(programSlicingAnnoName)
 							&& anno.getValue().equalsIgnoreCase(trueString)) {
-						testIncludeStatement(s, investigationQueue, childToParent);
+						addToInvestigation(s);
 						break;
 					}
 				}
 			}
 		});
 		//If no statements are to be investigated, throw an exception.
-		if (includedStatements.isEmpty()) {
+		if (investigationQueue.isEmpty()) {
 			throw new IllegalStateException("Error: no annotation on the form [" +
-					programAnalysisAnnoName + "=" + trueString + "] was found."
+					programSlicingAnnoName + "=" + trueString + "] was found."
 			);
 		}
 		//Go through all statements, and add them if they are temporary variables.
-		final Map<Variable, EvaluatedStatement> tempVarToStatement =
-			new HashMap<Variable, EvaluatedStatement>();
 		PrettyCodeWriter.walkStatements(rdStatement, new Visitor<EvaluatedStatement>(){
 			public void visitStatement(EvaluatedStatement s) {
 				if (s.getAssign() != null &&
@@ -127,16 +129,28 @@ public class ProgramSlicing extends CodeRewriter {
 		//Main:
 		//Repeatedly retrieved the head of the queue until it is empty.
 		//The retrieved statement is the "current statement".
+		//For each statement on the investigation queue,
+		//if it has not been added, add it and add all
+		//those statements it references somehow on the investigation queue
+		//(if they have not already been investigated).
 		//
-		//Get the used variables in the current statement,
+		//First perform special handling of the statement if necessary.
+		//This includes handling of if and scope.
+		//
+		//Then get the used variables in the current statement,
 		//and get the statements they are defined from using the RD-analysis.
-		//For each statement not already included, mark the statement
-		//as included, and put it on the investigation queue.
-		//Furthermore, get all loops/ifs the current statement is a child in,
-		//and process those loops/ifs too if they have not already been included.
+		//
+		//Finally, get all loops/ifs the current statement is a child in.
 		while (!investigationQueue.isEmpty()) {
 
 			final EvaluatedStatement currentStatement = investigationQueue.poll();
+			if (includedStatements.contains(currentStatement)) {
+				continue;
+			}
+
+			//Handle the special statement types.
+			handleSpecialStatementTypes(currentStatement);
+			includedStatements.add(currentStatement);
 
 			//Handle the variables used in the current statement.
 			final ReachingDefinitionEvaluation rdEvaluation =
@@ -146,16 +160,11 @@ public class ProgramSlicing extends CodeRewriter {
 			//and add them to the queue.
 			for (final Variable var :
 					getVariablesRead(
-							currentStatement, childToParent, tempVarToStatement, variableTable,
-							includedStatements
+							currentStatement, variableTable
 					)) {
-				System.out.println("Var was temp?: " + variableTable.isTemporaryVariable(var));
 				final Collection<Statement> reachingStatements = rdEvaluation.getMap().get(var);
 				for (final Statement statement : reachingStatements) {
-					testIncludeStatement(
-						statementToEvaluated.get(statement), investigationQueue,
-						childToParent
-					);
+					addToInvestigation(statementToEvaluated.get(statement));
 				}
 			}
 
@@ -163,20 +172,10 @@ public class ProgramSlicing extends CodeRewriter {
 			//Note that order is important!
 			EvaluatedStatement currentParent = childToParent.get(currentStatement);
 			while (currentParent != null) {
-				testIncludeStatement(currentParent, investigationQueue, childToParent);
+				addToInvestigation(currentParent);
 				currentParent = childToParent.get(currentParent);
-
 			}
 		}
-
-		//Print.
-		PrettyCodeWriter.walkStatements(rdStatement, new Visitor<EvaluatedStatement>() {
-			public void visitStatement(EvaluatedStatement s) {
-				if (includedStatements.contains(s)) {
-					System.out.println("Inc.: " + s.getCodeLocation() + ", " + s.getStatementType());
-				}
-			}
-		});
 
 
 
@@ -196,24 +195,15 @@ public class ProgramSlicing extends CodeRewriter {
 				compilationUnit.getFinalStatements(),
 				compilationUnit.getFactory()
 		);
-		//Debug print.
-		StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
-		try {
-			staIte.tour(newCompilationUnit);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		//Clean up the dead code and return.
 		return (new PurgeDeadCode()).rewrite(newCompilationUnit);
 	}
 
 	private final Collection<Variable> getVariablesRead(final EvaluatedStatement s,
-			final Map<EvaluatedStatement, EvaluatedStatement> childToParent,
-			final Map<Variable, EvaluatedStatement> tempVarToStatement,
-			final VariableTable variableTable, final Set<Statement> includedStatements) {
+			final VariableTable variableTable) {
 
 		final Collection<Variable> variablesRead = new ArrayList<Variable>();
-		includedStatements.add(s);
+		addToInvestigation(s);
 
 		final Value[] values = s.getValues();
 		//If a statement has values, it has reads. So skip if there is no values.
@@ -225,14 +215,12 @@ public class ProgramSlicing extends CodeRewriter {
 
 		//Handle unary expressions.
 		if (StatementType.isUnary(sType) && sType != StatementType.ASSIGN) {
+			System.out.println("St_type: " + sType);
 			final Value val = s.getValues()[0];
 			final EvaluatedStatement refS = tempVarToStatement.get(val);
+			System.out.println(val + ", ref: " + refS);
 			addVariables(variablesRead, variableTable, val);
-			if (refS != null) {
-				getVariablesRead(refS, childToParent, tempVarToStatement,
-						variableTable, includedStatements
-				);
-			}
+			addToInvestigation(refS);
 		}
 		//Handle binary expressions.
 		else if (StatementType.isBinary(sType)) {
@@ -241,16 +229,8 @@ public class ProgramSlicing extends CodeRewriter {
 			final EvaluatedStatement refS1 = tempVarToStatement.get(val1);
 			final EvaluatedStatement refS2 = tempVarToStatement.get(val2);
 			addVariables(variablesRead, variableTable, val1, val2);
-			if (refS1 != null) {
-				getVariablesRead(refS1, childToParent, tempVarToStatement, variableTable,
-						includedStatements
-				);
-			}
-			if (refS2 != null) {
-				getVariablesRead(refS2, childToParent, tempVarToStatement, variableTable,
-						includedStatements
-				);
-			}
+			addToInvestigation(refS1);
+			addToInvestigation(refS2);
 		}
 		//Handle assign.
 		else {
@@ -272,83 +252,71 @@ public class ProgramSlicing extends CodeRewriter {
 		}
 	}
 
-	private final void testIncludeStatement(final EvaluatedStatement evalStatement,
-			final Queue<EvaluatedStatement> investigationQueue,
-			final Map<EvaluatedStatement, EvaluatedStatement> childToParent) {
-
-		//We include the statement if we haven't investigated it before.
+	private final void addToInvestigation(final EvaluatedStatement evalStatement) {
 		if (evalStatement != null && !includedStatements.contains(evalStatement)) {
-			//Add the statement.
-			includedStatements.add(evalStatement);
 			investigationQueue.add(evalStatement);
+		}
+	}
 
-			final int statType = evalStatement.getStatementType();
-			switch (statType) {
-			case IF : {
-				//Special handling:
-				//If we have an "if", we must include all guards at the very least.
-				//If we have a do, we let the adding be handled by the scope itself.
-				int childCount = 0;
-				final int childHalfCount = evalStatement.getChildCount()/2;
-				for (EvaluatedStatement child : evalStatement.getChildren()) {
-					//Include the scope.
-					testIncludeStatement(child, investigationQueue, childToParent);
-					//Remember to include not just the scope, but also the test.
-					testIncludeStatement(
-							child.getChildren().get(child.getChildCount()-1),
-							investigationQueue, childToParent
-					);
-					childCount++;
-					if (childCount >= childHalfCount) {
-						break;
-					}
-				}
-				break;
-			}
-			case SCOPE : {
-				//If we are in a scope, we might be a part of
-				//a guard-command pair in a "do".
-				//If that is the case, remember to add our guard.
-				final EvaluatedStatement parent = childToParent.get(evalStatement);
-				if (parent != null && parent.getStatementType() == DO) {
 
-					System.out.println(evalStatement.getCodeLocation() + ", " + evalStatement.getStatementType());
+	private final void handleSpecialStatementTypes(final EvaluatedStatement evalStatement) {
 
-					//First, find ourselves.
-					int i = 0;
-					for (EvaluatedStatement siblings : parent.getChildren()) {
-						if (siblings == evalStatement) {
-							//We have found ourselves.
-							break;
-						}
-						i++;
-					}
-					//Ensure sanity.
-					if (i == parent.getChildCount()) {
-						throw new IllegalStateException("We did not find ourselves!");
-					}
-					//To find our potential, subtract the halfsize from our index.
-					final int guardIndex = i - parent.getChildCount()/2;
-					//Include our guard only if we are a command.
-					System.out.println("Guard: " + guardIndex);
-					if (guardIndex >= 0) {
-						final EvaluatedStatement guardScope = parent.getChildren().get(guardIndex);
-						testIncludeStatement(
-								guardScope,
-								investigationQueue,childToParent
-						);
-						//Include not just the scope, but also the test.
-						final EvaluatedStatement guardTest =
-							guardScope.getChildren().get(guardScope.getChildCount()-1);
-						testIncludeStatement(
-								guardTest,
-								investigationQueue,childToParent
-						);
-					}
+		final int statType = evalStatement.getStatementType();
+		switch (statType) {
+		case IF : {
+			//Special handling:
+			//If we have an "if", we must include all guards at the very least.
+			//If we have a do, we let the adding be handled by the scope itself.
+			int childCount = 0;
+			final int childHalfCount = evalStatement.getChildCount()/2;
+			for (EvaluatedStatement child : evalStatement.getChildren()) {
+				//Include the scope.
+				addToInvestigation(child);
+				//Remember to include not just the scope, but also the test.
+				addToInvestigation(child.getChildren().get(child.getChildCount()-1));
+				childCount++;
+				if (childCount >= childHalfCount) {
 					break;
 				}
 			}
+			break;
+		}
+		//If we are in a scope, we might be a part of
+		//a guard-command pair in a "do".
+		//If that is the case, remember to add our guard.
+		case SCOPE : {
+			final EvaluatedStatement parent = childToParent.get(evalStatement);
+			if (parent != null && parent.getStatementType() == DO) {
+
+				//First, find ourselves.
+				int i = 0;
+				for (EvaluatedStatement siblings : parent.getChildren()) {
+					if (siblings == evalStatement) {
+						//We have found ourselves.
+						break;
+					}
+					i++;
+				}
+				//Ensure sanity.
+				if (i == parent.getChildCount()) {
+					throw new IllegalStateException("We did not find ourselves!");
+				}
+				//To find our potential, subtract the halfsize from our index.
+				final int guardIndex = i - parent.getChildCount()/2;
+				//Include our guard only if we are a command.
+				System.out.println("Guard: " + guardIndex);
+				if (guardIndex >= 0) {
+					final EvaluatedStatement guardScope = parent.getChildren().get(guardIndex);
+					addToInvestigation(guardScope);
+
+					//Include not just the scope, but also the test.
+					final EvaluatedStatement guardTest =
+						guardScope.getChildren().get(guardScope.getChildCount()-1);
+					addToInvestigation(guardTest);
+				}
+				break;
 			}
+		}
 		}
 	}
 
