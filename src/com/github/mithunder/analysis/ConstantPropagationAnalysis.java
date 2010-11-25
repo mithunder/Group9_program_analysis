@@ -115,7 +115,7 @@ public class ConstantPropagationAnalysis extends KillRepairAnalysis {
 					// Let's not divide by zero - We cannot throw an error, because the data here is not guaranteed to remain.
 					// e.g. there may be more than one path here.
 					if(rhs.getValue() != 0) {
-						result = ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, lhs.getValue() * rhs.getValue());
+						result = ConstantValue.getConstantValue(ValueType.INTEGER_TYPE, lhs.getValue() / rhs.getValue());
 					}
 					break;
 				case StatementType.LOGIC_AND: result = lhs.getValue() != 0 && rhs.getValue() != 0? ConstantValue.TRUE : ConstantValue.FALSE;    break;
