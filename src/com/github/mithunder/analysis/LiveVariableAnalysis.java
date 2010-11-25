@@ -131,7 +131,7 @@ public class LiveVariableAnalysis extends KillRepairAnalysis {
 			return set.addAll(other.set);
 		}
 
-		boolean contains(Variable v) {
+		public boolean contains(Variable v) {
 			return set.contains(v);
 		}
 
