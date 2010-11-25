@@ -72,6 +72,46 @@ unit'' with a root node. The root node is a SCOPE node containing all the nodes 
 represents. This means that (e.g.) x is not a part of the tree structure.
 
 \subsection{Advantages}
+One of the advantages of this format is that everything calculation is reduced to
+small simple chunks. It is also possible to trivially transform this into a format
+that can be executed by ``3-address instruction'' machine.
+
+A second and very important advantage (and disadvantage) is that the flow becomes
+a part of the structure. In a SCOPE the control flows from a node to its sibling
+and there is no ``magic'' flow in or out of a SCOPE except for the entry at the
+first child and the exit at the last child (modulo ABORT statement; see
+Disadvantages about that).
+
+  The implicit flow makes it very easy to see whether or not a statement is inside a
+``strongly connected component''. This is important because it is if an analysis reaches
+a fixed-point inside one of these components, this component is ``done'' (unless there is
+a change in a previous component that flows into this component).
+
+  There are two cases in this representation; if the node is a DO, then the node and
+everything below is consists of one strongly connected component. Otherwise each leaf
+node is its own strongly connected component. Note that IF and SCOPE changes do not
+effect the strength of how connected their children are.
 
 \subsection{Disadvantages}
+The representation is not trivial to ``untransform'' into the source language even if no
+modifications have been made, particularly due to the great amount of temporary variables
+introduced. This also has a consequence for some analyses, since their time
+or/and space complexity are (partly) bounded by the number of variables.
+
+  A slightly better variation of this IR might have been to use a tree structure to
+describe the operands. This representation would likely have its own issues, but would
+allow an easier transformation back to source form (since the original expression is now
+fully available in the statement) and it would most likely eliminate the need for the
+temporary variables. It was planned to change to this IR, but due to time constrains
+it was never started.
+
+\docpar
+Since the flow is embedded in the structure, non-standard flow is difficult to handle.
+As an example if the language had  ``GOTO'' statements, it would have proved complicated.
+One could also argue that ABORT does not have a flow; though in this representation the
+analysis will end up ``flowing'' through ABORTs.
+
+  A consequence of this is that analyses have to be able to handle ABORT statements and
+define an ``exit value'' of an ABORT statement. On the plus side, it turned out that this
+exit value for Constant Propagation Analysis could be (ab)used positively.
 
