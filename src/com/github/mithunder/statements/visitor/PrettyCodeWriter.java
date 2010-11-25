@@ -106,6 +106,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 		out.println("end");
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T extends Statement> void  walkStatements(T s, Visitor<T> visitor) {
 		visitor.visitStatement(s);
 		if (s.getChildCount() != 0) {

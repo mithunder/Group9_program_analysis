@@ -29,14 +29,9 @@ public class ConstantFolder extends CodeRewriter implements StatementVisitor {
 				!(((EvaluatedStatement)s).getEntryEvaluation() instanceof CPAEvaluation)) {
 			throw new IllegalArgumentException("The unit must have been evaluated by ConstantPropagationAnalysis");
 		}
-		synchronized (this) {
-			if(unit == null) {
-				throw new IllegalStateException("Already rewriting a unit.");
-			}
-			this.unit = unit;
-			factory = unit.getFactory();
-			table = unit.getVariableTable();
-		}
+		this.unit = unit;
+		factory = unit.getFactory();
+		table = unit.getVariableTable();
 		try {
 			it.tour(unit);
 		} catch(RuntimeException e){
@@ -45,46 +40,32 @@ public class ConstantFolder extends CodeRewriter implements StatementVisitor {
 			// This class will not throw an exception.
 			throw new AssertionError(e);
 		}
-		synchronized (this) {
-			this.unit = null;
-			factory = null;
-			table = null;
-		}
+		this.unit = null;
+		factory = null;
+		table = null;
 		return unit;
 	}
 
 	@Override
-	public void endTour(CompilationUnit unit) throws Exception {}
+	public void endTour(CompilationUnit unit) {}
 
 	@Override
-	public void enter(int vitype, Statement compound, Statement parent, int cno) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+	public void enter(int vitype, Statement compound, Statement parent, int cno) {}
 
 	@Override
-	public void enterCompound(Statement compound, Statement parent, int cno) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+	public void enterCompound(Statement compound, Statement parent, int cno) {}
 
 	@Override
-	public void leave(int vitype, Statement compound, Statement parent, int cno) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+	public void leave(int vitype, Statement compound, Statement parent, int cno) {}
 
 	@Override
-	public void leaveCompound(Statement compound, Statement parent, int cno) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+	public void leaveCompound(Statement compound, Statement parent, int cno) {}
 
 	@Override
-	public void startTour(CompilationUnit unit) throws Exception {}
+	public void startTour(CompilationUnit unit) {}
 
 	@Override
-	public void visitStatement(Statement s, Statement parent, int cno) throws Exception {
+	public void visitStatement(Statement s, Statement parent, int cno) {
 		EvaluatedStatement e = (EvaluatedStatement)s;
 		CPAEvaluation data = (CPAEvaluation)e.getExitEvaluation();
 		final int stype = e.getStatementType();
