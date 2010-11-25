@@ -1,0 +1,9 @@
+module lv_test2 :
+read x;
+read y;
+f := 0;
+do x > y -> x:= x - y ; f := f + 1
+[] x < y -> y:= y - x ; f := f + 1
+od;
+write x
+end

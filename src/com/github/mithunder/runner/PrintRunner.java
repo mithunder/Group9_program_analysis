@@ -20,6 +20,7 @@ import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
 import com.github.mithunder.rewrite.ConstantFolder;
+import com.github.mithunder.rewrite.DeadVariableElemination;
 import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
@@ -32,7 +33,7 @@ import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
 public class PrintRunner {
 
-	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS };
+	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS, CPBKandLV };
 
 	public static void main(String[] args) throws Exception {
 
@@ -104,6 +105,7 @@ public class PrintRunner {
 				case RD: ana = new ReachingDefinitionAnalysis(); break;
 				case LV: ana = new LiveVariableAnalysis(); break;
 				case CP: ana = new ConstantPropagationAnalysis(); break;
+				case CPBKandLV:
 				case CPBK: ana = new ConstantPropagationBranchKiller(); break;
 				default: throw new AssertionError();
 				}
@@ -120,9 +122,27 @@ public class PrintRunner {
 				eunit = new CompilationUnit(unit.getUnitName(), nroot,
 						unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory());
 				staIte.tour(eunit);
-				if(chosenOption == Options.CP || chosenOption == Options.CPBK) {
+				if(chosenOption == Options.CP || chosenOption == Options.CPBK ||
+						chosenOption == Options.CPBKandLV) {
 					eunit = new ConstantFolder().rewrite(eunit);
-					System.out.println("\n\n\n######## The rewritten code ########\n");
+					System.out.println("\n\n\n######## The rewritten code (CP) ########\n");
+					staIte.tour(eunit);
+					if(chosenOption == Options.CPBKandLV){
+						System.out.println("Starting analysis");
+						st = System.currentTimeMillis();
+						nroot = wl.run(new LiveVariableAnalysis(), unit);
+						System.out.println("Finished analysis, time: " + (System.currentTimeMillis() - st) + "ms.");
+
+						eunit = new CompilationUnit(unit.getUnitName(), nroot,
+								unit.getVariableTable(), unit.getFinalStatements(), unit.getFactory());
+						cw.setPrintEntryEvaluation(true);
+						System.out.println("\n\n\n######## After LV ########\n");
+						staIte.tour(eunit);
+					}
+				}
+				if(chosenOption == Options.LV || chosenOption == Options.CPBKandLV){
+					eunit = new DeadVariableElemination().rewrite(eunit);
+					System.out.println("\n\n\n######## The rewritten code (LV) ########\n");
 					staIte.tour(eunit);
 				}
 				eunit = new PurgeDeadCode().rewrite(eunit);

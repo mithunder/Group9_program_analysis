@@ -1,0 +1,8 @@
+
+module lv_test :
+
+x := 1;
+do x > 0 -> x := 1; abort
+[] x > 0 -> x := 2
+od
+end
