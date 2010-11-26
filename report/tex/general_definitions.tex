@@ -17,12 +17,12 @@ certain to do so. On the other hand, an abort is certain to terminate, and no fl
 occurs in a command that looks like: abort; C$_2$. To get a precise analysis, termination
 may be considered. However, since this represents a complication, abort is not guaranteed
 to be considered everywhere. In the cases where abort is not considered, the below analysis
-can still be applied: replace any occurrence of "abort" in the program with "skip".
+can still be applied: replace any occurrence of ``abort'' in the program with ``skip''.
 This simplifies the analysis, but makes it less precise.
 
 \subsection{Labelling}
 
-A label is given to every elementary block "el". The elementary blocks consists of
+A label is given to every elementary block ``el''. The elementary blocks consists of
 the commands assign, skip, abort, read, write, and test. Furthermore, a label is given
 to if and do, to simplify definitions later. For all intentions and purposes, the
 label of if and do can be seen as being the label of a skip elementary block.
@@ -68,24 +68,28 @@ final(C) denotes the exit points for the flow of a command.
 For instance, the exit point of [read x]$_l$ is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Label)\]
 
-final(C):\newline
-final([x := a]$_l$)      = \{l\}\newline
-final([skip]$_l$)        = \{l\}\newline
-final([abort]$_l$)       = \{l\}\newline
-final([read x]$_l$)      = \{l\}\newline
-final([write a]$_l$)   	 = \{l\}\newline
-final(C$_1$; C$_2$)		 = \begin{cases}
-($el \vert $el \in$ final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) \textbf{if} (el \vert $el $\in$ final(C$_1$) $\wedge$ el $\not =$ abort) $\not = \emptyset$ \\
-($el \vert $el $\in$ final(C$_1$) $\wedge$ el = abort) \textbf{else}
-\end{cases}\newline
-final(\{C\})             = final(C)\newline
-final(if gC fi)        = final(gC)\newline
-final([do]$_l$ gC od)        = guards(gC) $\cup$ (el \vert $el $\in$ final(gC) $\wedge$ el = abort)\newline
-final([e]$_l$ $\to C$)      = final(C)\newline
-final(gC1 [] gC2)      = final(gC1) $\cup$ final(gC2)\newline
+\docpar
+
+$final(C):$\\
+$final([x := a]_l)     = \{l\}$\\
+$final([skip]_l)       = \{l\}$\\
+$final([abort]_l)      = \{l\}$\\
+$final([read x]_l)     = \{l\}$\\
+$final([write a]_l)    = \{l\}$\\
+$final(C_1; C_2)		  =
+\begin{cases}
+(el \vert el \in final(C_1) \wedge el = abort) \cup final(C_2) \textbf{if} (el \vert el \in final(C_1) \wedge el \neq abort) \neq \emptyset \\
+(el \vert \in final(C_1) \wedge el = abort) \textbf{else}
+\end{cases}$\\
+$final(\{C\})          = final(C)$\\
+$final(if gC fi)       = final(gC)$\\
+$final([do]_l gC od)  = 
+guards(gC) \cup (el \vert el \in final(gC) \wedge el = abort)$\\
+$final([e]_l \to C)    = final(C)$\\
+$final(gC1 [] gC2)      = final(gC1) \cup final(gC2)$\\
 
 \begin{itemize}
-\item The reasoning behing the definition of the semicolon command is that the
+\item The reasoning behind the definition of the semicolon command is that the
 final commands of C$_2$ will only be reached if there is any flow at all
 between C$_1$ and C$_2$: this is not the case if C$_1$ aborts the program
 before reaching C$_2$.
@@ -105,23 +109,28 @@ blocks(C) denotes the elementary blocks of a command.
 For instance, the elementary blocks of blocks([read x]$_l$) is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Elementary Command)\]
 
+\docpar
+\begin{equation}
 blocks(C):\newline
-blocks([x := a]$_l$)      = {[x := a]$_l$}\newline
-blocks([skip]$_l$)        = {[skip]$_l$}\newline
-blocks([abort]$_l$)       = {[abort]$_l$}\newline
-blocks([read x]$_l$)      = {[read x]$_l$}\newline
-blocks([write a]$_l$)     = {[write a]$_l$}\newline
-blocks(C$_1$; C$_2$)		 = \begin{cases}
-$blocks(C$_1$) $\cup$ blocks(C$_2$) \textbf{if} (flow(C$_1$; C$_2$) $\setminus$ (flow(C$_1$) $\cup$ flow(C$_2$))) $\not = \emptyset$\\
-$blocks(C$_1$) \textbf{else}
-\end{cases}\newline
+blocks([x := a]_l)      = {[x := a]_l}\newline
+blocks([skip]_l)        = {[skip]_l}\newline
+blocks([abort]_l)       = {[abort]_l}\newline
+blocks([read x]_l)      = {[read x]_l}\newline
+blocks([write a]_l)     = {[write a]_l}\newline
+blocks(C_1; C_2)		 = 
+\begin{cases}
+blocks(C_1) \cup blocks(C_2) \textbf{if} (flow(C_1; C_2) \setminus (flow(C_1) \cup flow(C_2))) \neq \emptyset\\
+blocks(C_1) \textbf{else}
+\end{cases}
+\newline
 blocks(\{C\})             = blocks(C)\newline
 blocks(if gC fi)        = blocks(gC)\newline
 blocks(do gC od)        = blocks(gC)\newline
-blocks([e]$_l$ $\to$ C)      = \{[e]$_l$\} $\cup$ blocks(C)\newline
-blocks(gC$_1$ [] gC$_2$)= blocks(gC$_1$) $\cup$ blocks(gC$_2$)\newline
+blocks([e]_l \to C)      = \{[e]_l\} \cup blocks(C)\newline
+blocks(gC_1 [] gC_2)= blocks(gC_1) \cup blocks(gC_2)\newline
+\end{equation}
 
-The reasoning behing the definition of the semicolon command is that the
+The reasoning behind the definition of the semicolon command is that the
 blocks function only includes those commands that may be reached. If there is
 no flow from C$_1$ to C$_2$, the blocks in C$_2$ will never be reached, and is
 therefore never included.
@@ -142,26 +151,29 @@ flow([skip]$_l$)          =$\emptyset$\newline
 flow([abort]$_l$)         =$\emptyset$\newline
 flow([read x]$_l$)        =$\emptyset$\newline
 flow([write a]$_l$)       =$\emptyset$\newline
-flow-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) \vert $el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\newline
-flow(C$_1$; C$_2$)		 = \begin{cases}
-$flow(C$_1$) $\cup$ flow(C$_2$) $\cup$ flow-between(C$_1$, C$_2$) \textbf{if} flow-between(C$_1$, C$_2$) $\not = \emptyset$\\
-$flow(C$_1$) \textbf{else}
-\end{cases}\newline
+flow\-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\newline
+flow(C$_1$; C$_2$)		 = 
+\begin{equation}
+\begin{cases}
+flow(C_1) \cup flow(C_2) \cup flow-between(C_1, C_2) \textbf{if} flow-between(C_1, C_2) \not = \emptyset\\
+flow(C_1) \textbf{else}
+\end{cases}
+\end{equation}\newline
 flow(\{C\}) = C\newline
 
-flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) \vert $el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
+flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
 $\cup$ flow(gC)\newline
 
-flow([do]$_l$ gC od) = ((el$_1$, el$_2$) \vert $el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
+flow([do]$_l$ gC od) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
 $\cup$ flow(gC)\newline
-$\cup$ ((el$_1$, el$_2$) \vert $el$_1$ $\in$ final(gC) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ guards(gC))\newline
+$\cup$ ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(gC) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ guards(gC))\newline
 
 flow([e]$_l$ $\to$ C)      = \{([e]$_l$, init(C))\} $\cup$ flow(C) \newline
 flow(gC$_1$ [] gC$_2$)= flow(gC$_1$) $\cup$ flow(gC$_2$)\newline
 
 
 \begin{itemize}
-\item The reasoning behing the definition of the semicolon command is that there
+\item The reasoning behind the definition of the semicolon command is that there
 is only flow from C$_1$ to C$_2$ if C$_1$ does not abort in all final statements.
 \item The reasoning behind the definition of flow for if is that the flow should
 flow through the guards, from each guard to its command, and flow through the command.
