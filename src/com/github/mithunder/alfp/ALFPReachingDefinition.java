@@ -112,6 +112,8 @@ public class ALFPReachingDefinition extends ALFP {
 						if(statement.getStatementType() != StatementType.READ) {
 							killList.add(gke);
 						}
+					} else if(statement.getStatementType() == StatementType.WRITE) {
+						variableList.add((Variable) statement.getValues()[0]);
 					}
 				}
 				break;
