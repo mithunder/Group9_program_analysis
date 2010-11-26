@@ -1,7 +1,117 @@
 
 \section{Data Structure}
 
-Please describe the data structure here.
+The program is translated into a tree-like structure where each node
+is either a compound node (having children) or is a leaf node representing
+an ``3-address expression''.
 
+  A variation ``3-address expression'' is also used in the ``GIMPLE'' trees,
+which is the internal/intermediate representation (IR) used in the GNU Compiler
+Collection (GCC) ``middle-end''.
 
+\paragraph*{Leaf nodes}
+are all ``simple'' expressions, which are rewritten to 1 or 2 operands expressions. Here
+simple refers to any non-compound expression (that is all language constructs
+except things like do-od, if-fi and \{\})
+
+In this particular IR all expressions are reduced to 1 or 2 operands expressions.
+As an example:
+
+\begin{lstlisting}
+	c := a * (b + c) / 4
+\end{lstlisting}
+	
+will be translated to the following leaf nodes:
+
+\begin{lstlisting}
+	t1 := b + c
+	t2 := a * t1
+	c := t2/4
+\end{lstlisting}
+	
+In some cases the IR/the language only allows a single node and in these cases
+the nodes are wrapped in a single compound (``SCOPE'') node. In some cases the
+IR puts SCOPE nodes in places the language would not allow it, as an example:
+
+\begin{lstlisting}
+	if ((x > 3) | (y > 3)) -> skip if
+\end{lstlisting}
+
+In this case the guard would be represented as:
+
+\begin{lstlisting}
+	{
+		t1 := x > 3
+		t2 := y > 3
+		t3 := t1 | t2
+	}
+\end{lstlisting}
+
+This is not a problem in this language, because when during the reverse transformation
+this scope can trivially be replaced with a bracket group and it will now be a valid
+program again.
+
+Finally there also some language constructs that may disappear in the IR. Particularly
+brackets will vanish. As seen in the example above, the brackets are not represented at
+all. They are used when constructing the IR to order leaf node, but 
+
+\paragraph*{Compound nodes}
+refers to language constructs that contains other nodes. In the IR there are 3 kind of
+compund nodes, which are IF, DO and SCOPE. A SCOPE node simply contain a list of nodes
+in the order of the flow for that scope. The IF and DO nodes are a little more special.
+
+  The IF and DO node have twice as many child nodes as the original if statement in the
+language had branches. One of these nodes represents the guard and the other the command.
+The nodes are ordered so that guards comes first and the commands follow. The commands
+are inserted in the same order as their guard, so the i'th command is protected by the
+i'th guard.
+
+\docpar
+A special case is the $module x : y end$ construct. This is represented as a ``compilation
+unit'' with a root node. The root node is a SCOPE node containing all the nodes that y
+represents. This means that (e.g.) x is not a part of the tree structure.
+
+\subsection{Advantages}
+One of the advantages of this format is that everything calculation is reduced to
+small simple chunks. It is also possible to trivially transform this into a format
+that can be executed by ``3-address instruction'' machine.
+
+A second and very important advantage (and disadvantage) is that the flow becomes
+a part of the structure. In a SCOPE the control flows from a node to its sibling
+and there is no ``magic'' flow in or out of a SCOPE except for the entry at the
+first child and the exit at the last child (modulo ABORT statement; see
+Disadvantages about that).
+
+  The implicit flow makes it very easy to see whether or not a statement is inside a
+``strongly connected component''. This is important because it is if an analysis reaches
+a fixed-point inside one of these components, this component is ``done'' (unless there is
+a change in a previous component that flows into this component).
+
+  There are two cases in this representation; if the node is a DO, then the node and
+everything below is consists of one strongly connected component. Otherwise each leaf
+node is its own strongly connected component. Note that IF and SCOPE changes do not
+effect the strength of how connected their children are.
+
+\subsection{Disadvantages}
+The representation is not trivial to ``untransform'' into the source language even if no
+modifications have been made, particularly due to the great amount of temporary variables
+introduced. This also has a consequence for some analyses, since their time
+or/and space complexity are (partly) bounded by the number of variables.
+
+  A slightly better variation of this IR might have been to use a tree structure to
+describe the operands. This representation would likely have its own issues, but would
+allow an easier transformation back to source form (since the original expression is now
+fully available in the statement) and it would most likely eliminate the need for the
+temporary variables. It was planned to change to this IR, but due to time constrains
+it was never started.
+
+\docpar
+Since the flow is embedded in the structure, non-standard flow is difficult to handle.
+As an example if the language had  ``GOTO'' statements, it would have proved complicated.
+One could also argue that ABORT does not have a flow; though in this representation the
+analysis will end up ``flowing'' through ABORTs.
+
+  A consequence of this is that analyses have to be able to handle ABORT statements and
+define an ``exit value'' of an ABORT statement. On the plus side, it turned out that this
+exit value for Constant Propagation Analysis could be (ab)used positively.
 

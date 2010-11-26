@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{parskip}
+\usepackage{listings}
 \usepackage{verbatim}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -16,6 +17,14 @@
     linkcolor=black,%
     urlcolor=black
 }
+
+% Set up listings to print the code in a snazzy way
+\lstdefinelanguage{guardcmd}{morecomment=[l][commentstyle]{//},
+		morecomment=[s][commentstyle]{/*}{*/},
+		morecomment=[n][commentstyle]{\#},
+		morekeywords={skip, abort, if, fi, do, od, module, end}
+}
+\lstset{language=guardcmd}
 
 \newcommand{\email}[1]{{\href{#1}{#1}}}
 
@@ -75,8 +84,12 @@ This section contains a list of abbreviations and acronyms used in
 the report.
 
 \begin{itemize}
-\item RD - Reaching Definitions
-\item GCL - Reaching Definitions
+\item CP(A) - Constant Propagation (Analysis)
+\item GCC - GNU Compiler Collection (or GNU C Compiler)
+\item GCL - Guarded Command Language
+\item IR - Intermediate (or Internal) Representation
+\item LV(A) - Live Variable (Analysis)
+\item RD(A) - Reaching Definitions (Analysis)
 \end{itemize}
 
 \end{document}
