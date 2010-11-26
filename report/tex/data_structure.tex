@@ -53,9 +53,8 @@ program again.
 
 Finally there also some language constructs that may disappear in the IR. Particularly
 brackets will vanish. As seen in the example above, the brackets are not represented at
-all. They are used when constructing the IR to order leaf node, but 
-
-//TODO: Ending mid-sentence.
+all. They are used when constructing the IR to order leaf node, but due to the ordering
+of the leaf nodes, they are no longer required.
 
 \paragraph*{Compound nodes}
 refers to language constructs that contains other nodes. In the IR there are 3 kind of
@@ -78,6 +77,7 @@ One of the advantages of this format is that everything calculation is reduced t
 small simple chunks. It is also possible to trivially transform this into a format
 that can be executed by ``3-address instruction'' machine.
 
+\docpar
 A second and very important advantage (and disadvantage) is that the flow becomes
 a part of the structure. In a SCOPE the control flows from a node to its sibling
 and there is no ``magic'' flow in or out of a SCOPE except for the entry at the

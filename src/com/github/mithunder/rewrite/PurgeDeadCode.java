@@ -74,11 +74,16 @@ public class PurgeDeadCode extends CodeRewriter {
 					if(rstype == SCOPE){
 						/* Scope within a scope? Promote the inner scope */
 						List<? extends Statement> rchildren = replacement.getChildren();
+						if(rchildren.size() < 1) {
+							continue;
+						}
 						replacement = rchildren.get(rchildren.size() - 1);
 						rstype = replacement.getStatementType();
 						resc.addAll(rchildren);
 					} else {
-						resc.add(replacement);
+						if(rstype != SKIP) {
+							resc.add(replacement);
+						}
 					}
 					if(rstype == ABORT) {
 						/* The rest are dead since nothing goes beyond an abort. */
