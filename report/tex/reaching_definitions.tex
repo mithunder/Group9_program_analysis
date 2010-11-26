@@ -1,0 +1,80 @@
+
+\section{Reaching Definitions}
+
+In this section, Reaching Definitions (RD) analysis will be defined.
+RD is a forward-may analysis, that indicates where variables may have
+been assigned at any given point. Given that it is a may analysis,
+it may include assignments which actually does not reach the given point.
+For an imprecise analysis, this is easy to see in the example program;
+x := a; abort; skip. An analysis is allowed to let the assignment to x
+reach the skip, which is imprecise. To increase the precision of the analysis,
+this definition of RD kills the assignment to x before it reaches the skip.
+
+In regards to RD, the definitions is the same as the book given for the course,
+except for the kill and gen functions. These will be defined below.
+After the definitions, example programs and analysis will be given.
+
+\subsection{Kill}
+
+The definition of kill is the mapping from elementary blocks to the set of variable-label pairs
+that are removed by the elementary block. The domain is:
+\[final \colon Elementary Command \to \mathcal{P}(Variable)\times\mathcal{P}(Label)\]
+
+kill$_{RD}$(C):\newline
+kill$_{RD}$([x := a]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\newline
+kill$_{RD}$([read x]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\newline
+kill$_{RD}$([skip]$_l$)             =$\emptyset$\newline
+kill$_{RD}$([abort]$_l$) 			= ((x, l) $\vert$ l $\in$ labels(C*) and x $\in$ FV(C*) )\newline
+kill$_{RD}$([write a]$_l$)          =$\emptyset$\newline
+kill$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\newline
+kill$_{RD}$([do]$_l$ gC od)         =$\emptyset$\newline
+kill$_{RD}$([e]$_l$)                =$\emptyset$\newline
+
+Note that the abort kills everything.
+
+\subsection{Gen}
+
+The definition of gen is the mapping from elementary blocks to the set of variable-label pairs
+that are added by the elementary block. The domain is:
+\[final \colon Elementary Command \to \mathcal{P}(Variable)\times\mathcal{P}(Label)\]
+
+gen$_{RD}$(C):\newline
+gen$_{RD}$([x := a]$_l$)           = \{(x, l)\}\newline
+gen$_{RD}$([read x]$_l$)           = \{(x, l)\}\newline
+gen$_{RD}$([skip]$_l$)             =$\emptyset$\newline
+gen$_{RD}$([abort]$_l$) 			= $\emptyset$\newline
+gen$_{RD}$([write a]$_l$)          =$\emptyset$\newline
+gen$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\newline
+gen$_{RD}$([do]$_l$ gC od)         =$\emptyset$\newline
+gen$_{RD}$([e]$_l$)                =$\emptyset$\newline
+
+\subsection{Examples}
+
+Example 1:
+
+\begin{lstlisting}
+module rd-example :
+read x;[1]
+if (x > 0)[2]
+  -> y := 0[3]; skip[4]
+[] x <= 0[5]
+  -> y := 1[6]; abort[7]
+fi;
+i := 0;[8]
+do (i < 10)[9]
+  i := i + 1[10]
+od
+end
+\end{lstlisting}
+gives as entry for label 8:
+\[RD_{entry}(8) = \{(x, 1), (y, 3), (i, ?)\}\]
+and exit:
+\[RD_{exit}(8) = \{(x, 1), (y, 3), (i, 8)\}\]
+
+For label 10, entry:
+\[RD_{entry}(10) = \{(x, 1), (y, 3), (i, 8), (i, 10)\}\]
+and exit:
+\[RD_{exit}(10) = \{(x, 1), (y, 3), (i, 10)\}\]
+
+
+

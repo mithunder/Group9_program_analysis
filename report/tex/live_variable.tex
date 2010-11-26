@@ -1,0 +1,92 @@
+
+\section{Live variable}
+
+In this section, Live Variable (LV) analysis will be defined.
+LV is a backward-may analysis, that indicates which variables are
+alive at each command: A variable is alive if there is some path
+from the label to a use of the variable that does not redefine it.
+A simple example is: x := a; x := b; x := c; write x.
+Here, x is dead at the two first commands, since it is redefined
+before it is read. Note that variables that are never read will
+automatically be dead. By detecting superfluous defines, LV
+can be used to remove dead code.
+
+In regards to LV, the definitions is the same as the book given for the course,
+except for the kill and gen functions. These will be defined below.
+After the definitions, example programs and analysis will be given.
+
+\subsection{Kill}
+
+The definition of kill is the mapping from elementary blocks to the set of variables
+that are removed by the elementary block. The domain is:
+\[final \colon Elementary Command \to \mathcal{P}(Variable)\]
+
+kill$_{LV}$(C):\newline
+kill$_{LV}$([x := a]$_l$)           = \{x\}
+kill$_{LV}$([read x]$_l$)           = \{x\}
+kill$_{LV}$([skip]$_l$)             = $\emptyset$\newline
+kill$_{LV}$([abort]$_l$) 			= FV(C*)\newline
+kill$_{LV}$([write a]$_l$)          =$\emptyset$\newline
+kill$_{LV}$([if]$_l$ gC fi)         =$\emptyset$\newline
+kill$_{LV}$([do]$_l$ gC od)         =$\emptyset$\newline
+kill$_{LV}$([e]$_l$)                =$\emptyset$\newline
+
+Note that the abort kills everything, since x will clearly not survive to the write in
+x := a; abort; write x, and is therefore dead at the write.
+
+\subsection{Gen}
+
+The definition of gen is the mapping from elementary blocks to the set of variables
+that are added by the elementary block. The domain is:
+\[final \colon Elementary Command \to \mathcal{P}(Variable)\]
+
+gen$_{LV}$(C):\newline
+gen$_{LV}$([x := a]$_l$)           = FV(a)\newline
+gen$_{LV}$([read x]$_l$)           = $\emptyset$\newline
+gen$_{LV}$([skip]$_l$)             = $\emptyset$\newline
+gen$_{LV}$([abort]$_l$) 		   = $\emptyset$\newline
+gen$_{LV}$([write a]$_l$)          =FV(a)$\emptyset$\newline
+gen$_{LV}$([if]$_l$ gC fi)         =$\emptyset$\newline
+gen$_{LV}$([do]$_l$ gC od)         =$\emptyset$\newline
+gen$_{LV}$([e]$_l$)                =FV(e)$\emptyset$\newline
+
+\subsection{Examples}
+
+Example 1:
+\begin{lstlisting}
+module rd-example-1 :
+x := 10;[1]
+x := 5000;[2]
+x := a;[3]
+write y[4]
+\end{lstlisting}
+gives for all entries:
+\[LV_{entry}(all) = \{y\}\]
+and exit, except 4:
+\[LV_{exit}(all-4) = \{y\}\]
+Four gives:
+\[LV_{exit}(4) = \{\}\]
+since nothing reads y after the last statement.
+
+Example 2:
+\begin{lstlisting}
+module rd-example-2 :
+x := z;[1]
+if (z > 0)[2] -> x := -1[3]
+[] (z <= 0)[4] -> x := 1[5]
+fi;
+write x*127[6]
+\end{lstlisting}
+A little more advanced example.
+For label 1:
+\[LV_{entry}(1) = \{z\}\]
+Since x is never used before assignment, and
+\[LV_{exit}(1) = \{z\}\]
+since x is never used before being assigned to again.
+
+For label 3:
+\[LV_{entry}(3) = \{\}\],
+\[LV_{exit}(3) = \{x\}\]
+since x is used after the assignment without being define again,
+namely at label 6. z, however, is never used again.
+
