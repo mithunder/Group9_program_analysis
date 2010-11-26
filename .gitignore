@@ -4,3 +4,10 @@ bin
 GuardCommand*.java
 GuardCommand.tokens
 *.pdf
+*.aux
+*.dvi
+*.lof
+*.log
+*.out
+*.toc
+
