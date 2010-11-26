@@ -2,13 +2,19 @@
 \section{Program Slicing}
 
 The assignment defines program slicing  as:
-“Given a program the idea is to determine the part of the program that may influence the values
-computed at a given point of interest; this part of the program is then called a program slice.”
+''Given a program the idea is to determine the part of the program that may influence the values
+computed at a given point of interest; this part of the program is then called a program slice.´´
 Based on this description, program slicing as understood in this project is defined and investigated,
 to try and obtain a useful, safe and precise program transformation.
 One use of program slicing is to use it for debugging; for instance, given a program that handles
 multiple concerns, isolate the part of the program that just gave a divide-by-zero error at a
 specific statement.
+
+In regards to approximation, the program slicing is allowed to overapproximate: It is allowed to include statements
+that falsely indicate that more values can be computed than what really can be computed.
+The main requirement is that it does not exclude statements that would result in an underapproximation
+of values of what may be computed. Of course, to enable a more precise transformation, it is desirable
+to minimise the overapproximation.
 
 To illustrate what program slicing is, a simple example is given:
 \begin{lstlisting}
@@ -119,7 +125,8 @@ definition in any of their commands reaches the referenced variables.
 
 Non-termination and early termination may have an effect on whether or not the point of interest is
 ever reached, but not directly which values that may be computed. Therefore, non-termination and
-early termination is ignored. For instance, look at the following program:
+early termination may be ignored, as long as it does not result in an underapproximation of the
+values that may be computed. For instance, look at the following program:
 \begin{lstlisting}
 a := 4;
 do (true) -> skip
@@ -171,8 +178,8 @@ investigate. It starts out with adding the points of interest to the queue. Then
 item on the queue, if the command has not been investigated, it is investigated. Based on that,
 more commands may be added to the investigation queue. The commands to investigate is based
 on two questions: What definitions are used at this statement, and what parent does this statement
-have? Namely, all reaching definitions that are used at this command is added to the investigation
-queue, and all parents of this command is added.
+have? Namely, all reaching definitions (using RD-analysis) that are used at this command is added
+to the investigation queue, and all parents of this command is added.
 
 In regards to special handling of the commands, if-commands get all their conditions added,
 while do-loops does no such things. For each guard-command pair, the guard is added to the queue
@@ -185,7 +192,7 @@ Add points of interest
 while (!queue.empty())
 	currentStatement = queue.poll();
 	if (!isIncluded(currentStatement))
-		investigateValues(queue, currentStatement)
+		investigateValues(queue, currentStatement, RDAnalysis)
 		investigateParents(queue, currentStatement)
 		investigateSpecialStatements(queue, currentStatement)
 Remove all parts not included
