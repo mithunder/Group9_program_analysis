@@ -36,6 +36,10 @@ public class PrintRunner {
 	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS, CPBKandLV };
 
 	public static void main(String[] args) throws Exception {
+		handlePrintRunning();
+	}
+
+	private static void handlePrintRunning() throws Exception  {
 
 		String fileName;
 		Options chosenOption = null;

@@ -30,6 +30,7 @@ public class ALFPReachingDefinition extends ALFP {
 		labelStack.push("0");
 		variableList = new TreeSet<Variable>();
 		labelList = new TreeSet<String>();
+		labelList.add("0");
 		genList = new TreeSet<GenKillElement>();
 		killList = new TreeSet<GenKillElement>();
 		flowList = new TreeSet<FlowElement>();
