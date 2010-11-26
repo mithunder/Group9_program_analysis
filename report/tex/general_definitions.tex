@@ -4,8 +4,9 @@
 \docpar
 When arguing for the correctness of algorithms, defining the flow and labels of the language is
 valuable. Below different definitions and functions is given, mirroring those of chapter 2 of the
-book. These include init(C), final(C), blocks(C), labels(C) and flow(C). Note that C is used instead
-of S to indicate commands instead of statements.
+book given in the course. These include init(C), final(C), blocks(C), labels(C) and flow(C).
+Note that C is used instead of S to indicate commands instead of statements, and that
+x and y typically denotes variables, and a and e expressions, though this is not always followed.
 
 In the following, the guarded commands are a part of the domain of commands.
 
@@ -47,7 +48,7 @@ init([x := a]$_l$)      = l\newline
 init([skip]$_l$)        = l\newline
 init([abort]$_l$)       = l\newline
 init([read x]$_l$)      = l\newline
-init([write x]$_l$)     = l\newline
+init([write a]$_l$)     = l\newline
 init(C$_1$; C$_2$)        = init(C$_1$)\newline
 init(\{C\})             = init(C)\newline
 init([if]$_l$ gC fi)        = l\newline
@@ -73,7 +74,7 @@ final([x := a]$_l$)      = \{l\}\newline
 final([skip]$_l$)        = \{l\}\newline
 final([abort]$_l$)       = \{l\}\newline
 final([read x]$_l$)      = \{l\}\newline
-final([write x]$_l$)   	 = \{l\}\newline
+final([write a]$_l$)   	 = \{l\}\newline
 final(C$_1$; C$_2$)		 = \begin{cases}
 ($el \vert $el \in$ final(C$_1$) $\wedge$ el = abort) $\cup$ final(C$_2$) \textbf{if} (el \vert $el $\in$ final(C$_1$) $\wedge$ el $\not =$ abort) $\not = \emptyset$ \\
 ($el \vert $el $\in$ final(C$_1$) $\wedge$ el = abort) \textbf{else}
@@ -110,7 +111,7 @@ blocks([x := a]$_l$)      = {[x := a]$_l$}\newline
 blocks([skip]$_l$)        = {[skip]$_l$}\newline
 blocks([abort]$_l$)       = {[abort]$_l$}\newline
 blocks([read x]$_l$)      = {[read x]$_l$}\newline
-blocks([write x]$_l$)     = {[write x]$_l$}\newline
+blocks([write a]$_l$)     = {[write a]$_l$}\newline
 blocks(C$_1$; C$_2$)		 = \begin{cases}
 $blocks(C$_1$) $\cup$ blocks(C$_2$) \textbf{if} (flow(C$_1$; C$_2$) $\setminus$ (flow(C$_1$) $\cup$ flow(C$_2$))) $\not = \emptyset$\\
 $blocks(C$_1$) \textbf{else}
@@ -141,7 +142,7 @@ flow([x := a]$_l$)        =$\emptyset$\newline
 flow([skip]$_l$)          =$\emptyset$\newline
 flow([abort]$_l$)         =$\emptyset$\newline
 flow([read x]$_l$)        =$\emptyset$\newline
-flow([write x]$_l$)       =$\emptyset$\newline
+flow([write a]$_l$)       =$\emptyset$\newline
 flow-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) \vert $el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\newline
 flow(C$_1$; C$_2$)		 = \begin{cases}
 $flow(C$_1$) $\cup$ flow(C$_2$) $\cup$ flow-between(C$_1$, C$_2$) \textbf{if} flow-between(C$_1$, C$_2$) $\not = \emptyset$\\
@@ -169,16 +170,4 @@ flow through the guards, from each guard to its command, and flow through the co
 like for if, except that it should flow back to the do label. This is because the do loops,
 unlike the if.
 \end{itemize}
-
-\subsection{Used}
-
-//TODO:
-
-used(C):
-used([x := a])       = fv(a)
-used([skip])         =Ø
-used([abort])        =Ø
-used([read x])       =Ø
-used([write x])      = {x}
-used([e])            = fv(e)
 

@@ -1,7 +1,194 @@
 
 \section{Program Slicing}
 
-Please describe program slicing here.
+The assignment defines program slicing  as:
+“Given a program the idea is to determine the part of the program that may influence the values
+computed at a given point of interest; this part of the program is then called a program slice.”
+Based on this description, program slicing as understood in this project is defined and investigated,
+to try and obtain a useful, safe and precise program transformation.
+One use of program slicing is to use it for debugging; for instance, given a program that handles
+multiple concerns, isolate the part of the program that just gave a divide-by-zero error at a
+specific statement.
 
+To illustrate what program slicing is, a simple example is given:
+\begin{lstlisting}
+a := 3;
+b := 5;
+x := a;
+\end{lstlisting}
+With point of interest at line 3, this becomes:
+\begin{lstlisting}
+a := 3;
+x := a;
+\end{lstlisting}
+since line 2 has no effect on the values computed at line 3.
+This is the only parts of the program that are considered interesting.
 
+\subsection{Control flow}
+
+An important issue regarding program slicing is that not only assignment, but also program control
+flow is important. For instance, consider the following example:
+\begin{lstlisting}
+a := 3;
+b := 4;
+if (b = 4) -> a := 5;
+[] (b = 3) -> a := 10000;
+fi;
+x := a;
+\end{lstlisting}
+With point of interest at line 6.
+If control flow is ignored, the program slice might end up looking like this:
+\begin{lstlisting}
+a := 5;
+a := 10000;
+x := a;
+\end{lstlisting}
+which is clearly wrong. Instead, the correct program slice must be:
+\begin{lstlisting}
+b := 4;
+if (b = 4) -> a := 5;
+[] (b = 3) -> a := 10000;
+fi;
+x := a;
+\end{lstlisting}
+since this includes all the parts that are relevant to determine the parts
+that may influence the values at line 6.
+Note that b is included, since it helps determine the flow: it is included in at least one of the
+conditions in the guarded if. Furthermore, the first assignment to a is gone, since at least one of the
+statements in line 3 and 4 is executed.
+Based on these considerations, control flow must be included, at least to some degree.
+
+To consider control flow properly, both the guarded if and the guarded do will be considered. Early
+termination and non-termination is also considered.
+
+\subsection{Guarded do}
+
+For the guarded do, just the conditions with commands that includes definitions which reaches
+referenced variables are included in the program slice. This claim is justified below.
+
+Consider some program:
+\begin{lstlisting}
+a := 42;
+do (P) -> a := 30; S1;
+[] (Q) -> S2;
+od
+x := a;
+\end{lstlisting}
+and that the point of interest is the last command.
+
+Assume that S2 does not contain any assignments to a, and that no definitions in S2 will reach a.
+It is clear that the predicate P is relevant to a,
+and therefore to x. It should therefore be included in the program slice. Instead, the relevance of Q
+$\rightarrow$ S2 is not determined yet. For S2, there are two cases: If it causes definitions that reaches P, it is
+relevant, and would be included in a use-definition run on the variables of P at P. If it instead has no
+definitions that reaches P, it is irrelevant to the values of a. No matter if it is true or false, the do will
+still be executed as long as P is true, and since S2 does not touch P, it has no effect on how many times
+a := 30; S1; is executed. Therefore, the correct program slice is:
+\begin{lstlisting}
+a := 42;
+do (P) -> a := 30; S1;
+od
+5: x := a;
+\end{lstlisting}
+Note that only the parts of S1 affecting P or a should be included.
+Based on this, for guarded do's, just the conditions with commands that includes definitions which
+reaches referenced variables are included in the program slice.
+
+\subsection{Guarded if}
+
+For the guarded if, all the conditions should be included in the program slice if any definition in any
+of their commands reaches the referenced variables. This claim is justified below:
+Consider 2 different programs:
+\begin{lstlisting}
+a := 2;
+if (P) -> a := 3;
+[] (Q) -> a := 4;
+[] (R) -> z := 0;
+fi;
+x := a;
+\end{lstlisting}
+Here, it may seem clear that line 4 is irrelevant. But it is in fact still relevant. Assume that line 4 is
+removed in the program slice. In this case, the definition from line 1 will never reach line 6, since it
+will either be overwritten in line 2 and 3, or the program will terminate before line 6. But this is
+different from the semantics of the original program; here, the definition from line 1 does reach line
+6, since line 4 does not assign to a.
+Based on this, for guarded if's, all the conditions should be included in the program slice if any
+definition in any of their commands reaches the referenced variables.
+
+\subsection{Non-termination and early termination}
+
+Non-termination and early termination may have an effect on whether or not the point of interest is
+ever reached, but not directly which values that may be computed. Therefore, non-termination and
+early termination is ignored. For instance, look at the following program:
+\begin{lstlisting}
+a := 4;
+do (true) -> skip
+od;
+x := a;
+\end{lstlisting}
+The correct program slice would be:
+\begin{lstlisting}
+a := 4;
+x := a;
+\end{lstlisting}
+Note that this is also a very practical definition, partly because non-termination is generally
+undecidable.
+
+\subsection{Corner cases}
+
+A corner case of the program is that a condition may be included without its command is included.
+This is the case for the guarded if, since all conditions are included whether or not there is
+something relevant in their commands. For instance,
+\begin{lstlisting}
+a := 2;
+if (P) -> a := 3
+[] (R) -> z := 0
+fi;
+x := a;
+\end{lstlisting}
+would end up looking like:
+\begin{lstlisting}
+a := 2;
+if (P) -> a := 3
+[] (R) ->
+fi;
+x := a;
+\end{lstlisting}
+This is not legal semantics. In these cases, the algorithm should repair this “damaged” guarded
+statement by providing a skip statement, like this:
+\begin{lstlisting}
+a := 2;
+if (P) -> a := 3
+[] (R) -> skip
+fi;
+x := a;
+\end{lstlisting}
+
+\subsection{Design of algorithm}
+
+Now, an algorithm is designed. The basis of the algorithm is to have a queue of commands to
+investigate. It starts out with adding the points of interest to the queue. Then, for the next
+item on the queue, if the command has not been investigated, it is investigated. Based on that,
+more commands may be added to the investigation queue. The commands to investigate is based
+on two questions: What definitions are used at this statement, and what parent does this statement
+have? Namely, all reaching definitions that are used at this command is added to the investigation
+queue, and all parents of this command is added.
+
+In regards to special handling of the commands, if-commands get all their conditions added,
+while do-loops does no such things. For each guard-command pair, the guard is added to the queue
+if the command is investigated.
+
+In pseudo-code:
+\begin{lstlisting}
+Initialize
+Add points of interest
+while (!queue.empty())
+	currentStatement = queue.poll();
+	if (!isIncluded(currentStatement))
+		investigateValues(queue, currentStatement)
+		investigateParents(queue, currentStatement)
+		investigateSpecialStatements(queue, currentStatement)
+Remove all parts not included
+Cleanup broken parts
+\end{lstlisting}
 
