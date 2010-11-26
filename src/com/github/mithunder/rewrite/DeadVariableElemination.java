@@ -58,6 +58,9 @@ public class DeadVariableElemination extends CodeRewriter implements StatementVi
 		EvaluatedStatement e = (EvaluatedStatement)s;
 		LiveVariableEvaluation data = (LiveVariableEvaluation)e.getEntryEvaluation();
 		Variable assign = e.getAssign();
+		if(data == null) {
+			return;
+		}
 		/*
 		 * Check if we can kill the statement - note we can never kill a read, since it
 		 * is a potential abort.
