@@ -22,6 +22,7 @@ public class ALFPReachingDefinition extends ALFP {
 	private Set<GenKillElement> genList;
 	private Set<GenKillElement> killList;
 	private Set<FlowElement> flowList;
+	private String firstStatementLabel;
 
 	@Override
 	public void convertToALFP(EvaluatedStatement statement, CompilationUnit unit) {
@@ -32,6 +33,7 @@ public class ALFPReachingDefinition extends ALFP {
 		genList = new TreeSet<GenKillElement>();
 		killList = new TreeSet<GenKillElement>();
 		flowList = new TreeSet<FlowElement>();
+		firstStatementLabel = null;
 		table = unit.getVariableTable();
 		iterate(statement.getChildren(), statement.getStatementType());
 		print();
@@ -50,6 +52,9 @@ public class ALFPReachingDefinition extends ALFP {
 		for(int i = 0; i < limit; i++) {
 			EvaluatedStatement statement = statements.get(i);
 			EvaluatedStatement s;
+			if(firstStatementLabel == null) {
+				firstStatementLabel = Integer.toHexString(System.identityHashCode(statement.getStatement()));
+			}
 			String newLabel;
 			switch(statementType) {
 			case StatementType.IF:
@@ -109,9 +114,9 @@ public class ALFPReachingDefinition extends ALFP {
 						variableList.add(assign);
 						GenKillElement gke = new GenKillElement(assign, newLabel);
 						genList.add(gke);
-						if(statement.getStatementType() != StatementType.READ) {
+						//if(statement.getStatementType() != StatementType.READ) {
 							killList.add(gke);
-						}
+						//}
 					} else if(statement.getStatementType() == StatementType.WRITE) {
 						variableList.add((Variable) statement.getValues()[0]);
 					}
@@ -148,7 +153,7 @@ public class ALFPReachingDefinition extends ALFP {
 		System.out.println();
 		System.out.println("(A lab. A x. A d. var(x) & label(d) & (RDentry(lab,x,d) & ! kill(lab,x,d)) | gen(lab,x,d) => RDexit(lab,x,d)) & ");
 		System.out.println("(A lab1. A lab2. A x. A d. flow(lab1,lab2) & RDexit(lab1,x,d) => RDentry(lab2,x,d)) & ");
-		System.out.println("(A x. var(x) => RDentry(1,x,0))");
+		System.out.println("(A x. var(x) => RDentry(" + firstStatementLabel + ",x,0))");
 	}
 
 	private static class GenKillElement implements Comparable<GenKillElement> {
