@@ -27,7 +27,7 @@ import com.github.mithunder.statements.ValueType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 
-public class PrettyCodeWriter implements StatementVisitor {
+public class PrettyCodeWriter implements StatementVisitor, CWriter {
 
 	protected PrintStream out;
 	protected File outfile;
@@ -290,6 +290,7 @@ public class PrettyCodeWriter implements StatementVisitor {
 		}
 
 		//Handle single val.
+		System.err.println(s.getStatementType());
 		return v2s(s.getValues()[0]);
 	}
 

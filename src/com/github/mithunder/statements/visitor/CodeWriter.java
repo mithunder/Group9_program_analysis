@@ -26,7 +26,7 @@ import com.github.mithunder.statements.ValueType;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 
-public class CodeWriter implements StatementVisitor {
+public class CodeWriter implements StatementVisitor, CWriter {
 
 	protected PrintStream out;
 	protected File outfile;
