@@ -1,8 +1,8 @@
 \section{Dead code elimination}
 
-The use of dead code elimination can be seen more as a garbage collector. In most cases, the programmer will not leave behind code which is not in use and therefore this transformation will not have anything to do. However, as soon as another analysis have transformed the code in some way, for example constant propagation which substitues variables with their constant value if possible, there will most likely be some variables left behind which now have no effect. Or, if they have an effect, it will be on other variables which does now have any effect on whatever is returned or is considered ``interesting''.
+The use of dead code elimination can be seen more as a garbage collector. In most cases, the programmer will not leave behind code which is not in use and therefore this transformation will not have anything to do. However, as soon as another analysis have transformed the code in some way, for example constant propagation which substitutes variables with their constant value if possible, there will most likely be some variables left behind which now have no effect. Or, if they have an effect, it will be on other variables which does not have any effect on whatever is returned or is considered ``interesting''.
 
-Dead code elimination is based upon the result of live variable analysis, however in this case it is strongly live variable analysis, which it uses to determine if a line of code is alive or not. If the code is alive, it have an effect on whatever the code will output as result, and that would be changed if the line were removed. If the line is not alive, the code could be removed without having any effect on the output.
+Dead code elimination is based upon the result of live variable analysis, however in this case it is strongly live variable analysis, which it uses to determine if a line of code is alive or not. If the code is alive, it has an effect on whatever the code will output as result, and that would be changed if the line were removed. If the line is not alive, the code could be removed without having any effect on the output.
 
 Lets take an example¸ here is some code:
 \begin{lstlisting}
@@ -38,7 +38,7 @@ module dead_code_elimination_example :
 	write a
 end
 \end{lstlisting}
-Inside the if-statement, the variable i now have an effect on a because it is part of the assign statement of a, so i is also considered alive (even though e is inside the same branch as i and a, it is not considered interesting and alive since it have no effect on any of them). Because of this, the condition for that branch is now having an effect, so d also have an effect on i and a (if d were anything else than equal to i, this branch would not be used).
+Inside the if-statement, the variable i now has an effect on a because it is part of the assign statement of a, so i is also considered alive (even though e is inside the same branch as i and a, it is not considered interesting and alive since it have no effect on any of them). Because of this, the condition for that branch is now having an effect, so d also has an effect on i and a (if d were anything else than equal to i, this branch would not be used).
 
 The transformation of an if-statement is not as easy as the simple assignments which came after the if-statement, different rules applies. Live variable analysis do not contain enough information to safely determine, if a branch is ever reached. That requires knowing the value of i and d, which is not something which concerns live variable analysis. Because of that, all the conditions have to be preserved, even though they contain variables which are not alive (in our case they are considered alive). Every variable in any condition is now considered alive. The set of statements which the conditions guard, they are not considered alive automaticly. If all the statements is considered dead, they will all be replaced with a single skip.
 
