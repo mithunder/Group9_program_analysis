@@ -36,7 +36,7 @@ public class StatementIterator {
 				for(Statement c : children){
 					doVisit(c, s, i++);
 				}
-			} else if(stype == IF){
+			} else if(stype == IF || stype == DO){
 				final int hmax = children.size() / 2;
 				for(i = 0 ; i < hmax ; i++){
 					visitor.enter(StatementVisitor.VITYPE_GUARD, s, parent, cno);
@@ -45,20 +45,6 @@ public class StatementIterator {
 					visitor.enter(StatementVisitor.VITYPE_COMMAND, s, parent, cno);
 					doVisit(children.get(i+hmax), parent, i+hmax);
 					visitor.leave(StatementVisitor.VITYPE_COMMAND, s, parent, cno);
-				}
-			} else {
-				boolean guard = true;
-				for(Statement c : children){
-					int vitype;
-					if(!guard){
-						vitype = StatementVisitor.VITYPE_COMMAND;
-					} else {
-						vitype = StatementVisitor.VITYPE_GUARD;
-					}
-					guard = !guard;
-					visitor.enter(vitype, s, parent, cno);
-					doVisit(c, parent, i++);
-					visitor.leave(vitype, s, parent, cno);
 				}
 			}
 			visitor.leaveCompound(s, parent, cno);
