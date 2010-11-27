@@ -1,0 +1,19 @@
+module group81 :
+x := 0;
+y := 7;
+z := 2;
+i := 0;
+j := y;
+k := z;
+if 
+true -> z := z * y + z * x  []
+true -> z := x + x + x - x []
+true ->
+@programslicing="true"
+	x := x + y + z * z
+fi;
+do
+   y < 100 -> y := y + y
+od;
+write y
+end

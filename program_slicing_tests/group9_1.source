@@ -1,0 +1,32 @@
+
+module division_by_zero_program :
+
+	read y;
+	x := 0;
+	z := 30;
+
+	if (x = 0) -> x := 10
+	[] (z > 0) -> z := -1
+	fi;
+	
+	i := 0;
+	sum := 0;
+	do (i < 30) -> sum := sum+1
+	od;
+
+	a := 0;
+	if (true) -> a := 30
+	[] (true) -> a := 15
+	fi;
+
+	i := 0;
+
+	do (i < 10) ->
+	@programslicing="true"
+		y := y / x; i := i+1
+	od;
+
+	write y*z;
+	write sum*a
+end
+

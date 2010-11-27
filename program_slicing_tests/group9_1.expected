@@ -1,0 +1,17 @@
+
+module division_by_zero_program :
+
+	read y;
+	x := 0;
+	z := 30;
+
+	if (x = 0) -> x := 10
+	[] (z > 0) -> skip
+	fi;
+
+	i := 0;
+
+	do (i < 10) -> y := y / x; i := i+1
+	od
+end
+
