@@ -21,13 +21,13 @@ import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
 import com.github.mithunder.rewrite.ConstantFolder;
 import com.github.mithunder.rewrite.DeadVariableElemination;
+import com.github.mithunder.rewrite.ProgramSlicing;
 import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
-import com.github.mithunder.transformation.ProgramSlicing;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
