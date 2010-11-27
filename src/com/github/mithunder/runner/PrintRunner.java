@@ -186,10 +186,12 @@ public class PrintRunner {
 	private static void runTests() throws Exception{
 
 		//Run program slicing tests.
+		System.out.println("Running program slicing tests.");
 		runTests(
 				new File(programSlicingTestsFolder),
 				new ProgramSlicing(new SimpleRRKRWorklist())
 		);
+		System.out.println("Done with all tests.");
 		//TODO: Run other tests.
 
 	}
