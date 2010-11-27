@@ -290,7 +290,6 @@ public class PrettyCodeWriter implements StatementVisitor, CWriter {
 		}
 
 		//Handle single val.
-		System.err.println(s.getStatementType());
 		return v2s(s.getValues()[0]);
 	}
 
