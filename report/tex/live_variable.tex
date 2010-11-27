@@ -1,8 +1,5 @@
 
 \section{Live variable}
-
-//TODO: Niels
-
 In this section, Live Variable (LV) analysis (LVA) will be defined.
 LVA is a backwards-may analysis, that indicates which variables are
 alive at each command: A variable is alive if there is some path
@@ -90,6 +87,9 @@ $$\newline
 The unfortunate side effect of this is that SLVA is not a true bit-vector
 analysis. Nevertheless, even with the change it is still a part of the
 monotone framework, so using SLVA is not an issue.
+  We look at implementing the extended version of LVA since it proves to
+greatly superior (See example 3 below) and still very close to the original
+and simply LVA.
 
 \subsection{Examples}
 These examples will demonstrate how LVA and SVLA work; for the sake of
@@ -140,4 +140,58 @@ fi;
 write x*127[6]
 \end{lstlisting}
 
+The interesting in this example is the guards in the if,
+so the calculation of [3],[5] and [6] has been skipped.
+The entry value for both [2] and [4] is calculated to:
+
+\[LV_{entry}(2) = LV_{entry}(4) = \emptyset \]
+
+Since the guards are just expressions, all variables in
+them are considered live, so z is added in both cases
+and thus the exit value becomes:
+
+\[LV_{exit}(2) = LV_{exit}(4) = \{\textbf{z}\} \]
+
+The entry value of [1] is calculated as the union of
+the exit value of [2] and [4], which is trivially
+equal to:
+
+\[LV_{entry}(1) = LV_{exit}(2) \cup LV_{exit}(4) = \{\textbf{z}\} \]
+
+Then in [1] we would have gotten a faint variable with LVA if z had
+not already been live.
+
+
+\docpar
+Example 3:
+\begin{lstlisting}
+module lv-example-3 :
+read z;[1]
+do (z > 0)[2] -> a := b;[3] z := 0[4]
+[] (z < 0)[5] -> b := a;[6] z := 0[7]
+od;
+write z[8]
+\end{lstlisting}
+
+What we would like to demonstrate with this example is where LVA is truly
+inferior to SLVA. The issue here is that the faint variables a and b created
+in [3] and [6] will reanimate each other.
+
+  In the first iteration, the entry and the exit value will look like this
+for LVA and SLVA:
+
+\[SLVA_{entry}(3) = SLVA_{entry}(6) = LV_{entry}(3) = LV_{entry}(6) = \emptyset \]
+\[LV_{exit}(3) = \{b\} \]
+\[LV_{exit}(6) = \{a\} \]
+\[SLV_{entry}(3) = SLV_{entry}(6) = \emptyset \]
+
+Now for the second iteration, SLVA will be completely unchanged, but the entry
+value for LV has changed since the faint variables a and b are not killed:
+
+\[LV_{entry}(3) = LV_{entry}(6) = \{a, b\} \]
+\[LV_{exit}(3) = \{b\} \]
+\[LV_{exit}(6) = \{a\} \]
+
+The consequence of this is that neither [3] nor [6] can be killed, because LVA
+thinks they are still live, even though they just reanimated each other.
 

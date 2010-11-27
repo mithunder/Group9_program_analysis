@@ -1,3 +1,85 @@
 \section{Constant folding}
+Some times programmers decide to declare a constant variable they can use
+in their code instead of just writing the value. This tends to make the
+code more readable, because if x = 2 gives much less information than
+if x = COLOR_BLUE.
+  This means that it is not uncommon to find at least a few variables
+that can be folded into a constant, particularly in larger programs.
+Occasionally it may also be possible to eliminate a branch and therefore
+reduce the code size as well.  
+
+\docpar
+Constant Folding is a transformation that relies on the information
+gathered by the CPA to replace variables with their constant value
+if they have one.
+  As mentioned in the Constant Propagation section,
+CPA can be augmented with an on-the-fly branch elimination transformation
+(or alternatively an extended latice to describe the additional case(s)).
+The folding transformation will also benefit from augmentation, since it
+will make CPA produce more precise results. This will be demonstrated with
+this result below.
+
+\begin{lstlisting}
+module group9_3_constant_propagation :
+       read unknown;[1]
+       zero  := unknown * 0;[2]
+       one   := zero + 1;[3]
+       two   := zero + one * one - zero + one;[4]
+       three := one + (two + one) * two - two * two;[5]
+       four  := three * two - three + one;[6]
+       if (three > two)[7] -> six   := one + two + three[8]
+       [] (three < two)[9] -> one  := three[10]
+       [] (three = two)[11] -> three := two[12]
+       fi;
+       seven := six + one;[13]
+       write seven;[14]
+end
+\end{lstlisting}
+
+\docpar
+After evaluating [1] through [6], the conclusion is that all variables are constant
+with the same value as their name with the exception of unknown, which has some
+unknown value. 
+  With the branch elimination extension, it would have concluded that [10] and
+[12] are unreachable due to the values of the variables three and two in [9] and
+[11]. It would also conclude that [8] is always a valid path. Since there are
+no other paths through that if statement, it would happily conclude that the
+variable six has the constant value 6.
+  Without the  branch elimination, things are not quite so good. In fact the
+analysis will include data from [10] and [12], which means that it can no
+longer conclude the fact that one and three are constants after the loop.
+Nor can it say that six is always 6 after the if, because it may be undefined.
+  This means that seven in [13] and [14] can only folded to a constant if we
+use the branch elimination, otherwise it will be an unknown value.
+
+\docpar
+Due to the way we handled abort statements, the CPA had to provide a special
+value to denote that a path would always flow through an abort statement to
+avoid contaminating its own analysis else where. This had a distinct
+advantage that allowed us to extend the Constant Folder to remove some dead
+code as well.
+  Since CP is a forward must analysis, then if it concludes that entry value of
+a statement comes from an abort statement, then this means that all forward paths
+here must flow through an abort. However, it is not possible for anything to flow
+through an abort during execution of the program, so this actually concludes that
+there are no legal path to this statement. Obviously this means the statement
+will never be executed and can thus safely be removed.
+
+\begin{lstlisting}
+module cf-abort:
+       if true[1] -> abort[2]
+       fi;
+       read x;[3]
+       write x[4]
+end
+\end{lstlisting}
+
+\docpar
+Here it is trivial to see that there are no paths through the if without
+reaching an abort. The CPA would then give a special value to [3], which
+it would propagate to [4] as well. So the folder could trivially conclude
+that [3] and [4] were dead.
+
+
 //TODO: Niels
 
