@@ -29,6 +29,7 @@ import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.parser.GuardCommandLexer;
 import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
+import com.github.mithunder.rewrite.CodeRewriter;
 import com.github.mithunder.rewrite.ConstantFolder;
 import com.github.mithunder.rewrite.DeadVariableElemination;
 import com.github.mithunder.rewrite.ProgramSlicing;
@@ -184,19 +185,21 @@ public class PrintRunner {
 
 	private static void runTests() throws Exception{
 
-		runProgramSlicingTests();
-		runDeadCodeEliminationTests();
-		runConstantPropagationTests();
+		//Run program slicing tests.
+		runTests(
+				new File(programSlicingTestsFolder),
+				new ProgramSlicing(new SimpleRRKRWorklist())
+		);
+		//TODO: Run other tests.
 
 	}
 
-	private static void runProgramSlicingTests() throws Exception{
+	private static void runTests(final File folder,
+			final CodeRewriter rewriter) throws Exception{
 		//For every expected and source;
 		//For the source, perform the analysis.
 		//Then write both files prettily.
 		//Compare them, and write the result in the results file.
-
-		final File folder = new File(programSlicingTestsFolder);
 
 		final File[][] sourceExpectedFiles = getSourceExpectedFiles(folder);
 		final File[] sourceFiles = sourceExpectedFiles[0];
@@ -219,8 +222,7 @@ public class PrintRunner {
 			{
 				final CompilationUnit sourceUnit = getProgram(sourceFiles[i].getPath());
 				//Perform the test and write.
-				final ProgramSlicing programSlicing = new ProgramSlicing(new SimpleRRKRWorklist());
-				final CompilationUnit resultUnit = programSlicing.rewrite(sourceUnit);
+				final CompilationUnit resultUnit = rewriter.rewrite(sourceUnit);
 				printCode(resultUnit.getRootStatement(), resultUnit, resultCleanFile);
 			}
 
