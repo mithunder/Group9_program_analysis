@@ -1,10 +1,20 @@
 package com.github.mithunder.runner;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -26,6 +36,7 @@ import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
+import com.github.mithunder.statements.visitor.CWriter;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
@@ -34,6 +45,8 @@ import com.github.mithunder.worklist.SimpleRRKRWorklist;
 public class PrintRunner {
 
 	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS, CPBKandLV };
+	public final static String programSlicingTestsFolder = "program_slicing_tests";
+	public final static String programSlicingTestsResult = "program_slicing_results";
 
 	public static void main(String[] args) throws Exception {
 
@@ -169,7 +182,7 @@ public class PrintRunner {
 		}
 	}
 
-	private static void runTests() {
+	private static void runTests() throws Exception{
 
 		runProgramSlicingTests();
 		runDeadCodeEliminationTests();
@@ -177,9 +190,114 @@ public class PrintRunner {
 
 	}
 
-	private static void runProgramSlicingTests() {
-		// TODO Auto-generated method stub
+	private static void runProgramSlicingTests() throws Exception{
+		//For every expected and source;
+		//For the source, perform the analysis.
+		//Then write both files prettily.
+		//Compare them, and write the result in the results file.
 
+		final File folder = new File(programSlicingTestsFolder);
+
+		final File[][] sourceExpectedFiles = getSourceExpectedFiles(folder);
+		final File[] sourceFiles = sourceExpectedFiles[0];
+		final File[] expectedFiles = sourceExpectedFiles[1];
+
+		//Prepare the results file.
+		File resultsFile = new File(folder, "results");
+		if (resultsFile.exists()) {
+			//Remove previous results.
+			resultsFile.delete();
+			resultsFile.createNewFile();
+		}
+		final BufferedWriter resultsWriter = new BufferedWriter(new FileWriter(resultsFile));
+		final File resultCleanFile = new File("tmp_file_res");
+		final File expectedCleanFile = new File("tmp_file_exp");
+
+		for (int i = 0; i < expectedFiles.length; i++) {
+
+			//Read in the source get the program.
+			{
+				final CompilationUnit sourceUnit = getProgram(sourceFiles[i].getPath());
+				//Perform the test and write.
+				final ProgramSlicing programSlicing = new ProgramSlicing(new SimpleRRKRWorklist());
+				final CompilationUnit resultUnit = programSlicing.rewrite(sourceUnit);
+				printCode(resultUnit.getRootStatement(), resultUnit, resultCleanFile);
+			}
+
+			//Read in the expected and print.
+			{
+				final CompilationUnit expectedUnit = getProgram(expectedFiles[i].getPath());
+				printCode(expectedUnit.getRootStatement(), expectedUnit, expectedCleanFile);
+			}
+
+			//Compare the results, and write them.
+			final boolean isFilesContentEqual = compareFiles(resultCleanFile, expectedCleanFile);
+			resultsWriter.append(
+				expectedFiles[i].getName().split("\\.")[0] + " passed: " + isFilesContentEqual +
+				"\n"
+			);
+
+			if (!isFilesContentEqual) {
+				throw new IllegalArgumentException("Error-debug; files were not equal.");
+			}
+
+		}
+		resultsWriter.close();
+
+	}
+
+	private static File[][] getSourceExpectedFiles(File folder) {
+		//Filter out all the relevant files.
+		final File[] sourceFiles = folder.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				String[] nameParts = name.split("\\.");
+				if (nameParts.length != 2) {return false;}
+				return nameParts[1].equals("source");
+			}
+		});
+
+		final File[] expectedFiles = folder.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				String[] nameParts = name.split("\\.");
+				if (nameParts.length != 2) {return false;}
+				return nameParts[1].equals("expected");
+			}
+		});
+
+		//Check the length.
+		if (expectedFiles.length != sourceFiles.length) {
+			throw new IllegalStateException("Error: " +
+					"Number of \".expected\"(" + expectedFiles.length +
+					") and \"source\" (" + sourceFiles.length + ") does not match up.");
+		}
+
+		//Sort the files alphabetically, so to ease the matching of files.
+		final List<File> sourceF = Arrays.asList(sourceFiles);
+		final List<File> expectedF = Arrays.asList(expectedFiles);
+		Comparator<File> alphaComparator = new Comparator<File>() {
+			public int compare(File o1, File o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		};
+		Collections.sort(sourceF, alphaComparator);
+		Collections.sort(expectedF, alphaComparator);
+
+		//Ensure matching sanity.
+		for (int i = 0; i < sourceF.size(); i++) {
+			final String sourceName = sourceF.get(i).getName();
+			final String expectedName = expectedF.get(i).getName();
+			if (!sourceName.split("\\.")[0].equals(expectedName.split("\\.")[0])) {
+				throw new IllegalArgumentException("Error: Files does not match up, " +
+					sourceName + " did not match " + expectedName
+				);
+			}
+		}
+
+		//Construct the new files.
+		final File[][] sourceExpected = new File[2][];
+		sourceExpected[0] = sourceF.toArray(new File[sourceF.size()]);
+		sourceExpected[1] = expectedF.toArray(new File[expectedF.size()]);
+		return sourceExpected;
 	}
 
 	private static void runDeadCodeEliminationTests() {
@@ -192,15 +310,75 @@ public class PrintRunner {
 
 	}
 
+	private static CompilationUnit getProgram(String fileName) throws Exception {
+		GuardCommandLexer lex = new GuardCommandLexer(new ANTLRFileStream(fileName));
+		CommonTokenStream tokens = new CommonTokenStream(lex);
+
+		GuardCommandParser parser = new GuardCommandParser(tokens);
+		//Do not remove.
+		parser.setAnnotations(lex.getAnnotations());
+
+		return parser.program().compilationUnit;
+	}
+
 	private static void printCode(final Statement nroot,
 			final CompilationUnit unit) throws Exception {
+		printCode(nroot, unit, null);
+	}
 
-		StatementIterator staIte = new StatementIterator(new PrettyCodeWriter());
+	/**
+	 * @param nroot
+	 * @param unit
+	 * @param file If file is null, print to System.out.
+	 * @throws Exception
+	 */
+	private static void printCode(final Statement nroot,
+			final CompilationUnit unit, final File file) throws Exception {
+
+		final CWriter cWriter;
+		if (file != null) {
+			cWriter = new PrettyCodeWriter(file);
+		}
+		else {
+			cWriter = new PrettyCodeWriter();
+		}
+		final StatementIterator staIte = new StatementIterator(cWriter);
 		staIte.tour(new CompilationUnit(
 				unit.getUnitName(), nroot,
 				unit.getVariableTable(), unit.getFinalStatements(),
 				unit.getFactory()
 		));
+	}
+
+	private static boolean compareFiles(File resultCleanFile,
+			File expectedCleanFile) throws Exception {
+
+		//Simply read in the files, and check the checksum.
+		final byte[] checksum1 = getChecksum(resultCleanFile);
+		final byte[] checksum2 = getChecksum(expectedCleanFile);
+		if (checksum1.length != checksum2.length) {
+			return false;
+		}
+		for (int i = 0; i < checksum1.length; i++) {
+			if (checksum1[i] != checksum2[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static byte[] getChecksum(File file) throws Exception {
+
+		final MessageDigest md = MessageDigest.getInstance("MD5");
+		final InputStream is = new DigestInputStream(new FileInputStream(file), md);
+		try {
+		  while (is.read() != -1) {
+		  }
+		}
+		finally {
+		  is.close();
+		}
+		return md.digest();
 	}
 
 	private static String findFile(final String name) throws FileNotFoundException {
