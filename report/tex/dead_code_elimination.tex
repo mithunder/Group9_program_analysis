@@ -1,59 +1,66 @@
 \section{Dead code elimination}
-
 The use of dead code elimination can be seen more as a garbage collector. In most cases, the programmer will not leave behind code which is not in use and therefore this transformation will not have anything to do. However, as soon as another analysis have transformed the code in some way, for example constant propagation which substitues variables with their constant value if possible, there will most likely be some variables left behind which now have no effect. Or, if they have an effect, it will be on other variables which does now have any effect on whatever is returned or is considered ``interesting''.
 
-Dead code elimination is based upon the result of live variable analysis, however in this case it is strongly live variable analysis, which it uses to determine if a line of code is alive or not. If the code is alive, it have an effect on whatever the code will output as result, and that would be changed if the line were removed. If the line is not alive, the code could be removed without having any effect on the output.
+Dead code elimination is based upon the result of live variable analysis, however in this case it is strongly live variable analysis, which it uses to determine if a line of code is alive or not. If the code is alive, it have an effect on whatever the code will output as result, and that would be changed if the line were removed. If the line is not alive, the code could be removed without having any effect on the output. The way it check whether a line of code should be kept, is to look at the entry evaluation comint from LVA, and which variable that the line assigns. If the assigned variable is in the entry evaluation, the line should be kept. If not, it can be removed, unless it is a condition then it always have to be kept.
 
-Lets take an example¸ here is some code:
-\begin{lstlisting}
-module dead_code_elimination_example :
-	read d;
-	read i;
-	i := 2;
-	a := a + 1;
-	if i > d -> i := i + a;f := 2 * 6; d := e - 1
-	[] i = d -> e := 0; i := a * 2; a := i * i
-	[] i < d -> abort
-	fi;
-	f := 2 + f;
-	i := d * e * a + d + 1 * 10;
-	d := a * a + d + i;
-	i := d + i * e;
-	d := e * a;
-	f := 5;
-	write a
-end
-\end{lstlisting}
-Our version of live variable analysis will have concluded, that the only interesting variable is a. The variable a is written in the end, so it will automaticly be seen as alive and therefore should be kept after the transformation. The variable a might be used to assign a value to other satements, however none of them have any effect on a. This means, that all the assign statement between the if-statement and "write a" can be removed.
-\begin{lstlisting}
-module dead_code_elimination_example :
-	read d;
-	read i;
-	i := 2;
-	a := a + 1;
-	if i > d -> i := i + a;f := 2 * 6; d := e - 1
-	[] i = d -> e := 0; i := a * 2; a := i * i
-	[] i < d -> abort
-	fi;
-	write a
-end
-\end{lstlisting}
-Inside the if-statement, the variable i now have an effect on a because it is part of the assign statement of a, so i is also considered alive (even though e is inside the same branch as i and a, it is not considered interesting and alive since it have no effect on any of them). Because of this, the condition for that branch is now having an effect, so d also have an effect on i and a (if d were anything else than equal to i, this branch would not be used).
+\subsection{Examples}
+Depending on the code which should be eliminated, there applies different rules. Here is some examples to illustrate these rules, and in general how dead code elimination works.
 
-The transformation of an if-statement is not as easy as the simple assignments which came after the if-statement, different rules applies. Live variable analysis do not contain enough information to safely determine, if a branch is ever reached. That requires knowing the value of i and d, which is not something which concerns live variable analysis. Because of that, all the conditions have to be preserved, even though they contain variables which are not alive (in our case they are considered alive). Every variable in any condition is now considered alive. The set of statements which the conditions guard, they are not considered alive automaticly. If all the statements is considered dead, they will all be replaced with a single skip.
-
-After the transformation of the if-statement, the code will look like this:
+\docpar
+Example 1:
 \begin{lstlisting}
-module dead_code_elimination_example :
-	read d;
-	read i;
-	i := 2;
-	a := a + 1;
-	if i > d -> skip
-	[] i = d -> i := a * 2; a := i * i
-	[] i < d -> abort
-	fi;
-	write a
-end
+module example_1:
+read x;[1]
+x := 2;[2]
+x := y;[3]
+write x[4]
 \end{lstlisting}
-The next two lines before the if-sentence, they are both being considered alive, again because they have an effect on variables considered alive (a and i). For the read statements, the rules differs again. After the previous two assign statements, only a and d is considered alive (i is assigned, no variable have an effect on this assignment). No read statement can be removed, as the program will hold and wait for some input, even though the variable it writes the value to is considered dead.
+The LVA have concluded, that label 3 and 4 should be saved. Label 1 and 2 however is not considered worth keeping as whatever happens before label 3 in this example, have no effect on the write statement on label 4. However only label 2 can actually be removed since label 1 contains a read statement. Read will block and wait until the user supplies the program with some value, even through the variable which it writes this value to is dead. Removing this label would alter the program, and not just removing dead code. The result og the transformation would then be:
+\begin{lstlisting}
+module example_1 :
+read x;[1]
+x := y;[3]
+write x[4]
+\end{lstlisting}
+This was a pretty straight forward example, but the next is not so straight forward.
+
+\docpar
+Example 2:
+\begin{lstlisting}
+module example_2:
+read x;[1]
+y := 5;[2]
+if (y > x)[3] -> x := 1[4]
+[] (y < x)[5] -> y := 2[6]
+[] (y = x)[7] -> z := 3[8]
+fi;
+write x[9]
+\end{lstlisting}
+In this example, only the if-statement is interesting. Anything else is covered by the first example. With the evaluation from the LVA, only label 4 in the if-statement should be saved, and therefore also label 3.
+Even though label 6 should not be saved, we are not able to remove that and label 5 (the same with 7 and 8). The condition have to be left untouched because changing that would alter the program such that the behaviour of the program is different from before. The result of LVA does not contain any information of the actual value of the variables in the conditions, and therefore it can not say anything about the result of condition. Because of this preservation of conditions, the set of statements they guard may not be empty - there have to be at least one statement in there. So instead of removing label 6 and 8 (because that would empty the set of statements the conditions guard), they are instead replaced with a skip statement. So the result of the elimination would be:
+\begin{lstlisting}
+module example_2:
+read x;[1]
+y := 5;[2]
+if (y > x)[3] -> x := 1[4]
+[] (y < x)[5] -> skip[6]
+[] (y = x)[7] -> skip[8]
+fi;
+write x[9]
+\end{lstlisting}
+If the if-statement had been a do-statement, the result would be slightly different. The result of the loop around effect do-statements have, would result in label 6 being kept (since variables in conditions always gets added to the evaluation, and y is assigned in label 6).
+
+\docpar
+Example 3:
+\begin{lstlisting}
+module example_3:
+read x;[1]
+{y := x;[2] y := y + 1;[3]}
+write x;[4]
+\end{lstlisting}
+This example is a slight mix of the first two examples. The example is simple as the first example, however it contains a scope as in the second example (conditions guards a scope contianing statements if there is more than one). In this, none of the statements inside the scope should be kept. But unlike in the second example, where there had to be at least one statement left, we can now remove the entire scope without replacing it with anything. So the result would be:
+\begin{lstlisting}
+module example_3:
+read x;[1]
+write x;[4]
+\end{lstlisting}
