@@ -21,12 +21,60 @@ If we only propagate constants then the analysis will conclude that all instance
 of a can be replaced by 1 and from [3] on, this will also hold for c. However it
 would not be able to give a value for b, since it is not defined to be a 
 single constant value.
+
   If we use the fold-and-propagate method, then it will see that a can be replaced
 by 1 in [2] and that it can now fold 1 + 1 to 2 and thus replace b with 2 in [4].
 We shall use the fold-and-propagate definition of constant propagation here.
 
 \subsection{Theory}
 % TODO Niels - irk
+CP is unlike LV and RD not a part of the bit-vector framework; in fact it is not
+even a distributive framework. Thus it cannot be defined by at a kill and a gen
+function. Instead we define a complete lattice:
+
+\[ \hat{State}_{cp} = ((V, (Var_{*} \rightarrow \mathbb{Z}^{T})_\perp), \sqsubseteq, \sqcup, \sqcap, \perp, \lambda x.T) \]
+
+\docpar
+The main difference between our definition and the one Nielson use is the first
+element. Namely we use $(V, (Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$
+compared to Nielson's $(Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$; the
+reason for this change will become apparent later.
+  For those who have not read Nielson's definition, $Var_{*}$ is a set consisting
+of all the variables in the program and $\mathbb{Z}^T$ is the same as
+$\mathbb{Z} \cup \{T\}$. T (also known as ``Top'') is a special value denoting
+that the value of the variable is defined, but its exact value cannot be
+determined. There is also cases where the variable is simply not defined or
+no information is available; in which case we use $\perp$ (also known as
+``Bottom''). The result is referred to as:
+ $(Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$
+
+  We also introduced a $V$ which is defined as $V = true \vee V = false$; which
+we will come back to later.  First we will define the partial ordering
+$\sqsubseteq$ for our lattice and for that we define $\hat{\sigma}(x)$ to be
+whether x is either Top, Bottom or a constant and if it is a constant then
+$\hat{\sigma}(x)$ will be that constant. As an exception if $V = false$ then
+$\hat{\sigma}(x)$ is always $\perp$.
+
+\docpar
+The partial ordering:
+
+\[ \forall{}\hat{\sigma} \in (false, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
+ \perp = \hat{\sigma} \]
+\[ \forall{}\hat{\sigma} \in (true, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
+ \perp \sqsubseteq \hat{\sigma} \]
+\[ \forall{}\hat{\sigma}_1,\hat{\sigma}_2 \in (true, (Var_{*} \rightarrow
+ \mathbb{Z}^{T})_\perp): \hat{\sigma}_2 \sqsubseteq \hat{\sigma}_2 \: \textbf{iff}
+ \; \forall{}x : \hat{\sigma}_1(x) \sqsubseteq \hat{\sigma}_2(x) \]
+
+\docpar
+The least upper bound is defined as:
+
+\[ \forall{}\hat{\sigma} \in (V, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
+ \perp \sqsubseteq \hat{\sigma} = \hat{\sigma} \sqsubseteq \perp = \hat{\sigma} \]
+\[ \forall{}\hat{\sigma}_1,\hat{\sigma}_2 \in (V, (Var_{*} \rightarrow
+ \mathbb{Z}^{T})_\perp): \forall{}x : (\hat{\sigma}_1 \sqcup \hat{\sigma}_2)(x) =
+ \hat{\sigma}_1(x) \sqcup \hat{\sigma}_2(x) \]
+
 
 \subsection{Extension - Branch elimination}
 It is possible to extend the constant propagation analysis (CPA) to yield better
@@ -46,6 +94,7 @@ It is trivial to see that since x is 0, then only one branch can be taken; namel
 the one through [4] and [5]. Thus at [6] y can only be 0. The CP analysis is able
 to already conclude when looking at [2] that [3] will only ruin the precision
 of the analysis.
+
   There are some less trivial examples such as this one:
 
 \begin{lstlisting}
@@ -64,6 +113,7 @@ difficult. Looking at [3] we know that this branch will not be
 taken the first time, but [6] will. This leads us to [7] which sets x to -1
 and thus neither [3] nor [6] can evaluate to true any more and the loop will
 terminate. Since y has not changed, it retains its value from [2], namely 0.
+
   This is something that a human will be able to see, but writing a proof for
 this that holds for all of these kind of cases is difficult at best.
 
@@ -72,6 +122,7 @@ As mentioned this extension will provide better results if implemented correctly
 but either the analysis becomes more complicated, since this kind of information
 has to be propagated around in the program graph and handled specially when
 merging.
+
   The alternative is to let this extension be an on-the-fly transformation that
 removes the flow between two nodes if the analysis concludes it will never pass
 through that edge in the graph.
