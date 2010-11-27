@@ -137,7 +137,14 @@ public class PrettyCodeWriter implements StatementVisitor, CWriter {
 					out.print(repeat(level+1) + "[] ");
 				}
 				printStatements(children.get(i), i != 0 ? -1 : level, GuardedType.GUARD, " ->");
-				printStatements(children.get(i+halfSize), level+1, GuardedType.NONE, "");
+				//Since children of if/do is not guaranteed to be scopes, handle that.
+				final Statement command = children.get(i+halfSize);
+				if (command.getStatementType() == StatementType.SCOPE) {
+					printStatements(command, level+1, GuardedType.NONE, "");
+				}
+				else {
+					printStatements(command, level+2, GuardedType.NONE, "");
+				}
 			}
 
 			//Print final.

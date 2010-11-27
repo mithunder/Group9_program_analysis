@@ -2,7 +2,6 @@ package com.github.mithunder.rewrite;
 
 import static com.github.mithunder.statements.StatementType.DO;
 import static com.github.mithunder.statements.StatementType.IF;
-import static com.github.mithunder.statements.StatementType.SCOPE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -280,7 +279,7 @@ public class ProgramSlicing extends CodeRewriter {
 		//If we are in a scope, we might be a part of
 		//a guard-command pair in a "do".
 		//If that is the case, remember to add our guard.
-		case SCOPE : {
+		default : {
 			final EvaluatedStatement parent = childToParent.get(evalStatement);
 			if (parent != null && parent.getStatementType() == DO) {
 
