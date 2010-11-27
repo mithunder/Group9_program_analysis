@@ -213,10 +213,8 @@ public class ProgramSlicing extends CodeRewriter {
 
 		//Handle unary expressions.
 		if (StatementType.isUnary(sType) && sType != StatementType.ASSIGN) {
-			System.out.println("St_type: " + sType);
 			final Value val = s.getValues()[0];
 			final EvaluatedStatement refS = tempVarToStatement.get(val);
-			System.out.println(val + ", ref: " + refS);
 			addVariables(variablesRead, variableTable, val);
 			addToInvestigation(refS);
 		}
@@ -302,7 +300,6 @@ public class ProgramSlicing extends CodeRewriter {
 				//To find our potential, subtract the halfsize from our index.
 				final int guardIndex = i - parent.getChildCount()/2;
 				//Include our guard only if we are a command.
-				System.out.println("Guard: " + guardIndex);
 				if (guardIndex >= 0) {
 					final EvaluatedStatement guardScope = parent.getChildren().get(guardIndex);
 					addToInvestigation(guardScope);
