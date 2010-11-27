@@ -92,7 +92,7 @@ greatly superior (See example 3 below) and still very close to the original
 and simply LVA.
 
 \subsection{Examples}
-These examples will demonstrate how LVA and SVLA work; for the sake of
+These examples will demonstrate how LVA and SLVA work; for the sake of
 clarification strongly live variables will be written in bold
 (e.g. \textbf{y}) to separate them from the faint variables.
 
@@ -106,7 +106,7 @@ x := a;[3]
 write y[4]
 \end{lstlisting}
 The entry value of [4] is the empty set; its
-exit value is 
+exit value is
 \[ SLV_{exit}(4) = LV_{exit}(4) = \{\textbf{y}\}\]
 The entry value of [3] is trivially equal to the
 exit value of [4]. But in [3] LVA is unable to see

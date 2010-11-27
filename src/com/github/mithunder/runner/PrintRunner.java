@@ -21,13 +21,13 @@ import com.github.mithunder.parser.GuardCommandParser;
 import com.github.mithunder.parser.GuardCommandParser.program_return;
 import com.github.mithunder.rewrite.ConstantFolder;
 import com.github.mithunder.rewrite.DeadVariableElemination;
+import com.github.mithunder.rewrite.ProgramSlicing;
 import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.Statement;
 import com.github.mithunder.statements.visitor.PrettyCodeWriter;
 import com.github.mithunder.statements.visitor.StatementIterator;
-import com.github.mithunder.transformation.ProgramSlicing;
 import com.github.mithunder.worklist.KillRepairAnalysisWorklist;
 import com.github.mithunder.worklist.SimpleRRKRWorklist;
 
@@ -36,18 +36,26 @@ public class PrintRunner {
 	private enum Options {PRINT, RD, LV, CP, CPBK, ALFPRD, PS, CPBKandLV };
 
 	public static void main(String[] args) throws Exception {
-		handlePrintRunning();
-	}
-
-	private static void handlePrintRunning() throws Exception  {
 
 		String fileName;
 		Options chosenOption = null;
 		BufferedReader reader = null;
 		try {
+			reader = new BufferedReader(new InputStreamReader(System.in));
+
+			System.out.println("Run and print analysis, 0. Run tests, 1");
+			String printTestChoiceString = reader.readLine();
+			int printTestChoice = Integer.parseInt(printTestChoiceString);
+			if (printTestChoice == 1) {
+				runTests();
+				System.exit(0);
+			}
+			else if (printTestChoice != 0) {
+				throw new IllegalArgumentException("Error: Choice must be 0 or 1.");
+			}
+
 			System.out.println("Please input the name of the program (enter for default):");
 
-			reader = new BufferedReader(new InputStreamReader(System.in));
 			fileName = findFile(reader.readLine());
 
 			System.out.println("Please choose an option:");
@@ -159,6 +167,29 @@ public class PrintRunner {
 		} catch (RecognitionException e)  {
 			e.printStackTrace();
 		}
+	}
+
+	private static void runTests() {
+
+		runProgramSlicingTests();
+		runDeadCodeEliminationTests();
+		runConstantPropagationTests();
+
+	}
+
+	private static void runProgramSlicingTests() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private static void runDeadCodeEliminationTests() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private static void runConstantPropagationTests() {
+		// TODO Auto-generated method stub
+
 	}
 
 	private static void printCode(final Statement nroot,

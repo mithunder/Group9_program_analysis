@@ -1,4 +1,4 @@
-package com.github.mithunder.transformation;
+package com.github.mithunder.rewrite;
 
 import static com.github.mithunder.statements.StatementType.DO;
 import static com.github.mithunder.statements.StatementType.IF;
@@ -15,8 +15,6 @@ import java.util.Set;
 
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis;
 import com.github.mithunder.analysis.ReachingDefinitionAnalysis.ReachingDefinitionEvaluation;
-import com.github.mithunder.rewrite.CodeRewriter;
-import com.github.mithunder.rewrite.PurgeDeadCode;
 import com.github.mithunder.statements.Annotation;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;

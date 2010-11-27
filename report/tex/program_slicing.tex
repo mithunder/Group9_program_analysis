@@ -1,6 +1,6 @@
 \section{Program slicing}
 
-The assignment defines program slicing  as:
+The assignment defines program slicing as:
 ``Given a program the idea is to determine the part of the program that may influence the values
 computed at a given point of interest; this part of the program is then called a program slice.''
 Based on this description, program slicing as understood in this project is defined and investigated,
@@ -81,13 +81,13 @@ x := a;
 \end{lstlisting}
 and that the point of interest is the last command.
 
-Assume that S2 does not contain any assignments to a, and that no definitions in S2 will reach a.
+Assume that no definitions in S2 will affect a.
 It is clear that the predicate P is relevant to a,
 and therefore to x. It should therefore be included in the program slice. Instead, the relevance of Q
-$\rightarrow$ S2 is not determined yet. For S2, there are two cases: If it causes definitions that reaches P, it is
+$\rightarrow$ S2 is not determined yet. For S2, there are two cases: If it causes definitions that affects P, it is
 relevant, and would be included in a use-definition run on the variables of P at P. If it instead has no
-definitions that reaches P, it is irrelevant to the values of a. No matter if it is true or false, the do will
-still be executed as long as P is true, and since S2 does not touch P, it has no effect on how many times
+definitions that affects P, it is irrelevant to the values of a. No matter if it is true or false, the do will
+still be executed as long as P is true, and since S2 does not affect P, it has no effect on how many times
 a := 30; S1; is executed. Therefore, the correct program slice is:
 \begin{lstlisting}
 a := 42;
@@ -142,7 +142,8 @@ undecidable.
 
 \subsection{Corner cases}
 
-A corner case of the program is that a condition may be included without its command is included.
+A corner case that can occur in this definition of program slicing is that a guard may be included
+without its command being included.
 This is the case for the guarded if, since all conditions are included whether or not there is
 something relevant in their commands. For instance,
 \begin{lstlisting}
