@@ -67,8 +67,7 @@ For instance, the exit point of [read x]$_l$ is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Label)\]
 
 \docpar
-
-$final(C):$\\
+final(C):\\
 $final([x := a]_l)     = \{l\}$\\
 $final([skip]_l)       = \{l\}$\\
 $final([abort]_l)      = \{l\}$\\
@@ -108,25 +107,23 @@ For instance, the elementary blocks of blocks([read x]$_l$) is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Elementary Command)\]
 
 \docpar
-\begin{equation}
 blocks(C):\newline
-blocks([x := a]_l)      = {[x := a]_l}\newline
-blocks([skip]_l)        = {[skip]_l}\newline
-blocks([abort]_l)       = {[abort]_l}\newline
-blocks([read x]_l)      = {[read x]_l}\newline
-blocks([write a]_l)     = {[write a]_l}\newline
-blocks(C_1; C_2)		 = 
+$blocks([x := a]_l)      = {[x := a]_l}$\\
+$blocks([skip]_l)        = {[skip]_l}$\\
+$blocks([abort]_l)       = {[abort]_l}$\\
+$blocks([read x]_l)      = {[read x]_l}$\\
+$blocks([write a]_l)     = {[write a]_l}$\\
+$blocks(C_1; C_2)		 = $ $$
 \begin{cases}
 blocks(C_1) \cup blocks(C_2) \textbf{if} (flow(C_1; C_2) \setminus (flow(C_1) \cup flow(C_2))) \neq \emptyset\\
 blocks(C_1) \textbf{else}
 \end{cases}
-\newline
-blocks(\{C\})             = blocks(C)\newline
-blocks(if gC fi)        = blocks(gC)\newline
-blocks(do gC od)        = blocks(gC)\newline
-blocks([e]_l \to C)      = \{[e]_l\} \cup blocks(C)\newline
-blocks(gC_1 [] gC_2)= blocks(gC_1) \cup blocks(gC_2)\newline
-\end{equation}
+$$\\
+$blocks(\{C\})             = blocks(C)$\\
+$blocks(if gC fi)        = blocks(gC)$\\
+$blocks(do gC od)        = blocks(gC)$\\
+$blocks([e]_l \to C)      = \{[e]_l\} \cup blocks(C)$\\
+$blocks(gC_1 [] gC_2)= blocks(gC_1) \cup blocks(gC_2)$\\
 
 The reasoning behind the definition of the semicolon command is that the
 blocks function only includes those commands that may be reached. If there is
