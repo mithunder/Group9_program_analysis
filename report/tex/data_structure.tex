@@ -1,6 +1,4 @@
 \section{Data Structure}
-//TODO: Worklist here? Niels
-
 The program is translated into a tree-like structure where each node
 is either a compound node (having children) or is a leaf node representing
 an ``3-address expression''.
@@ -116,4 +114,28 @@ analysis will end up ``flowing'' through ABORTs.
   A consequence of this is that analyses have to be able to handle ABORT statements and
 define an ``exit value'' of an ABORT statement. On the plus side, it turned out that this
 exit value for Constant Propagation Analysis could be (ab)used positively.
+
+\subsection{Worklist}
+For the analyses to work, they must visit all valid living statements in the IR
+at least once and in some cases more than once. For the ease of reuse, analyses
+have been implemented using a ``Visitor'' pattern. The worklist handles the
+actual iteration through the IR. The analyses notify it if they A) came to
+a new evaluation or B) were able to eliminate parts the current statement (or
+a related branch).
+
+  The worklist then decides in which order the statements are (re-)visited.
+The implemented worklist uses a Round-Robin algorithm, which means if an analysis
+generates a new evaluation, then all nodes must be revisited if the statement is
+inside a loop. Due to the order the algorithms visits statements and the
+``strongly connected components'' knowledge, the worklist do not have to revisit
+a statement outside a loop.
+
+  There were several reasons for choosing the Round-Robin algorithm; first of all
+if a statement inside a loop changes, then all elements will have to be revisited
+any way. Secondly it was trivial to implement and it allowed us to make some
+assumptions in the analyses that made it easier to ensure termination without
+losing precision. Particularly the analysis could base its ``evaluation changed''
+message on whether or not it came to a new result and not if it also got a new
+entry value. Due to the Round-Robin nature of the worklist, the new entry value
+would be propagated regardless.
 
