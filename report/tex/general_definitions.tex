@@ -8,7 +8,6 @@ x and y typically denotes variables, and a and e expressions, though this is not
 In the following, the guarded commands are a part of the domain of commands.
 
 \subsection{Termination}
-
 An important point in regards to the flow is whether or not the program is terminated
 at a certain point. For instance, the program may terminate at an if, but is not
 certain to do so. On the other hand, an abort is certain to terminate, and no flow
@@ -27,13 +26,14 @@ label of if and do can be seen as being the label of a skip elementary block.
 
 \subsection{Helper functions}
 
+\docpar
 Some helper functions:
 
-guards([e]$_l$ $\to$ C)      = \{[e]$_l$\} \newline
-guards(gC$_1$ [] gC$_2$)= guards(gC$_1$) $\cup$ guards(gC$_2$)\newline
+\docpar
+guards([e]$_l$ $\to$ C)      = \{[e]$_l$\}\\
+guards(gC$_1$ [] gC$_2$)= guards(gC$_1$) $\cup$ guards(gC$_2$)\\
 
 \subsection{Init}
-
 init(C) denotes the entry point for the flow of a command.
 For instance, the entry point of C$_1$ ; C$_2$ is equal to init(C$_1$),
 since C$_1$ contains the entry point. The domain is:
@@ -51,6 +51,7 @@ init(\{C\})             = init(C)\newline
 init([if]$_l$ gC fi)        = l\newline
 init([do]$_l$ gC od)        = l\newline
 
+\docpar
 The reasoning behind not simply defining the entry point of an if or a do as the first
 test in that if or do is that not only the first test, but all the tests, are entry points.
 Thus, simply choosing the first label would be wrong. One way to include all tests would
@@ -61,29 +62,28 @@ the if and do.
 
 
 \subsection{Final}
-
 final(C) denotes the exit points for the flow of a command.
 For instance, the exit point of [read x]$_l$ is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Label)\]
 
 \docpar
 final(C):\\
-$final([x := a]_l)     = \{l\}$\\
-$final([skip]_l)       = \{l\}$\\
-$final([abort]_l)      = \{l\}$\\
-$final([read x]_l)     = \{l\}$\\
-$final([write a]_l)    = \{l\}$\\
-$final(C_1; C_2)		  =
+final([x := a]$_l$)     = \{l\}\\
+final([skip]$_l$)       = \{l\}\\
+final([abort]$_l$)      = \{l\}\\
+final([read x]$_l$)     = \{l\}\\
+final([write a]$_l$)    = \{l\}\\
+final(C$_1$; C$_2$)		  = $$
 \begin{cases}
-(el \vert el \in final(C_1) \wedge el = abort) \cup final(C_2) \textbf{if} (el \vert el \in final(C_1) \wedge el \neq abort) \neq \emptyset \\
-(el \vert \in final(C_1) \wedge el = abort) \textbf{else}
-\end{cases}$\\
-$final(\{C\})          = final(C)$\\
-$final(if gC fi)       = final(gC)$\\
-$final([do]_l gC od)  = 
-guards(gC) \cup (el \vert el \in final(gC) \wedge el = abort)$\\
-$final([e]_l \to C)    = final(C)$\\
-$final(gC1 [] gC2)      = final(gC1) \cup final(gC2)$\\
+(el \vert el \in final(C_1) \wedge el = abort) \cup final(C_2) \; \textbf{if} \; (el \vert el \in final(C_1) \wedge el \neq abort) \neq \emptyset \\
+(el \vert \in final(C_1) \wedge el = abort) \; \textbf{else}
+\end{cases}$$\\
+final(\{C\})          = final(C)\\
+final(if gC fi)       = final(gC)\\
+final([do]$_l$ gC od)  = 
+guards(gC) $\cup$ (el $\vert$ el $\in$ final(gC) $\wedge$ el = abort)\\
+final([e]$_l$ $\to$ C)    = final(C)\\
+final(gC$_1$ [] gC$_2$)      = final(gC$_1$) $\cup$ final(gC$_2$)\\
 
 \begin{itemize}
 \item The reasoning behind the definition of the semicolon command is that the
@@ -101,30 +101,30 @@ simply flow back to the tests.
 
 
 \subsection{Blocks}
-
 blocks(C) denotes the elementary blocks of a command.
 For instance, the elementary blocks of blocks([read x]$_l$) is l. The domain is:
 \[final \colon Command \to \mathcal{P}(Elementary Command)\]
 
 \docpar
-blocks(C):\newline
-$blocks([x := a]_l)      = {[x := a]_l}$\\
-$blocks([skip]_l)        = {[skip]_l}$\\
-$blocks([abort]_l)       = {[abort]_l}$\\
-$blocks([read x]_l)      = {[read x]_l}$\\
-$blocks([write a]_l)     = {[write a]_l}$\\
-$blocks(C_1; C_2)		 = $ $$
+blocks(C):\\
+blocks([x := a]$_l$)      = {[x := a]$_l$}\\
+blocks([skip]$_l$)        = {[skip]$_l$}\\
+blocks([abort]$_l$)       = {[abort]$_l$}\\
+blocks([read x]$_l$)      = {[read x]$_l$}\\
+blocks([write a]$_l$)     = {[write a]$_l$}\\
+blocks(C$_1$; C$_2$)		 = $$
 \begin{cases}
-blocks(C_1) \cup blocks(C_2) \textbf{if} (flow(C_1; C_2) \setminus (flow(C_1) \cup flow(C_2))) \neq \emptyset\\
-blocks(C_1) \textbf{else}
+blocks(C_1) \cup blocks(C_2) \; \textbf{if} \; (flow(C_1; C_2) \setminus (flow(C_1) \cup flow(C_2))) \neq \emptyset\\
+blocks(C_1) \; \textbf{else}
 \end{cases}
 $$\\
-$blocks(\{C\})             = blocks(C)$\\
-$blocks(if gC fi)        = blocks(gC)$\\
-$blocks(do gC od)        = blocks(gC)$\\
-$blocks([e]_l \to C)      = \{[e]_l\} \cup blocks(C)$\\
-$blocks(gC_1 [] gC_2)= blocks(gC_1) \cup blocks(gC_2)$\\
+blocks(\{C\})             = blocks(C)\\
+blocks(if gC fi)        = blocks(gC)\\
+blocks(do gC od)        = blocks(gC)\\
+blocks([e]$_l$ $\to$ C)      = \{[e]$_l$\} $\cup$ blocks(C)\\
+blocks(gC$_1$ [] gC$_2$)= blocks(gC$_1$) $\cup$ blocks(gC$_2$)\\
 
+\docpar
 The reasoning behind the definition of the semicolon command is that the
 blocks function only includes those commands that may be reached. If there is
 no flow from C$_1$ to C$_2$, the blocks in C$_2$ will never be reached, and is
@@ -133,38 +133,34 @@ therefore never included.
 
 
 \subsection{Flow}
-
 Flow denotes the possible transitions between elementary blocks.
 For instance, the flow of flow(skip[l$_1$]; skip[l$_2$]) is equal to
 (l$_1$, l$_2$), since the program would simply transition from the first
 skip to the last skip. The domain is:
 \[flow \colon Command \to \mathcal{P}(Label)\times\mathcal{P}(Label)\]
 
-flow(C):\newline
-flow([x := a]$_l$)        =$\emptyset$\newline
-flow([skip]$_l$)          =$\emptyset$\newline
-flow([abort]$_l$)         =$\emptyset$\newline
-flow([read x]$_l$)        =$\emptyset$\newline
-flow([write a]$_l$)       =$\emptyset$\newline
-flow\-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\newline
-flow(C$_1$; C$_2$)		 = 
-\begin{equation}
+\docpar
+flow(C):\\
+flow([x := a]$_l$)        =$\emptyset$\\
+flow([skip]$_l$)          =$\emptyset$\\
+flow([abort]$_l$)         =$\emptyset$\\
+flow([read x]$_l$)        =$\emptyset$\\
+flow([write a]$_l$)       =$\emptyset$\\
+flow\-between(C$_1$, C$_2$)= ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(C$_1$) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ init(C$_2$))\\
+flow(C$_1$; C$_2$)		 = $$
 \begin{cases}
-flow(C_1) \cup flow(C_2) \cup flow-between(C_1, C_2) \textbf{if} flow-between(C_1, C_2) \not = \emptyset\\
-flow(C_1) \textbf{else}
+flow(C_1) \cup flow(C_2) \cup flow-between(C_1, C_2) \; \textbf{if} \; flow-between(C_1, C_2) \not = \emptyset\\
+flow(C_1) \; \textbf{else}
 \end{cases}
-\end{equation}\newline
-flow(\{C\}) = C\newline
-
-flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
-$\cup$ flow(gC)\newline
-
-flow([do]$_l$ gC od) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\newline
-$\cup$ flow(gC)\newline
-$\cup$ ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(gC) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ guards(gC))\newline
-
-flow([e]$_l$ $\to$ C)      = \{([e]$_l$, init(C))\} $\cup$ flow(C) \newline
-flow(gC$_1$ [] gC$_2$)= flow(gC$_1$) $\cup$ flow(gC$_2$)\newline
+$$\\
+flow(\{C\}) = C\\
+flow([if]$_l$ gC fi) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [if]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\\
+$\cup$ flow(gC)\\
+flow([do]$_l$ gC od) = ((el$_1$, el$_2$) $\vert$ el$_1$ = [do]$_l$ $\wedge$ el$_2$ $\in$ guards(gC))\\
+$\cup$ flow(gC)\\
+$\cup$ ((el$_1$, el$_2$) $\vert$ el$_1$ $\in$ final(gC) $\wedge$ el$_1$ $\neq$ abort $\wedge$ el$_2$ $\in$ guards(gC))\\
+flow([e]$_l$ $\to$ C)      = \{([e]$_l$, init(C))\} $\cup$ flow(C) \\
+flow(gC$_1$ [] gC$_2$)= flow(gC$_1$) $\cup$ flow(gC$_2$)\\
 
 
 \begin{itemize}

@@ -19,15 +19,16 @@ The definition of kill is the mapping from elementary blocks to the set of varia
 that are removed by the elementary block. The domain is:
 \[final \colon Elementary Command \to \mathcal{P}(Variable)\times\mathcal{P}(Label)\]
 
-kill$_{RD}$(C):\newline
-kill$_{RD}$([x := a]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\newline
-kill$_{RD}$([read x]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\newline
-kill$_{RD}$([skip]$_l$)             =$\emptyset$\newline
-kill$_{RD}$([abort]$_l$) 			= ((x, l) $\vert$ l $\in$ labels(C*) and x $\in$ FV(C*) )\newline
-kill$_{RD}$([write a]$_l$)          =$\emptyset$\newline
-kill$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\newline
-kill$_{RD}$([do]$_l$ gC od)         =$\emptyset$\newline
-kill$_{RD}$([e]$_l$)                =$\emptyset$\newline
+\docpar
+kill$_{RD}$(C):\\
+kill$_{RD}$([x := a]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\\
+kill$_{RD}$([read x]$_l$)           = \{(x, ?)\} $\cup$ ((x, l') $\vert$ B$_l$' is an assignment to x in C*)\\
+kill$_{RD}$([skip]$_l$)             =\\
+kill$_{RD}$([abort]$_l$) 			= ((x, l) $\vert$ l $\in$ labels(C*) and x $\in$ FV(C*) )\\
+kill$_{RD}$([write a]$_l$)          =$\emptyset$\\
+kill$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\\
+kill$_{RD}$([do]$_l$ gC od)         =$\emptyset$\\
+kill$_{RD}$([e]$_l$)                =$\emptyset$\\
 
 Note that the abort kills everything.
 
@@ -37,15 +38,16 @@ The definition of gen is the mapping from elementary blocks to the set of variab
 that are added by the elementary block. The domain is:
 \[final \colon Elementary Command \to \mathcal{P}(Variable)\times\mathcal{P}(Label)\]
 
-gen$_{RD}$(C):\newline
-gen$_{RD}$([x := a]$_l$)           = \{(x, l)\}\newline
-gen$_{RD}$([read x]$_l$)           = \{(x, l)\}\newline
-gen$_{RD}$([skip]$_l$)             =$\emptyset$\newline
-gen$_{RD}$([abort]$_l$) 		   = $\emptyset$\newline
-gen$_{RD}$([write a]$_l$)          =$\emptyset$\newline
-gen$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\newline
-gen$_{RD}$([do]$_l$ gC od)         =$\emptyset$\newline
-gen$_{RD}$([e]$_l$)                =$\emptyset$\newline
+\docpar
+gen$_{RD}$(C):\\
+gen$_{RD}$([x := a]$_l$)           = \{(x, l)\}\\
+gen$_{RD}$([read x]$_l$)           = \{(x, l)\}\\
+gen$_{RD}$([skip]$_l$)             =$\emptyset$\\
+gen$_{RD}$([abort]$_l$) 		   =$\emptyset$\\
+gen$_{RD}$([write a]$_l$)          =$\emptyset$\\
+gen$_{RD}$([if]$_l$ gC fi)         =$\emptyset$\\
+gen$_{RD}$([do]$_l$ gC od)         =$\emptyset$\\
+gen$_{RD}$([e]$_l$)                =$\emptyset$\\
 
 \subsection{Examples}
 
