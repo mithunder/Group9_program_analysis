@@ -19,6 +19,10 @@ public class CompilationUnit {
 		this.factory = factory;
 	}
 
+	public CompilationUnit(CompilationUnit base, Statement nroot){
+		this(base.unitName, nroot, base.varTable, base.endStatements, base.factory);
+	}
+
 	public String getUnitName(){
 		return unitName;
 	}

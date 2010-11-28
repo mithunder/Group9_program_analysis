@@ -186,13 +186,20 @@ public class PrintRunner {
 	private static void runTests() throws Exception{
 
 		//Run program slicing tests.
-		System.out.println("Running program slicing tests.");
+		System.out.println("Running Program Slicing tests.");
 		runTests(
 				new File(programSlicingTestsFolder),
 				new ProgramSlicing(new SimpleRRKRWorklist())
 		);
+		System.out.println("Done with Program Slicing tests.");
+		System.out.println("Running Dead Code/variable Elimination tests.");
+		runDeadCodeEliminationTests();
+		System.out.println("Done with Dead Code/variable Elimination tests.");
+		System.out.println("Running Constant Folding tests.");
+		runConstantPropagationTests();
+		System.out.println("Done with Constant Folding tests.");
 		System.out.println("Done with all tests.");
-		//TODO: Run other tests.
+
 
 	}
 
@@ -237,8 +244,8 @@ public class PrintRunner {
 			//Compare the results, and write them.
 			final boolean isFilesContentEqual = compareFiles(resultCleanFile, expectedCleanFile);
 			resultsWriter.append(
-				expectedFiles[i].getName().split("\\.")[0] + " passed: " + isFilesContentEqual +
-				"\n"
+					expectedFiles[i].getName().split("\\.")[0] + " passed: " + isFilesContentEqual +
+					"\n"
 			);
 
 			if (!isFilesContentEqual) {
@@ -292,7 +299,7 @@ public class PrintRunner {
 			final String expectedName = expectedF.get(i).getName();
 			if (!sourceName.split("\\.")[0].equals(expectedName.split("\\.")[0])) {
 				throw new IllegalArgumentException("Error: Files does not match up, " +
-					sourceName + " did not match " + expectedName
+						sourceName + " did not match " + expectedName
 				);
 			}
 		}
@@ -306,12 +313,53 @@ public class PrintRunner {
 
 	private static void runDeadCodeEliminationTests() {
 		// TODO Auto-generated method stub
-
 	}
 
-	private static void runConstantPropagationTests() {
-		// TODO Auto-generated method stub
+	private static void runConstantPropagationTests() throws Exception {
+		final File folder = new File("constant_folding_tests");
+		final File[][] tests = getSourceExpectedFiles(folder);
+		final File[] sourceFiles = tests[0];
+		final File[] expectedFiles = tests[1];
+		CodeRewriter rewriter = new ConstantFolder();
+		KillRepairAnalysis cpa = new ConstantPropagationAnalysis();
+		KillRepairAnalysisWorklist wl = new SimpleRRKRWorklist();
+		CodeRewriter pdc = new PurgeDeadCode();
+		//Prepare the results file.
+		File resultsFile = new File(folder, "results");
+		final BufferedWriter resultsWriter = new BufferedWriter(new FileWriter(resultsFile));
+		final File resultCleanFile = new File("tmp_file_res");
+		final File expectedCleanFile = new File("tmp_file_exp");
+		for (int i = 0; i < expectedFiles.length; i++) {
 
+			//Read in the source get the program.
+			{
+				final CompilationUnit sourceUnit = getProgram(sourceFiles[i].getPath());
+				//Perform the test and write.
+				final EvaluatedStatement root = wl.run(cpa, sourceUnit);
+				final CompilationUnit resultUnit = pdc.rewrite(rewriter.rewrite(
+						new CompilationUnit(sourceUnit, root)));
+				printCode(resultUnit.getRootStatement(), resultUnit, resultCleanFile);
+			}
+
+			//Read in the expected and print.
+			{
+				final CompilationUnit expectedUnit = getProgram(expectedFiles[i].getPath());
+				printCode(expectedUnit.getRootStatement(), expectedUnit, expectedCleanFile);
+			}
+
+			//Compare the results, and write them.
+			final boolean isFilesContentEqual = compareFiles(resultCleanFile, expectedCleanFile);
+			resultsWriter.append(
+					expectedFiles[i].getName().split("\\.")[0] + " passed: " + isFilesContentEqual +
+					"\n"
+			);
+
+			if (!isFilesContentEqual) {
+				throw new IllegalArgumentException("Error-debug; files were not equal.");
+			}
+
+		}
+		resultsWriter.close();
 	}
 
 	private static CompilationUnit getProgram(String fileName) throws Exception {
@@ -360,27 +408,18 @@ public class PrintRunner {
 		//Simply read in the files, and check the checksum.
 		final byte[] checksum1 = getChecksum(resultCleanFile);
 		final byte[] checksum2 = getChecksum(expectedCleanFile);
-		if (checksum1.length != checksum2.length) {
-			return false;
-		}
-		for (int i = 0; i < checksum1.length; i++) {
-			if (checksum1[i] != checksum2[i]) {
-				return false;
-			}
-		}
-		return true;
+		return MessageDigest.isEqual(checksum1, checksum2);
 	}
 
 	private static byte[] getChecksum(File file) throws Exception {
-
-		final MessageDigest md = MessageDigest.getInstance("MD5");
+		final MessageDigest md = MessageDigest.getInstance("SHA1");
 		final InputStream is = new DigestInputStream(new FileInputStream(file), md);
 		try {
-		  while (is.read() != -1) {
-		  }
+			while (is.read() != -1) {
+			}
 		}
 		finally {
-		  is.close();
+			is.close();
 		}
 		return md.digest();
 	}

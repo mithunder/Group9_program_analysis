@@ -1,0 +1,32 @@
+module group9_3_constant_propagation :
+       read unknown;
+       zero  := unknown * 0;
+       one   := zero + 1;
+       two   := zero + one * one - zero + one;
+       three := one + (two + one) * two - two * two;
+       four  := three * two - three + one;
+       if three > two -> six   := one + two + three
+       [] three < two -> one   := three
+       [] three = two -> three := two
+       fi;
+       seven := six + one;
+       eight := four * two + (unknown - unknown);
+       a := one;
+       do a > two -> divbyzero := one / zero
+       [] a = two -> a := a + 1
+       od;
+       
+       if unknown = unknown -> skip
+       [] one = two -> six := unknown + six
+       [] two = three -> three := unknown + three
+       [] (one = 1 & unknown > 0) -> {eight := unknown + eight; seven := unknown + three + four}
+       fi;
+
+       write one;
+       write two;
+       write three;
+       write four;
+       write six;
+       write seven;
+       write eight
+end
