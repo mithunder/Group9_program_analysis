@@ -40,16 +40,17 @@ since C$_1$ contains the entry point. The domain is:
 \[init \colon Command \to Label\]
 It should be noted that the domain is different from that of the book.
 
+\docpar
 init(C):\newline
-init([x := a]$_l$)      = l\newline
-init([skip]$_l$)        = l\newline
-init([abort]$_l$)       = l\newline
-init([read x]$_l$)      = l\newline
-init([write a]$_l$)     = l\newline
-init(C$_1$; C$_2$)        = init(C$_1$)\newline
-init(\{C\})             = init(C)\newline
-init([if]$_l$ gC fi)        = l\newline
-init([do]$_l$ gC od)        = l\newline
+init([x := a]$_l$)      = l\\
+init([skip]$_l$)        = l\\
+init([abort]$_l$)       = l\\
+init([read x]$_l$)      = l\\
+init([write a]$_l$)     = l\\
+init(C$_1$; C$_2$)      = init(C$_1$)\\
+init(\{C\})             = init(C)\\
+init([if]$_l$ gC fi)        = l\\
+init([do]$_l$ gC od)        = l\\
 
 \docpar
 The reasoning behind not simply defining the entry point of an if or a do as the first
