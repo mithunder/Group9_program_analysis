@@ -1,6 +1,4 @@
 \section{Constant propagation}
-//TODO: Niels
-
 There are different views on what exactly constant propagation (CP) means. In its
 strictest meaning it is read as ``propagate constants and nothing else''.
 However it could also be ``fold constants and then propagate'', which is what
@@ -27,54 +25,113 @@ by 1 in [2] and that it can now fold 1 + 1 to 2 and thus replace b with 2 in [4]
 We shall use the fold-and-propagate definition of constant propagation here.
 
 \subsection{Theory}
-% TODO Niels - irk
 CP is unlike LV and RD not a part of the bit-vector framework; in fact it is not
 even a distributive framework. Thus it cannot be defined by at a kill and a gen
 function. Instead we define a complete lattice:
 
-\[ \hat{State}_{cp} = ((V, (Var_{*} \rightarrow \mathbb{Z}^{T})_\perp), \sqsubseteq, \sqcup, \sqcap, \perp, \lambda x.T) \]
+\[ \hat{State}_{cp} = ((V, (Var_{*} \rightarrow \mathbb{Z}^{\top})_\bot), \sqsubseteq, \sqcup, \sqcap, \bot, \lambda x.\top) \]
 
 \docpar
 The main difference between our definition and the one Nielson use is the first
-element. Namely we use $(V, (Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$
-compared to Nielson's $(Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$; the
+element. Namely we use $(V, (Var_{*} \rightarrow \mathbb{Z}^{\top})_\bot)$
+compared to Nielson's $(Var_{*} \rightarrow \mathbb{Z}^{\top})_\bot)$; the
 reason for this change will become apparent later.
   For those who have not read Nielson's definition, $Var_{*}$ is a set consisting
-of all the variables in the program and $\mathbb{Z}^T$ is the same as
-$\mathbb{Z} \cup \{T\}$. T (also known as ``Top'') is a special value denoting
+of all the variables in the program and $\mathbb{Z}^\top$ is the same as
+$\mathbb{Z} \cup \{\top\}$. T (also known as ``Top'') is a special value denoting
 that the value of the variable is defined, but its exact value cannot be
 determined. There is also cases where the variable is simply not defined or
-no information is available; in which case we use $\perp$ (also known as
+no information is available; in which case we use $\bot$ (also known as
 ``Bottom''). The result is referred to as:
- $(Var_{*} \rightarrow \mathbb{Z}^{T})_\perp)$
+ $(Var_{*} \rightarrow \mathbb{Z}^{\top})_\bot)$
 
   We also introduced a $V$ which is defined as $V = true \vee V = false$; which
 we will come back to later.  First we will define the partial ordering
 $\sqsubseteq$ for our lattice and for that we define $\hat{\sigma}(x)$ to be
 whether x is either Top, Bottom or a constant and if it is a constant then
 $\hat{\sigma}(x)$ will be that constant. As an exception if $V = false$ then
-$\hat{\sigma}(x)$ is always $\perp$.
+$\hat{\sigma}(x)$ is always $\bot$.
 
 \docpar
 The partial ordering:
 
-\[ \forall{}\hat{\sigma} \in (false, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
- \perp = \hat{\sigma} \]
-\[ \forall{}\hat{\sigma} \in (true, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
- \perp \sqsubseteq \hat{\sigma} \]
+\[ \forall{}\hat{\sigma} \in (false, (Var_{*} \rightarrow
+ \mathbb{Z}^{\top})_{\bot}): \bot = \hat{\sigma} \]
+\[ \forall{}\hat{\sigma} \in (true, (Var_{*} \rightarrow
+\mathbb{Z}^{\top})_{\bot}): \bot \sqsubseteq \hat{\sigma} \]
 \[ \forall{}\hat{\sigma}_1,\hat{\sigma}_2 \in (true, (Var_{*} \rightarrow
- \mathbb{Z}^{T})_\perp): \hat{\sigma}_2 \sqsubseteq \hat{\sigma}_2 \: \textbf{iff}
- \; \forall{}x : \hat{\sigma}_1(x) \sqsubseteq \hat{\sigma}_2(x) \]
+\mathbb{Z}^{\top})_\bot): \hat{\sigma}_2 \sqsubseteq \hat{\sigma}_2 \:
+\textbf{iff}  \; \forall{}x : \hat{\sigma}_1(x) \sqsubseteq \hat{\sigma}_2(x) \]
 
 \docpar
 The least upper bound is defined as:
 
-\[ \forall{}\hat{\sigma} \in (V, (Var_{*} \rightarrow \mathbb{Z}^{T})_{\perp}):
- \perp \sqsubseteq \hat{\sigma} = \hat{\sigma} \sqsubseteq \perp = \hat{\sigma} \]
+\[ \forall{}\hat{\sigma} \in (V, (Var_{*} \rightarrow \mathbb{Z}^{\top})_{\bot}):
+ \bot \sqsubseteq \hat{\sigma} = \hat{\sigma} \sqsubseteq \bot = \hat{\sigma} \]
 \[ \forall{}\hat{\sigma}_1,\hat{\sigma}_2 \in (V, (Var_{*} \rightarrow
- \mathbb{Z}^{T})_\perp): \forall{}x : (\hat{\sigma}_1 \sqcup \hat{\sigma}_2)(x) =
+ \mathbb{Z}^{\top})_\bot): \forall{}x : (\hat{\sigma}_1 \sqcup \hat{\sigma}_2)(x) =
  \hat{\sigma}_1(x) \sqcup \hat{\sigma}_2(x) \]
 
+\begin{table}
+\[ A_{CP} : \textbf{AExp} \rightarrow (\hat{State}_{CP} \rightarrow \mathbb{Z}^{\top}_\bot) \]
+\hrule
+\begin{eqnarray}
+A_{CP}[x]\hat{\sigma} &=& \begin{cases}
+\bot \; if \: \hat{\sigma} = \bot \\
+\hat{\sigma}(x) \; otherwise
+\end{cases} \\
+A_{CP}[n]\hat{\sigma} &=& \begin{cases}
+\bot \; if \: \hat{\sigma} = \bot \\
+n \; otherwise
+\end{cases}\\
+A_{CP}[a_1 \; op_a \; a_2]\hat{\sigma} &=& A_{CP}[a_1]\hat{\sigma} \; \hat{op}_a \; A_{CP}[a_2]\hat{\sigma}
+\end{eqnarray}
+\[ transfer \; functions: f^{CP}_{l} \]
+\hrule
+\begin{eqnarray}
+[x := a]^l : \; \; f^{CP}_l(\hat{\sigma}) &=& \begin{cases}
+\bot \; if \hat{\sigma} = \bot \\
+\hat{\sigma}[a \mapsto A_{CP}[a]\hat{\sigma}] \; otherwise
+\end{cases}\\
+\left[skip\right] : \; \; f^{CP}_l(\hat{\sigma}) &=& \hat{\sigma} \\
+\left[b\right]^{l} : \; \; f^{CP}_l(\hat{\sigma}) &=& \hat{\sigma}\\
+\left[write \; e\right]^{l} : \; \; f^{CP}_l(\hat{\sigma}) &=& \hat{\sigma}\\
+\left[read \; x\right]^{l} : \; \; f^{CP}_l(\hat{\sigma}) &=& \hat{\sigma}[a \mapsto \top] \;
+\end{eqnarray}
+\hrule
+\caption{Constant Propagation Analysis}
+\end{table}
+
+\docpar
+It turns out that our definition of CP for the guarded-command language
+have a lot in common as Nielson's definition of CP for the while language
+(e.g. the transfer functions are identical for the statements that while
+and the guarded-command language share).
+
+  One important difference we have not handled is the abort statement.
+The abort statement will set $V$ to false, rendering all the information
+in the mapping invalid.
+
+  The idea is that when a statement has an entry value based on the exit
+value of two (or more statements), all the ones with $V = false$ will be
+ignored, unless all exit values have $V = false$. This is because $V = false$
+denotes that the mapping has passed through an abort and therefore does
+not represent a valid flow in the program.
+
+\docpar
+The $\hat{op}_a$ describes how we operate on values, which are lifted to
+ $\mathbb{Z}^{\top}_{\bot} = \mathbb{Z} \cup \{ \top, \bot \}$. The idea is
+that if all the values in the operation are defined constants, it can be
+computed according to the rules of the operator. That is:
+
+\[ z_1 \hat{op}_a z_2 = z_1 op_a z_2 \; if z_1, z_2 \in \mathbb{Z} \]
+
+\docpar
+Otherwise the result is generally either $\bot$ if either $z_1$ or $z_2$
+are $\bot$ or else the result is $\top$. There are some special case
+exceptions to this rule, such as $0 * z$ or $z - z$, where the result is
+0 even if $z$ is $\top$. Though one could argue it is not the job of CP to
+conclude the latter.
 
 \subsection{Extension - Branch elimination}
 It is possible to extend the constant propagation analysis (CPA) to yield better
@@ -98,7 +155,7 @@ of the analysis.
   There are some less trivial examples such as this one:
 
 \begin{lstlisting}
-module cp-ext-el-3 :
+module cp-ext-el-2 :
 x := 0;[1]
 y := 0;[2]
 do (x > 0)[3] -> y := y + 1;[4] x := x - 1[5]
@@ -127,5 +184,3 @@ merging.
 removes the flow between two nodes if the analysis concludes it will never pass
 through that edge in the graph.
 
-\subsection{Examples}
-% TODO Niels
