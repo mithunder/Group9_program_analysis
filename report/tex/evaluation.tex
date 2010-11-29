@@ -1,3 +1,83 @@
 
+In the project, a program analysis module has been implemented.
+Below, the different parts will be discussed.
 
+\paragraph{Analyses:}
+The 3 required analyses have been implemented in the project,
+and the theory behind them have been described. Of note is that
+SLVA has been implemented, to provide a more precise analysis
+and a more effective Dead Code Elimination. We believe that SLVA
+is important for the performance of DCE, since it frequently gives
+a much more precise transformation. An example is given where LVA
+keeps resurrecting faint variables, which should be removed, while
+SLVA marks them as dead.
+
+The constant propagation
+has furthermore been given support for branch killing, which is also
+quite useful. Killing branches can occur quite often in programs, for
+instance in the case that a branch containing debug-code/test code
+is killed because its condition is set to false (for instance through
+a global constant).
+
+The analyses have been tested by hand, but not through automated tests.
+Besides this testing, they have been tested indirectly through the
+transformations, because the transformations rely on the analyses being
+correct.
+
+Given the testing of the analyses and the performance of the transformations,
+it is estimated that the analyses have been defined and implemented correctly.
+Given the time frame and scope of the project, this is deemed sufficient
+regarding the correctness of the analyses.
+
+\paragraph{Transformations:}
+The 3 required transformations, Program Slicing, Dead Code Elimination
+and Constant Propagation, have been fully implemented.
+
+Program Slicing is deemed to being implemented correctly, based on the
+tests performed. The definition of PS can vary a lot, but it is deemed
+that the definition in this project is both useful and somewhat simple.
+This is confirmed by the implementation of PS. The definitionen not only
+shows the relevant parts, but also preserves a runnable program, which
+may be useful. Some other groups' definition of PS varies from this definition,
+some ignoring control flow and focusing solely on the RD.
+We believe that this definition gives a more usable PS, but this may depend
+on the purpose of the PS. The purposes can include debugging for the
+programmer, which suits this definition well.
+
+The Dead Code Elimination is deemed to be very useful internally in regards
+to cleaning up from other transformations. While it is rare for programmers
+not to use variables, transformations frequently do not clean up after themselves,
+including PS and CF. Another use for DCE is marking code for the programmer
+that is dead, which although rare may indicate bugs.
+
+The Constant Folding is deemed to be quite useful, especially given its
+branch killing. As mentioned in the evaluation of the analyses,
+branch killing can remove considerable parts of the code that ends up
+in the final result, but can also increase the speed of the analyses and
+transformations in general, because dead code is not investigated with
+branch killing.
+
+It is deemed that all the transformations perform well, and that they
+have been tested well with both general programs and special case programs.
+
+\paragraph{Worklist:}
+The worklist implemented has focused less on generalisation, and more
+on efficiency. In this regard, the worklist has performed admirably.
+As seen in the test regarding the Succint Solver, it outperforms
+the other methods, especially when the problem instances scales.
+
+This comes at a price in generality. However, it is deemed that
+this price is acceptable for multiple reasons: it shows that a worklist
+implemented for specific problem instances can severely outperform
+general implementations; and it gives a much better performance.
+
+\paragraph{Testing}
+
+The testing is based on regression-testing. This means that the precise expected
+output is written by the tester, and the test then succeeds only if the resulting
+output is exactly the same as the expected output. This may result in false negatives:
+results that are correct but not the same as the expected will be registered as negatives.
+While this is not optimal, it is considered acceptable. Partly since implementing tests other
+than regression tests is outside the scope of the project, and partly since the current
+transformations implemented produce the same output if they are correct.
 
