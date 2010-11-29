@@ -75,8 +75,8 @@ general implementations; and it gives a much better performance.
 
 The testing is based on regression-testing. This means that the precise expected
 output is written by the tester, and the test then succeeds only if the resulting
-output is exactly the same as the expected output. This may result in false negatives:
-results that are correct but not the same as the expected will be registered as negatives.
+output is exactly the same as the expected output. This may result in false positives:
+results that are correct but not the same as the expected will be registered as positives.
 While this is not optimal, it is considered acceptable. Partly since implementing tests other
 than regression tests is outside the scope of the project, and partly since the current
 transformations implemented produce the same output if they are correct.

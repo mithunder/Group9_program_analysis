@@ -1,0 +1,80 @@
+
+\subsection{Program slicing testing instructions and examples}
+\label{ps_test_examples}
+
+Apart from running the tests, in order to run program slicing
+on a source code file, an "annotation" must be given. An annotation in the program
+is a line starting with @, followed by some annotation.
+The annotation for program slicing is @programslicing=``true''.
+An example input program is given below:
+
+\begin{lstlisting}
+module example_1 :
+  read x;
+  read y;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end
+\end{lstlisting}
+
+This will give the output:
+
+\begin{lstlisting}
+module example_1 :
+  read y;
+  x := 0;
+@programslicing="true"
+  z := x / y
+end
+\end{lstlisting}
+
+In fact, multiple annotations of program slicing can be used together
+to determine the program slice from multiple statements:
+
+\begin{lstlisting}
+module example_2 :
+  read x;
+  read y;
+  do
+    x > 0 ->
+      x := x - 1
+    [] x < 0 ->
+      x := x + 1
+  od;
+  sum := 0;
+  i := 0;
+  do
+    i < 10 ->
+      sum := sum + i;
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end
+\end{lstlisting}
+
+Giving:
+
+\begin{lstlisting}
+module example_2 :
+  read y;
+  i := 0;
+  do
+    i < 10 ->
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y
+end
+\end{lstlisting}
+
+As can be seen, the sum has been removed, both the slice for i
+and the slice for z has been isolated properly.
+
