@@ -1,3 +1,100 @@
 \section{Dead code elimination}
+//TODO: Some flavortext
+
+There are three cases in which it is interesting to see, if the dead code elimination behaves correctly. The first case is simple statements, the second is with do- and if-statements, and the third is with a do- or if-statement inside another do- or if-statement.
+
+\subsection{Case 1}
+The motivation for this case, is to see if it can handle simple and trivial cases. If it have trouble with those, then problems with more advanced cases is most likely to arise. The code used for the first case is as follows:
+\begin{lstlisting}
+module DCE_test1:
+  read x;
+  read y;
+  x := 1;
+  y := x + 2;
+  x := x * y;[*]
+  x := x;[*]
+  x := 5;[*]
+  y := y + 1;
+  write y
+end
+\end{lstlisting}
+It is expected that those lines marked with [*] are going to be removed once the dead code elimination is completed. These lines have no effect on the write statement in the end, and is therefore not needed. The variable y might be used in one of them, however x is not going to be used for assigning y later on.
+
+After running the dead code elimination, the result is:
+\begin{lstlisting}
+module DCE_test1:
+read x;
+read y;
+x := 1;
+y := (x+2);
+y := (y+1);
+write (y)
+end
+\end{lstlisting}
+Which is correct. It uses all the different cases of simple statements; assigning an un-interesting variable, assigning an interesting variable with another variable which then turns interesting, and having a read statement assigning a dead variable. Given, this was a simple case, however it is the basic for some of the more advanced cases.
+
+\subsection{Case 2}
+The second case involves do- and if-statements, and checks whether it is able to handle them correctly. This case continues the first case, and is the basic for the third case in this test. This case involves two tests, one with a do-statement, and one with an if-statement.
+
+The first test in this case is as follows:
+\begin{lstlisting}
+module CDE_test2:
+  read x;
+  read y;
+  do y < 19 -> y := y + 1
+  [] y > x -> y := y - 1
+  od;
+  write x
+end
+\end{lstlisting}
+Nothing really should be removed from this piece of code. It is correct that x is not getting assigned by any other variables, but the transformation is not allowed to change the behaviour of the program. Both of the conditions in the do-statement contains y, which makes y interesting. And because of the loop-around effect of do-statements, all the statements assigning y in the do-statement will be preserved.
+
+The outputted result will be:
+\begin{lstlisting}
+module CDE_test2:
+read x;
+read y;
+do
+   (y<19) ->
+      y := (y+1)
+   [] (y>x) ->
+      y := (y-1)
+od;
+write (x)
+end
+\end{lstlisting}
+The rewriting have altered the indentations and other thing virually, however the code is exactly the same.
+
+The second test in this case:
+\begin{lstlisting}
+module CDE_test3:
+  read x;
+  read y;
+  if y < 19 -> y := y + 1[*]
+  [] y > x -> y := y - 1[*]
+  fi;
+  write x
+end
+\end{lstlisting}
+This test is almost the same as the one before, however this time it is using if instead of do. Without the loop-around effect of do-statements, the statements marked with [*] should be replaced with a skip (since the scope may not be empty). The condition for that statement can not be removed, again because of the clause of not altering the behaviour of the code.
+
+The outputted result will be:
+\begin{lstlisting}
+module CDE_test3:
+read x;
+read y;
+if
+   (y<19) ->
+      skip
+   [] (y>x) ->
+      skip
+fi;
+write (x)
+end
+\end{lstlisting}
+Which is correct.
+
+
+
 //TODO: Morten
 
