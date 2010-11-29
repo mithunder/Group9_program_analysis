@@ -74,9 +74,7 @@ end
 
 The ID is the label for that statement. Analysis is whatever is the exit value of the evaluation. At the last statement, it concludes that x comes from label 19c1ea29 and y comes from label 4413ee, which is exactly the same the analysis using the succinct solver. So for simple statements, the conclusion is the same.
 
-For more advanced statements, both the flow and the results of RDentry and RDexit gets a lot more hairy to check.
-
-//TODO: Write more about advanced statements, and add result to appendix
+For more advanced statements, both the flow and the results of RDentry and RDexit gets a lot more hairy to check. There are several other tests in appendix 7.1 to 7.5.
 
 \subsection{Succinct solver speed}
 Solving RDA, or any other analysis for that matter, requires a balance between the time it can take, and the precision of the calculations. Getting a very precise result will take extra time to complete. Shifting for a more unprecise solution will reduce the time, but how close can the calculations be moved towards being unprecise, and still get the correct result? That can be an entire study for itself, and is not going to be explored here. This section is for exploring the speed of the given succinct solver, and compare it with our solution.
@@ -104,9 +102,9 @@ And it will be added right after the do-statement.
 
 The succinct solver have two different algorithms for solving the clauses implemented. A differential algorithm, and a BDD based algorithm. This test will use both of them, and to help them as much as possible, each execution will be done a couple of times to get the time when the kernel have the clauses cached.
 
-//TODO: Insert image
+\includegraphics[width=1\textwidth]{alfp_graph.eps}
 
-As the graph shows, the time for our implementation is very close to constant in this test, while the time for both algorithms rises. Something strange happens between execution 7 and 8, as the time jumps with just over 200 ms. It was also about that point where it took up to 10 executions before the time were as low as those in the graph. Instead, the execution time would be somewhere from 1000 ms to 4000 ms, and usually about 1400 ms. Perhaps the size of storing the calculations which needed to be done on the clauses, became higher than what the kernel wanted to cache, and therefore it had to load in the rest of the calculations before it could continue. No matter what the reason is, the use of the succinct solver is still the slowest solution to use.
+The red line executions times for the differential algorithm, the blue line is our implementation, and the green line is the BDD based algorithm. The values can be seen in appendix 7.6.
 
-//TODO: Morten
+As the graph shows, the time for our implementation is very close to constant in this test, while the time for both algorithms rises. Something strange happens between execution 7 and 8, as the time jumps with just over 200 ms. It was also about that point where it took up to 10 executions before the time were as low as those in the graph. Instead, the execution time would be somewhere from 1000 ms to 4000 ms, and usually about 1400 ms. Perhaps the size of storing the calculations which needed to be done on the clauses, became higher than what the kernel wanted to cache, and therefore it had to load in the rest of the calculations before it could continue. Perhaps it had to rehash everything because the number of clauses where higher than there were space for. No matter what the reason is, the use of the succinct solver is still the slowest solution to use.
 

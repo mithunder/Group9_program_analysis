@@ -1,5 +1,6 @@
 \documentclass{report}
 \usepackage{graphicx}
+\usepackage{epstopdf}
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc}
 \usepackage{url}
@@ -128,7 +129,272 @@ the report.
 
 \section{Test results}
 
+This section will contain various test results, which should not be in the main sections of this report.
 
+\subsection{Succinct solver, test 1}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 15ms.
+// Printing exit evaluation
+module chain_test_1:
+read x;       //ID: 4d47c5fc, Analysis: [x = 4d47c5fc; y = 0], is killed: false
+read y;       //ID: 4e3eca90, Analysis: [x = 4d47c5fc; y = 4e3eca90], is killed: false
+x := 1;       //ID: 19c1ea29, Analysis: [x = 19c1ea29; y = 4e3eca90], is killed: false
+y := (x+2);       //ID: 4413ee, Analysis: [x = 19c1ea29; y = 4413ee], is killed: false
+write (y)       //ID: 3597a37c, Analysis: [x = 19c1ea29; y = 4413ee], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(x) \& var(y) \& 
+label(0) \& label(19c1ea29) \& label(3597a37c) \& label(4413ee) \& label(4d47c5fc) \& label(4e3eca90) \& 
+flow(4e3eca90,19c1ea29) \& flow(4d47c5fc,4e3eca90) \& flow(4413ee,3597a37c) \& flow(19c1ea29,4413ee) \& flow(0,4d47c5fc) \& 
+(A lab. label(lab) $=>$ kill(4e3eca90,y,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,y,lab)) \& (A lab. label(lab) $=>$ kill(4d47c5fc,x,lab)) \& (A lab. label(lab) $=>$ kill(19c1ea29,x,lab)) \& 
+gen(4e3eca90,y,4e3eca90) \& gen(4413ee,y,4413ee) \& gen(4d47c5fc,x,4d47c5fc) \& gen(19c1ea29,x,19c1ea29) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(4d47c5fc,x,0))
+\subsubsection{Conclusion}
+Equal
+
+\subsection{Succinct solver, test 2}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 4ms.
+// Printing exit evaluation
+module chain_test_2:
+read x;       //ID: 23174b07, Analysis: [x = 23174b07; y = 0], is killed: false
+read y;       //ID: 7c64dc11, Analysis: [x = 23174b07; y = 7c64dc11], is killed: false
+y := (y+x);       //ID: 4413ee, Analysis: [x = 23174b07; y = 4413ee], is killed: false
+x := (x+y);       //ID: 75786e64, Analysis: [x = 75786e64; y = 4413ee], is killed: false
+do
+   (x<y) ->       //ID: 6100ab23, Analysis: [x = 558385e3, 75786e64; y = 4413ee, 742808b3], is killed: false
+      x := (x+1)       //ID: 558385e3, Analysis: [x = 558385e3; y = 4413ee, 742808b3], is killed: false
+   [] (y<x) ->       //ID: 72e3b895, Analysis: [x = 558385e3, 75786e64; y = 4413ee, 742808b3], is killed: false
+      y := (y+1)       //ID: 742808b3, Analysis: [x = 558385e3, 75786e64; y = 742808b3], is killed: false
+od;       //ID: 70922804, Analysis: [x = 558385e3, 75786e64; y = 4413ee, 742808b3], is killed: false
+write (y);       //ID: 58cf40f5, Analysis: [x = 558385e3, 75786e64; y = 4413ee, 742808b3], is killed: false
+write (x)       //ID: eb1c260, Analysis: [x = 558385e3, 75786e64; y = 4413ee, 742808b3], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(23174b07) \& label(4413ee) \& label(558385e3) \& label(58cf40f5) \& label(6100ab23) \& label(70922804) \& label(72e3b895) \& label(742808b3) \& label(75786e64) \& label(7c64dc11) \& label(eb1c260) \& 
+flow(58cf40f5,eb1c260) \& flow(742808b3,70922804) \& flow(72e3b895,742808b3) \& flow(70535b58,72e3b895) \& flow(75786e64,70922804) \& flow(70922804,70535b58) \& flow(70922804,58cf40f5) \& flow(558385e3,70922804) \& flow(6100ab23,558385e3) \& flow(70922804,2dcb25f1) \& flow(4413ee,75786e64) \& flow(2dcb25f1,6100ab23) \& flow(7c64dc11,4413ee) \& flow(23174b07,7c64dc11) \& flow(0,23174b07) \& 
+(A lab. label(lab) $=>$ kill(7c64dc11,y,lab)) \& (A lab. label(lab) $=>$ kill(742808b3,y,lab)) \& (A lab. label(lab) $=>$ kill(75786e64,x,lab)) \& (A lab. label(lab) $=>$ kill(72e3b895,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(558385e3,x,lab)) \& (A lab. label(lab) $=>$ kill(6100ab23,Temp3,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,y,lab)) \& (A lab. label(lab) $=>$ kill(23174b07,x,lab)) \& 
+gen(7c64dc11,y,7c64dc11) \& gen(742808b3,y,742808b3) \& gen(75786e64,x,75786e64) \& gen(72e3b895,Temp5,72e3b895) \& gen(558385e3,x,558385e3) \& gen(6100ab23,Temp3,6100ab23) \& gen(4413ee,y,4413ee) \& gen(23174b07,x,23174b07) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(23174b07,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, test 3}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 4ms.
+// Printing exit evaluation
+module chain_test_3:
+read x;       //ID: 4d47c5fc, Analysis: [x = 4d47c5fc; y = 0], is killed: false
+read y;       //ID: 4e3eca90, Analysis: [x = 4d47c5fc; y = 4e3eca90], is killed: false
+y := (y+x);       //ID: 9f436f5, Analysis: [x = 4d47c5fc; y = 9f436f5], is killed: false
+x := (x+y);       //ID: 4413ee, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+if
+   (x<y) ->       //ID: 19908ca1, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      x := (x+1)       //ID: 3f7fa65e, Analysis: [x = 3f7fa65e; y = 9f436f5], is killed: false
+   [] (y<x) ->       //ID: 6100ab23, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      y := (y+1)       //ID: 2dcb25f1, Analysis: [x = 4413ee; y = 2dcb25f1], is killed: false
+fi;       //ID: 70535b58, Analysis: [x = 4413ee, 3f7fa65e; y = 9f436f5, 2dcb25f1], is killed: false
+write (y);       //ID: b815859, Analysis: [x = 4413ee, 3f7fa65e; y = 9f436f5, 2dcb25f1], is killed: false
+write (x)       //ID: 58cf40f5, Analysis: [x = 4413ee, 3f7fa65e; y = 9f436f5, 2dcb25f1], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(19908ca1) \& label(2dcb25f1) \& label(3f7fa65e) \& label(4413ee) \& label(4d47c5fc) \& label(4e3eca90) \& label(58cf40f5) \& label(6100ab23) \& label(70535b58) \& label(9f436f5) \& label(b815859) \& 
+flow(b815859,58cf40f5) \& flow(3f7fa65e,b815859) \& flow(2dcb25f1,b815859) \& flow(742808b3,6100ab23) \& flow(70535b58,742808b3) \& flow(70535b58,558385e3) \& flow(9f436f5,4413ee) \& flow(6100ab23,2dcb25f1) \& flow(558385e3,19908ca1) \& flow(4e3eca90,9f436f5) \& flow(4413ee,70535b58) \& flow(4d47c5fc,4e3eca90) \& flow(19908ca1,3f7fa65e) \& flow(0,4d47c5fc) \& 
+(A lab. label(lab) $=>$ kill(9f436f5,y,lab)) \& (A lab. label(lab) $=>$ kill(6100ab23,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(4e3eca90,y,lab)) \& (A lab. label(lab) $=>$ kill(2dcb25f1,y,lab)) \& (A lab. label(lab) $=>$ kill(4d47c5fc,x,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,x,lab)) \& (A lab. label(lab) $=>$ kill(3f7fa65e,x,lab)) \& (A lab. label(lab) $=>$ kill(19908ca1,Temp3,lab)) \& 
+gen(9f436f5,y,9f436f5) \& gen(6100ab23,Temp5,6100ab23) \& gen(4e3eca90,y,4e3eca90) \& gen(2dcb25f1,y,2dcb25f1) \& gen(4d47c5fc,x,4d47c5fc) \& gen(4413ee,x,4413ee) \& gen(3f7fa65e,x,3f7fa65e) \& gen(19908ca1,Temp3,19908ca1) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(4d47c5fc,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, test 4}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 5ms.
+// Printing exit evaluation
+module chain_test_4:
+read x;       //ID: 4d47c5fc, Analysis: [x = 4d47c5fc; y = 0], is killed: false
+read y;       //ID: 4e3eca90, Analysis: [x = 4d47c5fc; y = 4e3eca90], is killed: false
+y := (y+x);       //ID: 9f436f5, Analysis: [x = 4d47c5fc; y = 9f436f5], is killed: false
+x := (x+y);       //ID: 4413ee, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+if
+   (x<y) ->       //ID: 7e0df503, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      x := (x+1)       //ID: 3f7fa65e, Analysis: [x = 3f7fa65e; y = 9f436f5], is killed: false
+   [] (y<x) ->       //ID: 4650d89c, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      do
+         (y<x) ->       //ID: 78b5f53a, Analysis: [x = 4413ee, b815859; y = 9f436f5, 70535b58], is killed: false
+            y := (y+1)       //ID: 70535b58, Analysis: [x = 4413ee, b815859; y = 70535b58], is killed: false
+         [] (y>x) ->       //ID: 71f6f0bf, Analysis: [x = 4413ee, b815859; y = 9f436f5, 70535b58], is killed: false
+            x := (x+1)       //ID: b815859, Analysis: [x = b815859; y = 9f436f5, 70535b58], is killed: false
+      od       //ID: eb1c260, Analysis: [x = 4413ee, b815859; y = 9f436f5, 70535b58], is killed: false
+fi;       //ID: 19908ca1, Analysis: [x = 4413ee, b815859, 3f7fa65e; y = 9f436f5, 70535b58], is killed: false
+write (y);       //ID: 72e3b895, Analysis: [x = 4413ee, b815859, 3f7fa65e; y = 9f436f5, 70535b58], is killed: false
+write (x)       //ID: 446b7920, Analysis: [x = 4413ee, b815859, 3f7fa65e; y = 9f436f5, 70535b58], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp8) \& var(Temp6) \& var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(19908ca1) \& label(3f7fa65e) \& label(4413ee) \& label(446b7920) \& label(4650d89c) \& label(4d47c5fc) \& label(4e3eca90) \& label(70535b58) \& label(71f6f0bf) \& label(72e3b895) \& label(78b5f53a) \& label(7e0df503) \& label(9f436f5) \& label(b815859) \& label(eb1c260) \& 
+flow(eb1c260,72e3b895) \& flow(b815859,eb1c260) \& flow(71f6f0bf,b815859) \& flow(70535b58,eb1c260) \& flow(70922804,78b5f53a) \& flow(3f7fa65e,72e3b895) \& flow(58cf40f5,71f6f0bf) \& flow(eb1c260,70922804) \& flow(eb1c260,58cf40f5) \& flow(78b5f53a,70535b58) \& flow(72e3b895,446b7920) \& flow(4650d89c,eb1c260) \& flow(558385e3,7e0df503) \& flow(9f436f5,4413ee) \& flow(7e0df503,3f7fa65e) \& flow(4e3eca90,9f436f5) \& flow(19908ca1,558385e3) \& flow(4d47c5fc,4e3eca90) \& flow(38503429,4650d89c) \& flow(19908ca1,38503429) \& flow(4413ee,19908ca1) \& flow(0,4d47c5fc) \& 
+(A lab. label(lab) $=>$ kill(b815859,x,lab)) \& (A lab. label(lab) $=>$ kill(9f436f5,y,lab)) \& (A lab. label(lab) $=>$ kill(70535b58,y,lab)) \& (A lab. label(lab) $=>$ kill(7e0df503,Temp3,lab)) \& (A lab. label(lab) $=>$ kill(78b5f53a,Temp6,lab)) \& (A lab. label(lab) $=>$ kill(71f6f0bf,Temp8,lab)) \& (A lab. label(lab) $=>$ kill(4e3eca90,y,lab)) \& (A lab. label(lab) $=>$ kill(4d47c5fc,x,lab)) \& (A lab. label(lab) $=>$ kill(4650d89c,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,x,lab)) \& (A lab. label(lab) $=>$ kill(3f7fa65e,x,lab)) \& 
+gen(b815859,x,b815859) \& gen(9f436f5,y,9f436f5) \& gen(70535b58,y,70535b58) \& gen(7e0df503,Temp3,7e0df503) \& gen(78b5f53a,Temp6,78b5f53a) \& gen(71f6f0bf,Temp8,71f6f0bf) \& gen(4e3eca90,y,4e3eca90) \& gen(4d47c5fc,x,4d47c5fc) \& gen(4650d89c,Temp5,4650d89c) \& gen(4413ee,x,4413ee) \& gen(3f7fa65e,x,3f7fa65e) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(4d47c5fc,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, test 5}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 5ms.
+// Printing exit evaluation
+module chain_test_5:
+read x;       //ID: 4d47c5fc, Analysis: [x = 4d47c5fc; y = 0], is killed: false
+read y;       //ID: 4e3eca90, Analysis: [x = 4d47c5fc; y = 4e3eca90], is killed: false
+y := (y+x);       //ID: 9f436f5, Analysis: [x = 4d47c5fc; y = 9f436f5], is killed: false
+x := (x+y);       //ID: 4413ee, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+do
+   (x<y) ->       //ID: 4650d89c, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+      x := (x+1)       //ID: 3f7fa65e, Analysis: [x = 3f7fa65e; y = 9f436f5, 58cf40f5], is killed: false
+   [] (y<x) ->       //ID: 65bd0dd4, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+      if
+         (y>x) ->       //ID: 71f6f0bf, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+            x := (x+1)       //ID: 70922804, Analysis: [x = 70922804; y = 9f436f5, 58cf40f5], is killed: false
+         [] (y<=x) ->       //ID: b37c60d, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+            y := (y+1)       //ID: 58cf40f5, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 58cf40f5], is killed: false
+      fi       //ID: 38503429, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+od;       //ID: 6100ab23, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+write (y);       //ID: 446b7920, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+write (x)       //ID: 6bdd46f7, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 58cf40f5], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp8) \& var(Temp6) \& var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(38503429) \& label(3f7fa65e) \& label(4413ee) \& label(446b7920) \& label(4650d89c) \& label(4d47c5fc) \& label(4e3eca90) \& label(58cf40f5) \& label(6100ab23) \& label(65bd0dd4) \& label(6bdd46f7) \& label(70922804) \& label(71f6f0bf) \& label(9f436f5) \& label(b37c60d) \& 
+flow(eb1c260,b37c60d) \& flow(38503429,eb1c260) \& flow(b815859,71f6f0bf) \& flow(b37c60d,58cf40f5) \& flow(71f6f0bf,70922804) \& flow(70922804,6100ab23) \& flow(58cf40f5,6100ab23) \& flow(38503429,b815859) \& flow(65bd0dd4,38503429) \& flow(6100ab23,558385e3) \& flow(6100ab23,446b7920) \& flow(6100ab23,19908ca1) \& flow(558385e3,4650d89c) \& flow(9f436f5,4413ee) \& flow(4e3eca90,9f436f5) \& flow(446b7920,6bdd46f7) \& flow(19908ca1,65bd0dd4) \& flow(4413ee,6100ab23) \& flow(3f7fa65e,6100ab23) \& flow(4d47c5fc,4e3eca90) \& flow(4650d89c,3f7fa65e) \& flow(0,4d47c5fc) \& 
+(A lab. label(lab) $=>$ kill(b37c60d,Temp8,lab)) \& (A lab. label(lab) $=>$ kill(9f436f5,y,lab)) \& (A lab. label(lab) $=>$ kill(58cf40f5,y,lab)) \& (A lab. label(lab) $=>$ kill(70922804,x,lab)) \& (A lab. label(lab) $=>$ kill(71f6f0bf,Temp6,lab)) \& (A lab. label(lab) $=>$ kill(65bd0dd4,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(4e3eca90,y,lab)) \& (A lab. label(lab) $=>$ kill(4d47c5fc,x,lab)) \& (A lab. label(lab) $=>$ kill(3f7fa65e,x,lab)) \& (A lab. label(lab) $=>$ kill(4650d89c,Temp3,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,x,lab)) \& 
+gen(b37c60d,Temp8,b37c60d) \& gen(9f436f5,y,9f436f5) \& gen(58cf40f5,y,58cf40f5) \& gen(70922804,x,70922804) \& gen(71f6f0bf,Temp6,71f6f0bf) \& gen(65bd0dd4,Temp5,65bd0dd4) \& gen(4e3eca90,y,4e3eca90) \& gen(4d47c5fc,x,4d47c5fc) \& gen(3f7fa65e,x,3f7fa65e) \& gen(4650d89c,Temp3,4650d89c) \& gen(4413ee,x,4413ee) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(4d47c5fc,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, test 6}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 5ms.
+// Printing exit evaluation
+module chain_test_6:
+read x;       //ID: 4d47c5fc, Analysis: [x = 4d47c5fc; y = 0], is killed: false
+read y;       //ID: 4e3eca90, Analysis: [x = 4d47c5fc; y = 4e3eca90], is killed: false
+y := (y+x);       //ID: 9f436f5, Analysis: [x = 4d47c5fc; y = 9f436f5], is killed: false
+x := (x+y);       //ID: 4413ee, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+if
+   (x<y) ->       //ID: c5e3974, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      x := (x+1)       //ID: 3f7fa65e, Analysis: [x = 3f7fa65e; y = 9f436f5], is killed: false
+   [] (y<x) ->       //ID: 7e0df503, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+      if
+         (y<x) ->       //ID: 5ed70d7a, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+            y := (y+1)       //ID: 742808b3, Analysis: [x = 4413ee; y = 742808b3], is killed: false
+         [] (y>x) ->       //ID: 78b5f53a, Analysis: [x = 4413ee; y = 9f436f5], is killed: false
+            x := (x+1)       //ID: 70922804, Analysis: [x = 70922804; y = 9f436f5], is killed: false
+      fi       //ID: 58cf40f5, Analysis: [x = 4413ee, 70922804; y = 9f436f5, 742808b3], is killed: false
+fi;       //ID: 38503429, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 742808b3], is killed: false
+write (y);       //ID: 6100ab23, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 742808b3], is killed: false
+write (x)       //ID: 72e3b895, Analysis: [x = 4413ee, 3f7fa65e, 70922804; y = 9f436f5, 742808b3], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp8) \& var(Temp6) \& var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(38503429) \& label(3f7fa65e) \& label(4413ee) \& label(4d47c5fc) \& label(4e3eca90) \& label(58cf40f5) \& label(5ed70d7a) \& label(6100ab23) \& label(70922804) \& label(72e3b895) \& label(742808b3) \& label(78b5f53a) \& label(7e0df503) \& label(9f436f5) \& label(c5e3974) \& 
+flow(58cf40f5,b815859) \& flow(eb1c260,7e0df503) \& flow(b815859,78b5f53a) \& flow(6100ab23,72e3b895) \& flow(78b5f53a,70922804) \& flow(742808b3,6100ab23) \& flow(70922804,6100ab23) \& flow(5ed70d7a,742808b3) \& flow(70535b58,5ed70d7a) \& flow(58cf40f5,70535b58) \& flow(7e0df503,58cf40f5) \& flow(38503429,eb1c260) \& flow(c5e3974,3f7fa65e) \& flow(558385e3,c5e3974) \& flow(9f436f5,4413ee) \& flow(4e3eca90,9f436f5) \& flow(3f7fa65e,6100ab23) \& flow(38503429,558385e3) \& flow(4d47c5fc,4e3eca90) \& flow(4413ee,38503429) \& flow(0,4d47c5fc) \& 
+(A lab. label(lab) $=>$ kill(c5e3974,Temp3,lab)) \& (A lab. label(lab) $=>$ kill(9f436f5,y,lab)) \& (A lab. label(lab) $=>$ kill(742808b3,y,lab)) \& (A lab. label(lab) $=>$ kill(70922804,x,lab)) \& (A lab. label(lab) $=>$ kill(7e0df503,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(78b5f53a,Temp8,lab)) \& (A lab. label(lab) $=>$ kill(5ed70d7a,Temp6,lab)) \& (A lab. label(lab) $=>$ kill(4e3eca90,y,lab)) \& (A lab. label(lab) $=>$ kill(4d47c5fc,x,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,x,lab)) \& (A lab. label(lab) $=>$ kill(3f7fa65e,x,lab)) \& 
+gen(c5e3974,Temp3,c5e3974) \& gen(9f436f5,y,9f436f5) \& gen(742808b3,y,742808b3) \& gen(70922804,x,70922804) \& gen(7e0df503,Temp5,7e0df503) \& gen(78b5f53a,Temp8,78b5f53a) \& gen(5ed70d7a,Temp6,5ed70d7a) \& gen(4e3eca90,y,4e3eca90) \& gen(4d47c5fc,x,4d47c5fc) \& gen(4413ee,x,4413ee) \& gen(3f7fa65e,x,3f7fa65e) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(4d47c5fc,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, test 7}
+\subsubsection{Analysis output}
+\begin{lstlisting}
+Starting analysis
+Finished analysis, time: 6ms.
+// Printing exit evaluation
+module chain_test_7:
+read x;       //ID: 23174b07, Analysis: [x = 23174b07; y = 0], is killed: false
+read y;       //ID: 7c64dc11, Analysis: [x = 23174b07; y = 7c64dc11], is killed: false
+y := (y+x);       //ID: 4413ee, Analysis: [x = 23174b07; y = 4413ee], is killed: false
+x := (x+y);       //ID: 75786e64, Analysis: [x = 75786e64; y = 4413ee], is killed: false
+do
+   (x<y) ->       //ID: 4650d89c, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+      x := (x+1)       //ID: 558385e3, Analysis: [x = 558385e3; y = 4413ee, 58cf40f5], is killed: false
+   [] (y<x) ->       //ID: 65bd0dd4, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+      do
+         (y>x) ->       //ID: 71f6f0bf, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+            x := (x+1)       //ID: 70922804, Analysis: [x = 70922804; y = 4413ee, 58cf40f5], is killed: false
+         [] (y<=x) ->       //ID: b37c60d, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+            y := (y+1)       //ID: 58cf40f5, Analysis: [x = 558385e3, 70922804, 75786e64; y = 58cf40f5], is killed: false
+      od       //ID: 38503429, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+od;       //ID: 6100ab23, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+write (y);       //ID: 446b7920, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+write (x)       //ID: 6bdd46f7, Analysis: [x = 558385e3, 70922804, 75786e64; y = 4413ee, 58cf40f5], is killed: false
+end
+\end{lstlisting}
+\subsubsection{Clauses}
+var(Temp8) \& var(Temp6) \& var(Temp5) \& var(Temp3) \& var(x) \& var(y) \& 
+label(0) \& label(23174b07) \& label(38503429) \& label(4413ee) \& label(446b7920) \& label(4650d89c) \& label(558385e3) \& label(58cf40f5) \& label(6100ab23) \& label(65bd0dd4) \& label(6bdd46f7) \& label(70922804) \& label(71f6f0bf) \& label(75786e64) \& label(7c64dc11) \& label(b37c60d) \& 
+flow(eb1c260,b37c60d) \& flow(b37c60d,58cf40f5) \& flow(38503429,eb1c260) \& flow(b815859,71f6f0bf) \& flow(71f6f0bf,70922804) \& flow(446b7920,6bdd46f7) \& flow(38503429,b815859) \& flow(75786e64,6100ab23) \& flow(6100ab23,446b7920) \& flow(70922804,38503429) \& flow(65bd0dd4,38503429) \& flow(58cf40f5,38503429) \& flow(6100ab23,19908ca1) \& flow(558385e3,6100ab23) \& flow(4650d89c,558385e3) \& flow(6100ab23,2dcb25f1) \& flow(4413ee,75786e64) \& flow(38503429,6100ab23) \& flow(2dcb25f1,4650d89c) \& flow(7c64dc11,4413ee) \& flow(23174b07,7c64dc11) \& flow(19908ca1,65bd0dd4) \& flow(0,23174b07) \& 
+(A lab. label(lab) $=>$ kill(b37c60d,Temp8,lab)) \& (A lab. label(lab) $=>$ kill(7c64dc11,y,lab)) \& (A lab. label(lab) $=>$ kill(58cf40f5,y,lab)) \& (A lab. label(lab) $=>$ kill(75786e64,x,lab)) \& (A lab. label(lab) $=>$ kill(70922804,x,lab)) \& (A lab. label(lab) $=>$ kill(71f6f0bf,Temp6,lab)) \& (A lab. label(lab) $=>$ kill(65bd0dd4,Temp5,lab)) \& (A lab. label(lab) $=>$ kill(558385e3,x,lab)) \& (A lab. label(lab) $=>$ kill(4650d89c,Temp3,lab)) \& (A lab. label(lab) $=>$ kill(4413ee,y,lab)) \& (A lab. label(lab) $=>$ kill(23174b07,x,lab)) \& 
+gen(b37c60d,Temp8,b37c60d) \& gen(7c64dc11,y,7c64dc11) \& gen(58cf40f5,y,58cf40f5) \& gen(75786e64,x,75786e64) \& gen(70922804,x,70922804) \& gen(71f6f0bf,Temp6,71f6f0bf) \& gen(65bd0dd4,Temp5,65bd0dd4) \& gen(558385e3,x,558385e3) \& gen(4650d89c,Temp3,4650d89c) \& gen(4413ee,y,4413ee) \& gen(23174b07,x,23174b07) \& 
+(A lab. A x. A d. var(x) \& label(d) \& (RDentry(lab,x,d) \& ! kill(lab,x,d)) $|$ gen(lab,x,d) $=>$ RDexit(lab,x,d)) \& 
+(A lab1. A lab2. A x. A d. flow(lab1,lab2) \& RDexit(lab1,x,d) $=>$ RDentry(lab2,x,d)) \& 
+(A x. var(x) $=>$ RDentry(23174b07,x,0))
+\subsubsection{Conclusion}
+Equal, the value of temporary variables is not interesting (and therefore not printed), since it is only going to be used in the statement right after it was created (3-address rule).
+
+\subsection{Succinct solver, execution times}
+\begin{center}
+	\begin{tabular}{ | c | c | c | }
+		\hline
+		Ours & Differential algorithm & BDD based algorithm \\
+		\hline
+		\hline
+		5 & 134 & 130 \\
+		4 & 171 & 170 \\
+		5 & 219 & 225 \\
+		5 & 268 & 271 \\
+		4 & 324 & 324 \\
+		5 & 391 & 393 \\
+		6 & 480 & 465 \\
+		5 & 719 & 727 \\
+		5 & 813 & 806 \\
+		5 & 885 & 884 \\
+		\hline
+	\end{tabular}
+\end{center}
 
 \end{document}
 
