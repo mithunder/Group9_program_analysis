@@ -1,0 +1,22 @@
+module group71 :
+read x;
+prime:=true;
+m:=2;
+do m<x -> 
+{  
+	t:=x;
+	{
+		do t>m ->  t:= t-m
+		od;
+		{
+			if  t=0 -> prime:=false 
+			[]  t!=0 -> skip
+			fi;
+@programslicing="true"
+			m:=m+1 
+		}
+	}
+}
+od;
+write prime
+end

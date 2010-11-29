@@ -1,0 +1,15 @@
+
+module Two:
+read x;
+read y;
+read z;
+if x=y -> write x
+[] x=z -> write x
+[]@programslicing="true"
+	y=z -> write y
+fi
+end
+
+/*
+Original expectation: The read y and read z statements are returned.
+*/

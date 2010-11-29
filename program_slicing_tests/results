@@ -1,2 +1,16 @@
+def_prog_1 passed: true
+def_prog_2 passed: true
+def_prog_3 passed: true
+def_prog_4 passed: true
+def_prog_5 passed: true
+def_prog_6 passed: true
+example-1 passed: true
+example-2 passed: true
+group11_2 passed: true
+group12_2 passed: true
+group14_1 passed: true
+group2_1 passed: true
+group3_1 passed: true
+group7_1 passed: true
 group8_3 passed: true
 group9_1 passed: true

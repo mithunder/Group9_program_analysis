@@ -1,0 +1,4 @@
+module def_prog_6 :
+a := 4;
+x := a
+end

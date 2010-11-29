@@ -1,0 +1,22 @@
+module example_2 :
+  read x;
+  read y;
+  do
+    x > 0 ->
+      x := x - 1
+    [] x < 0 ->
+      x := x + 1
+  od;
+  sum := 0;
+  i := 0;
+  do
+    i < 10 ->
+      sum := sum + i;
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end

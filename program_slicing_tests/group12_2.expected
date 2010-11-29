@@ -1,0 +1,8 @@
+module group122 :
+x:= 1;
+do  (x <  20)  -> {
+  z:= x / 3;
+  x:= x+1
+}
+od
+end

@@ -15,6 +15,13 @@ The main requirement is that it does not exclude statements that would result in
 of values of what may be computed. Of course, to enable a more precise transformation, it is desirable
 to minimise the overapproximation.
 
+Note that the definition of program slicing in this project focuses on
+where the values used in a specific statement could have come from, and not
+specific variables in that statement. The difference is deemed to be minor, and the
+program slicing definition and implementation does not need many
+changes to accomodate this definition. To extend, simply track a statement-variable
+pair instead of simply a statement, and use RD based on that definition.
+
 To illustrate what program slicing is, a simple example is given:
 \begin{lstlisting}
 a := 3;

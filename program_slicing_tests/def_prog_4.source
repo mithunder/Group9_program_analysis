@@ -1,0 +1,10 @@
+module def_prog_4 :
+a := 42;
+do (z > 0) -> a := 30; y := 0; d := a+1; z := d * 3
+[] (b - 0 + 3 > 0) -> read c
+od;
+@programslicing="true"
+x := a
+end
+
+/*Note: Version where S2 does not reach P.*/

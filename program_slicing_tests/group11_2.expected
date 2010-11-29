@@ -1,0 +1,15 @@
+
+module Two:
+read x;
+read y;
+read z;
+if x=y -> skip
+[] x=z -> skip
+[]@programslicing="true"
+   y=z -> skip
+fi
+end
+
+/*
+Original expectation: The read y and read z statements are returned.
+*/

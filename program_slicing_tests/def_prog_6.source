@@ -1,0 +1,7 @@
+module def_prog_6 :
+a := 4;
+do (true) -> skip
+od;
+@programslicing="true"
+x := a
+end

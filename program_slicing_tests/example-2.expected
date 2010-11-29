@@ -1,0 +1,12 @@
+module example_2 :
+  read y;
+  i := 0;
+  do
+    i < 10 ->
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y
+end

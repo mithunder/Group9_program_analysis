@@ -1,0 +1,8 @@
+module def_prog_5 :
+a := 2;
+if (true) -> a := 3
+[] (true) -> a := 4
+[] (true) -> skip
+fi;
+x := a
+end

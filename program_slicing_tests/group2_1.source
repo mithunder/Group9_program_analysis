@@ -1,0 +1,13 @@
+module group21 :
+	x := 5;
+	y := 1;
+	y := 3;
+	x := 5;
+	do x > 1 -> {
+		y := x * y ;
+		@programslicing="true"
+		x := x - 1
+		}	
+	od;	
+	z := x
+end

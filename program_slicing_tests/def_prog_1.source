@@ -1,0 +1,6 @@
+module def_prog_1 :
+a := 3;
+b := 5;
+@programslicing="true"
+x := a
+end

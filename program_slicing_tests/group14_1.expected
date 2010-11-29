@@ -1,0 +1,14 @@
+module group141 :
+a := 1;
+f := 3;
+b := 5;
+do
+   (a<b) ->
+      b := 0;
+      f := 2
+od;
+if
+   false ->
+      c := f
+fi
+end

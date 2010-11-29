@@ -1,0 +1,17 @@
+module group122 :
+x:= 1;
+y:=0;
+z:=0;
+w:= 0;
+do  (x <  20)  -> {
+@programslicing="true"
+  z:= x / 3;
+  w:=w+w;
+  y:= z * 3;
+  if ( z = y) ->
+    write x
+  fi;
+  x:= x+1
+}
+od
+end

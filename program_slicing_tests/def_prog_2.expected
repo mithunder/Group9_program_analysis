@@ -1,0 +1,7 @@
+module def_prog_2 :
+b := 4;
+if (b = 4) -> a := 5
+[] (b = 3) -> a := 10000
+fi;
+x := a
+end

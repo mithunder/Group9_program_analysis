@@ -1,0 +1,38 @@
+module group31 :
+    read n;
+    total:=3;
+    x:=1;
+    do
+        x<=total-2 ->
+        {
+            y:=1;
+            do
+                y<=total-x-1 ->
+                    {
+                    	z:=total-x-y;
+	                    xpn:=1;
+	                    i:=1;
+	                    do
+	                        i<n -> {xpn:=xpn*i; i:=i+1}
+	                    od;
+@programslicing="true"
+	                    ypn:=1;
+	                    i:=1;
+	                    do
+	                        i<n -> {ypn:=ypn*i; i:=i+1}
+	                    od;
+	                    zpn:=1;
+	                    i:=1;
+	                    do
+	                        i<n -> {zpn:=zpn*i; i:=i+1}
+	                    od;
+	                    if
+	                        exp+ypn=zpn -> write n
+	                    fi;
+	                    y:=y+1
+	                }
+            od;
+        	x:=x+1
+        }
+    od
+end

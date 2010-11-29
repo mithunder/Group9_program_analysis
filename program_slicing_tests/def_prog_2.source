@@ -1,0 +1,9 @@
+module def_prog_2 :
+a := 3;
+b := 4;
+if (b = 4) -> a := 5
+[] (b = 3) -> a := 10000
+fi;
+@programslicing="true"
+x := a
+end

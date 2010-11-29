@@ -1,0 +1,8 @@
+module example_1 :
+  read x;
+  read y;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end

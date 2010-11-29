@@ -1,0 +1,8 @@
+module group71 :
+read x;
+m := 2;
+do
+   (m<x) ->
+      m := (m+1)
+od
+end

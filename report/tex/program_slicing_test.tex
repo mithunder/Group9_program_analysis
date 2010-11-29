@@ -1,3 +1,162 @@
 \section{Program slicing}
-//TODO: Melvin
+
+Testing of program slicing has been based on two main methods;
+Testing by hand, by running the test and considering if the output
+is reasonable, and automated testing. Both in the manual and automated
+test source code files in the GCL from the different groups have been
+used. This has caused some issues, since program slicing is defined
+differently for different groups. Therefore, the expectations of the
+programs has changed depending on the definition.
+Of note is that program slicing in this project is based on a statement
+and not specific variables in a statement.
+
+\subsection{Testing instructions and examples}
+
+Apart from running the tests, in order to run program slicing
+on a source code file, an "annotation" must be given. An annotation in the program
+is a line starting with @, followed by some annotation.
+The annotation for program slicing is @programslicing=``true''.
+An example input program is given below:
+
+\begin{lstlisting}
+module example_1 :
+  read x;
+  read y;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end
+\end{lstlisting}
+
+This will give the output:
+
+\begin{lstlisting}
+module example_1 :
+  read y;
+  x := 0;
+@programslicing="true"
+  z := x / y
+end
+\end{lstlisting}
+
+In fact, multiple annotations of program slicing can be used together
+to determine the program slice from multiple statements:
+
+\begin{lstlisting}
+module example_2 :
+  read x;
+  read y;
+  do
+    x > 0 ->
+      x := x - 1
+    [] x < 0 ->
+      x := x + 1
+  od;
+  sum := 0;
+  i := 0;
+  do
+    i < 10 ->
+      sum := sum + i;
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y;
+  write z
+end
+\end{lstlisting}
+
+Giving:
+
+\begin{lstlisting}
+module example_2 :
+  read y;
+  i := 0;
+  do
+    i < 10 ->
+@programslicing="true"
+      i := i + 1
+  od;
+  x := 0;
+@programslicing="true"
+  z := x / y
+end
+\end{lstlisting}
+
+As can be seen, the sum has been removed, both the slice for i
+and the slice for z has been isolated properly.
+
+\subsection{Test results}
+
+Different tests has been used, including from other groups in the course
+of the project. For those files which the files have been modified or the
+expected result is different, it is noted.
+
+When the Notes say ``more precise'', it means that this project's program
+slicing is more precise, and likewise for ``less precise''.
+
+\begin{tabular}{ |l||l|p{7cm}| }
+\hline
+  Name & Result & Notes \\
+\hline
+  example\_1		& Correct &  \\
+\hline
+  example\_2		& Correct &  \\
+\hline
+  def\_prog\_1		& Correct & Taken from the design and implementation \\
+\hline
+  def\_prog\_2		& Correct & .., control flow \\
+\hline
+  def\_prog\_3		& Correct & .., do, version where S2 affects P.\\
+\hline
+  def\_prog\_4		& Correct & .., do, version where S2 does not affect P. \\
+\hline
+  def\_prog\_5		& Correct & .., if. \\
+\hline
+  def\_prog\_6		& Correct & .., non-termination. \\
+\hline
+  group2\_1		& Correct &  Very different definition of program slicing.
+Group 2 eliminates control flow fully.\\
+\hline
+  group3\_1		& Correct &  Different definition of program slicing.
+Group 3 removes program structure and flow (if, do). But they include the same
+conditions and statements which is present in the result of this projects program slicing,
+so they must consider the flow as well, indicating the definition is similar.\\
+\hline
+  group7\_1		& Correct &  Same comments as for group 3.\\
+\hline
+  group8\_3		& Correct &  Different expectation; more precise\\
+\hline
+  group9\_1		& Correct &  This project's group.\\
+\hline
+  group11\_2		& Correct &  Different expectation; less precise,
+but it is a special case regarding if, and the statement itself is not included\\
+\hline
+  group12\_2		& Correct &  Much more precise; group 12's example includes statements
+not affeting the loop or the values computed at the given statement.\\
+\hline
+  group14\_1		& Correct &  Very different definition of program slicing.
+Group 14 eliminates control flow fully.\\
+\hline
+\end{tabular}
+
+\subsection{Conclusion}
+
+Many different tests, including special cases and general programs,
+have been sliced, and the implementation have given the correct output
+for each. Based on these results, it is concluded that on several
+programs, the program slicing implementation produces the correct output.
+Since testing can only show the presence of bugs, and not the absence,
+it can only be confirmed that no bugs have been found.
+
+It is also noted that several groups have different definitions of program slicing.
+It is noted that this project seem to have a more useful definition than some
+other definitions.
+Group 8 has a very similar definition (the groups have also communicated in regards
+to a review), and group 3 and 7 seemed to have definitions a little similar.
+Other groups had very different definitions, and investigating the usefulness of
+those definitions compared to this projects definition may be fruitful in regards
+to choosing a definition.
 

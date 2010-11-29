@@ -1,0 +1,7 @@
+module group21 :
+x := 5;
+do
+   (x>1) ->
+      x := (x-1)
+od
+end
