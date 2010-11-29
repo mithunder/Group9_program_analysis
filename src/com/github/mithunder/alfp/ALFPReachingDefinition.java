@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import com.github.mithunder.statements.CompilationUnit;
 import com.github.mithunder.statements.EvaluatedStatement;
 import com.github.mithunder.statements.StatementType;
+import com.github.mithunder.statements.Value;
 import com.github.mithunder.statements.Variable;
 import com.github.mithunder.statements.VariableTable;
 import com.github.mithunder.statements.simple.SimpleVariable;
@@ -116,10 +117,13 @@ public class ALFPReachingDefinition extends ALFP {
 						GenKillElement gke = new GenKillElement(assign, newLabel);
 						genList.add(gke);
 						//if(statement.getStatementType() != StatementType.READ) {
-							killList.add(gke);
+						killList.add(gke);
 						//}
 					} else if(statement.getStatementType() == StatementType.WRITE) {
-						variableList.add((Variable) statement.getValues()[0]);
+						Value v = statement.getValues()[0];
+						if(!v.isConstant()) {
+							variableList.add((Variable)v);
+						}
 					}
 				}
 				break;
