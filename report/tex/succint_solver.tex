@@ -108,3 +108,41 @@ The red line executions times for the differential algorithm, the blue line is o
 
 As the graph shows, the time for our implementation is very close to constant in this test, while the time for both algorithms rises. Something strange happens between execution 7 and 8, as the time jumps with just over 200 ms. It was also about that point where it took up to 10 executions before the time were as low as those in the graph. Instead, the execution time would be somewhere from 1000 ms to 4000 ms, and usually about 1400 ms. Perhaps the size of storing the calculations which needed to be done on the clauses, became higher than what the kernel wanted to cache, and therefore it had to load in the rest of the calculations before it could continue. Perhaps it had to rehash everything because the number of clauses where higher than there were space for. No matter what the reason is, the use of the succinct solver is still the slowest solution to use.
 
+\subsection{Comparison}
+
+The Succinct Solver gave surprisingly slow results. To give a worst-case for ourselves
+to give a favorable comparison for the Succinct Solver, we generate some programs with
+multiple loops, which would cause our worklist to reiterate all over again. The programs
+consists of a loop with a recursive definition of itself. In the innermost loop, the statement
+is a skip.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{alfp_nested_do_graph.eps}
+\caption{Red is Succinct Solver, green is the function $e^x$, and the horizontal blue line is our worklist.}
+\end{figure}
+
+As can be seen on figure 4.1, the conclusion is that it this does not help. The result is worse. Another possible cause that have
+been considered is that the internal representation of the program data structure uses
+multiple temporary variables, which results in more variables when converting to the Succinct Solver
+input form. To see if this will give the Succinct Solver an advantage (or
+at least better efficiency), programs are generated without any temporary
+variables. The basis of these programs are group 15's example program group15\_1.module.
+We remove the if-statements, and take out the 3*n first statements, testing with n starting
+from 1 and going forward, and used that to construct each program. This produces no temporary
+variables. And the results is shown on figure 4.2.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{alfp_mod15_graph.eps}
+\caption{Red is Succinct Solver, green is the function $e^x$, and the horizontal blue line is our worklist.}
+\end{figure}
+
+It is shown that Succinct Solver does considerably better, but still considerably worse
+than the worklist. This indicates that the temporary variables generated worsens the
+efficiency considerably, but even without these temporary variables, the efficiency
+is still much worse.
+
+Finally, due to the temporary variables, comparing the running time of analyses of non-trivial programs
+is difficult, since it seems to have a considerable impact on the running time, as seen above.
+To do this, the temporary variables should either be removed, or they should be folded when
+outputting the Succinct Solver input.
+
