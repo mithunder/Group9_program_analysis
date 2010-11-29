@@ -1,5 +1,3 @@
-//TODO: All monday
-
 This report documents a project regarding the
 Guarded Command Language (GCL), presented in the course 02242
 Program Analysis, DTU, in the fall of 2010.
@@ -11,4 +9,34 @@ presented in the course and the implemented worklist algorithm
 must be made and documented.
 The project has been implemented in Java.
 
+\paragraph{Report overview}
+
+The report includes an introduction to the report, following by the main
+content of the report. The content of the project has been divided into
+3 main parts: Analysis, Design and Implementation, and Test.
+
+Analysis describes the theoretical background
+of the project. This includes the general definitions in
+the project, as well as the 3 primary analyses used in
+the project: Reaching Definitions, Live Variables and
+Constant Propagation.
+
+Design and Implementation introduces the design
+and implementation of several parts of the program
+analysis module. This includes the data structure used to
+represent the GCL programs internally, the worklist algorithm
+used as part of a framework for calculating the analyses,
+as well as the three main transformations based on
+the analyses described earlier: Program Slicing,
+Dead Code Elimination and Constant Folding.
+
+Test describes the testing methods used in
+the project, the test results, issues regarding testing,
+and the conclusion of the tests in regards to the
+main transformations. Finally, the test comparison
+with the Succinct solver is described here.
+
+The report then ends with an evaluation, discussing the
+results and conclusions, and a conclusion, describing
+what has been attained and future work and considerations.
 
