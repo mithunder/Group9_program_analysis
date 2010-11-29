@@ -18,14 +18,15 @@ The currently used version is v3.2-4. At least v3.1 is required[2010-10-13],
 though this is subject to change. Below is setup instructions for Debian testing:
 
 1:	Install antlr3 ("aptitude install antlr3" should suffice).
-2:	Link the build process with 3 jar-files: "antlr3.jar", "antlr3-runtime.jar"
-	and "stringtemplate.jar". The system location should be "/usr/share/java"
-3:	(Optional): To build the lexer and parser from the grammar, the following line can be used:
-	java -cp /usr/share/java/antlr3.jar:/usr/share/java/antlr3-runtime.jar:/usr/share/java/stringtemplate.jar org.antlr.Tool [NameOfGrammar.g]
-	or the shell script "build_parser.sh".
-	This process should probably be included in a build script if one is made.
+2:	run "ant compile"
 
+To run the code, run:
+ java -cp PA-group9.jar:<antlr-jarfiles> com.github.mithunder.runner.PrintRunner
 
+or ant run. Note that with ant run, all the output will be prefixed by ant.
+
+If the antlr libraries are not in the default location, their location can be
+specified by giving properties (see build.xml for the name of the properties).
 
 	* Report *
 
