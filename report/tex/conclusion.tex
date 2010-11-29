@@ -1,2 +1,65 @@
-//TODO: All monday
+
+In this project, a program analysis module have been
+designed, implemented and tested. A theoretical background
+have been given for the analyses, and the Succinct Solver
+has been tested against the worklist in the project.
+
+\paragraph{Analyses:}
+
+All the required assignments regarding analyses have been performed.
+
+The analyses have been given a theoretical background,
+and is deemed to be defined and implemented correctly,
+given the testing and the performance of the transformations.
+Of note is the implementation of Strongly Live Variable Analysis,
+giving a considerably better performance than the simpler Live Variable Analysis,
+and the Constant Propagation branch killing, enabling removal of dead code based on branches.
+
+Both SLVA and CP branch killing is recommended, since the authors
+believe that their increased performance outweights the required
+definition and work.
+
+\paragraph{Transformations:}
+
+All the required assignments regarding transformations have been performed.
+The transformations have been defined, designed, implemented and tested.
+
+The Program Slicing has been examined thoroughly, and given a definition which should
+make the PS useful for debugging as well as other purposes. It has
+been compared with other groups, and is considered to have performed
+well, as well as following the definition given. The given definition of PS has not
+been used in real life, and can therefore not be recommended at the given point in time.
+We recommend investigating the use of PS more, possibly test PS, to decide which
+definition of PS is useful and in which cases.
+
+The Dead Code Elimination performs well, and benefits well from the SLVA. It has
+been deemed to be useful to clean up dead code from other transformations,
+and could be used to indicate dead code for the programmer. LVA is not guaranteed to
+perform as well as SLVA, even through repeated runs. For projects
+implementing DCE, SLVA is therefore strongly recommended.
+
+The Constant Folding performs well, especially given the branch killing. As argued,
+dead branches occur in both programmers code and internally after transformations,
+which makes branch killing especially useful. Not only does this have the potential
+to make the analyses more precise, it can also decrease the program size that have
+to be considered. Based on this, we recommended Constant Folding.
+
+\paragraph{Worklist:}
+As seen in the comparsion with the Succinct Solver, the worklist performs admirably.
+For the same problem instances, the efficiency difference is quite large, and the
+results are the same. Based on this, it is our recommendation that whenever a
+general solution vs. a performance-tuned solution regarding worklists is considered,
+the performance of the general solution must be carefully evaluated. If it does not
+fulfill the needs for efficiency, it may be fruitful to find/implement a more
+specific solution.
+
+The main disadvantage is the lack of generality. This means that this implementation
+may have less uses without adaptation. However, the worklist is both useful and can
+be used as a benchmark between general solutions and more specific solutions,
+which may be useful given that GCL is a somewhat simple language.
+
+\paragraph{General conclusion:}
+It is estimated that the project is successful. All assignments have
+been completed, and more parts than required in the assignment have been added,
+including branch killing.
 
