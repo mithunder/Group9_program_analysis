@@ -22,10 +22,18 @@ program slicing definition and implementation does not need many
 changes to accomodate this definition. To extend, simply track a statement-variable
 pair instead of simply a statement, and use RD based on that definition.
 
+To mark the points of interest, special ``annotations'' are used in the program.
+Annotations are an extension to GCL, but does not have any influence besides
+meta-language support, for instance for indicating points of interest.
+These annotations are added just before the point of interest. It is possible
+to have multiple points of interest, by giving each point of interest an annotation.
+The annotation for points of interest is: @programslicing=``true''.
+
 To illustrate what program slicing is, a simple example is given:
 \begin{lstlisting}
 a := 3;
 b := 5;
+@programslicing="true"
 x := a;
 \end{lstlisting}
 With point of interest at line 3, this becomes:
@@ -35,6 +43,9 @@ x := a;
 \end{lstlisting}
 since line 2 has no effect on the values computed at line 3.
 This is the only parts of the program that are considered interesting.
+
+In the following, the last statement are considered the point of interest,
+leaving out the annotation. When running the code, at least one annotation must be added.
 
 \subsection{Control flow}
 
