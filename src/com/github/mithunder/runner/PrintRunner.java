@@ -57,7 +57,11 @@ public class PrintRunner {
 		try {
 			reader = new BufferedReader(new InputStreamReader(System.in));
 
-			System.out.println("Run and print analysis, 0. Run tests, 1");
+			System.out.println("A Guarded Command Language analyser and code-writer");
+			System.out.println("Please input either: ");
+			System.out.println(" [0] analyse and print a file.");
+			System.out.println(" [1] run automated regression tests.");
+
 			String printTestChoiceString = reader.readLine();
 			int printTestChoice = Integer.parseInt(printTestChoiceString);
 			if (printTestChoice == 1) {
@@ -68,7 +72,7 @@ public class PrintRunner {
 				throw new IllegalArgumentException("Error: Choice must be 0 or 1.");
 			}
 
-			System.out.println("Please input the name of the program (enter for default):");
+			System.out.println("Please input the name of the program:");
 
 			fileName = findFile(reader.readLine());
 
@@ -430,6 +434,9 @@ public class PrintRunner {
 		String names[];
 		if(f.canRead()) {
 			return name;
+		}
+		if(name.equals("")) {
+			throw new FileNotFoundException("Please input a file name.");
 		}
 		dir = f.getAbsoluteFile().getParentFile();
 		names = dir.list(new FilenameFilter() {

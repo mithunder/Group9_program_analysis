@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="PA-group9" default="run" basedir=".">
+  <description>
+    The build file of group9 in Program Analysis (Fall 2010)
+  </description>
+  <property name="antlr-lib" value="/usr/share/java/antlr3.jar" />
+  <property name="antlr-lib-runtime" value="/usr/share/java/antlr3-runtime.jar" />
+  <property name="antlr-lib-stringtemplate" value="/usr/share/java/stringtemplate.jar" />
+  <property name="antlr-timeout" value="100000" />
+
+  <available property="is-compiled" file="PA-group9.jar" />
+
+  <path id="antlr-cp">
+    <pathelement path="${antlr-lib}/"/>
+    <pathelement path="${antlr-lib-runtime}/"/>
+    <pathelement path="${antlr-lib-stringtemplate}/"/>
+  </path>
+
+  <path id="run-cp">
+    <pathelement path="${antlr-lib}/"/>
+    <pathelement path="${antlr-lib-runtime}/"/>
+    <pathelement path="${antlr-lib-stringtemplate}/"/>
+    <pathelement path="PA-group9.jar"/>
+  </path>
+
+  <target name="clean">
+    <delete file="PA-group9.jar" />
+  </target>
+
+  <target name="compile" unless="is-compiled" >
+    <echo message="Rebuilding parser - this will take a while..." />
+    <java classname="org.antlr.Tool" classpathref="antlr-cp"
+          failonerror="true" fork="true"
+          dir="src/com/github/mithunder/parser/" >
+      <arg value="-Xconversiontimeout" />
+      <arg value="${antlr-timeout}" />
+      <arg value="GuardCommand.g" />
+    </java>
+    <javac srcdir="src" destdir="bin" failonerror="true"
+           debug="true" optimize="true" fork="true"
+           classpathref="antlr-cp" />
+    <jar destfile="PA-group9.jar" basedir="bin" />
+  </target>
+
+  <target name="run" depends="compile" >
+    <java classpathref="run-cp" failonerror="true" fork="true"
+          classname="com.github.mithunder.runner.PrintRunner" />
+  </target>
+
+</project>
