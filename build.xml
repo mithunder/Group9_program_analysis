@@ -25,6 +25,9 @@
 
   <target name="clean">
     <delete file="PA-group9.jar" />
+    <delete file="tmp_file_exp"  />
+    <delete file="tmp_file_res"  />
+    <delete dir="bin"            />
   </target>
 
   <target name="compile" unless="is-compiled" >
@@ -36,6 +39,7 @@
       <arg value="${antlr-timeout}" />
       <arg value="GuardCommand.g" />
     </java>
+    <mkdir dir="bin" />
     <javac srcdir="src" destdir="bin" failonerror="true"
            debug="true" optimize="true" fork="true"
            classpathref="antlr-cp" />
